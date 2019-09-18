@@ -1,3 +1,5 @@
+package hsr.dsa;
+
 public class Launcher {
     public static void main(String[] args) {
         System.out.println("Hoi DSA");
