@@ -1,6 +1,6 @@
 package hsr.dsa.GUI.schiffe_versenken;
 
-import hsr.dsa.adapter.interfaces.GameCallback;
+import hsr.dsa.adapter.interfaces.GameListener;
 
-public class GameWindow implements GameCallback {
+public class GameWindow implements GameListener {
 }
