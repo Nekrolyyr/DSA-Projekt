@@ -18,7 +18,7 @@ public class Field {
 
     public Shot shoot(int x, int y){
         if(ships[x][y]!=null){
-            ships[x][y].hit();
+            if(shots[x][y]!=Shot.HIT)ships[x][y].hit();
             shots[x][y]=Shot.HIT;
         }else{
             shots[x][y]=Shot.MISS;

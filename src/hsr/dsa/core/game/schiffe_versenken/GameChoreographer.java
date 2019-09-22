@@ -12,15 +12,20 @@ public class GameChoreographer {
     private Player remotePlayer = new Player();
     private Type type;
     private PlayerType activePlayer;
-    public GameChoreographer(Type type){
+    private Timer.TimerListener tl;
+    private Timer.TimerUpdateListener tul;
+    public GameChoreographer(Type type, Timer.TimerListener tl, Timer.TimerUpdateListener tul){
         this.type = type;
+        this.tl = tl;
+        this.tul = tul;
     }
     public void start(){
         setup();
         if(type==Type.ACTIVE){
             //localPayer's Move Start
             activePlayer = PlayerType.LOCAL;
-            new Timer.Builder().setSeconds(TIME_PER_MOVE).setTimerListener(this::localPlayerFinished).build().start();
+            new Timer.Builder().setSeconds(TIME_PER_MOVE).addTimerListener(this::localPlayerFinished)
+                    .addTimerListener(tl).setTimerUpdateListener(tul).build().start();
         }else{
             //remotePayer's Move Start
             activePlayer = PlayerType.REMOTE;
@@ -35,13 +40,14 @@ public class GameChoreographer {
     private void remotePlayerFinished(){
         //localPayer's Move Start
         activePlayer = PlayerType.LOCAL;
-        new Timer.Builder().setSeconds(TIME_PER_MOVE).setTimerListener(this::localPlayerFinished).build().start();
+        new Timer.Builder().setSeconds(TIME_PER_MOVE).addTimerListener(this::localPlayerFinished)
+                .addTimerListener(tl).setTimerUpdateListener(tul).build().start();
     }
 
     public Field.Shot remotePlayerMove(int x,int y) throws IllegalMoveException {
         if(activePlayer!=PlayerType.REMOTE) throw new IllegalMoveException();
+        remotePlayerFinished();
         return localPlayer.field.shoot(x,y);
-        //remotePlayerFinished();
     }
 
     public void localPlayermove(int x,int y,RemotePlayerMoveAnswerListener rpmal) throws IllegalMoveException {

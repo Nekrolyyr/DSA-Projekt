@@ -1,10 +1,12 @@
 package hsr.dsa.core.game;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Timer {
     private Timer(){}
-    private TimerListener tl = null;
+    private List<TimerListener> tl = null;
     TimerUpdateListener tul = null;
     private int time = 0;
     public interface TimerListener{
@@ -15,7 +17,7 @@ public class Timer {
         void secondUpdate(int remainingSecond);
     }
     public static class Builder{
-        TimerListener tl = null;
+        List<TimerListener> tl = new ArrayList<>();
         TimerUpdateListener tul = null;
         int time = 0;
         public Builder setSeconds(int seconds){
@@ -30,8 +32,8 @@ public class Timer {
             time = milliseconds + 1000*seconds;
             return this;
         }
-        public Builder setTimerListener(TimerListener listener){
-            tl=listener;
+        public Builder addTimerListener(TimerListener listener){
+            tl.add(listener);
             return this;
         }
         public Builder setTimerUpdateListener(TimerUpdateListener listener){
@@ -59,9 +61,9 @@ public class Timer {
                     time -= 10;
                 }
             }catch(InterruptedException ie){
-                EventQueue.invokeLater(()->tl.timerInterrupted(time));
+                EventQueue.invokeLater(()->{for (TimerListener timerListener : tl) {timerListener.timerInterrupted(time);}});
             }
-            tl.timerRunOut();
+            EventQueue.invokeLater(()->{for (TimerListener timerListener : tl) {timerListener.timerRunOut();}});
         }).start();
     }
 }
