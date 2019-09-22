@@ -5,14 +5,18 @@ import java.awt.*;
 public class Timer {
     private Timer(){}
     private TimerListener tl = null;
+    TimerUpdateListener tul = null;
     private int time = 0;
     public interface TimerListener{
-        void secondUpdate(int remainingSecond);
         void timerRunOut();
-        void timerInterrupted(int remainingMillisecond);
+        default void timerInterrupted(int remainingMillisecond) {}
+    }
+    public interface TimerUpdateListener{
+        void secondUpdate(int remainingSecond);
     }
     public static class Builder{
         TimerListener tl = null;
+        TimerUpdateListener tul = null;
         int time = 0;
         public Builder setSeconds(int seconds){
             time = 1000*seconds;
@@ -30,6 +34,10 @@ public class Timer {
             tl=listener;
             return this;
         }
+        public Builder setTimerUpdateListener(TimerUpdateListener listener){
+            tul=listener;
+            return this;
+        }
         public Timer build(){
             Timer t = new Timer();
             t.tl = tl;
@@ -41,11 +49,11 @@ public class Timer {
         new Thread(()->{
             try {
                 while (time > 1000) {
-                    EventQueue.invokeLater(()->tl.secondUpdate(time/1000));
+                    EventQueue.invokeLater(()->tul.secondUpdate(time/1000));
                     Thread.sleep(1000);
                     time -= 1000;
                 }
-                EventQueue.invokeLater(()->tl.secondUpdate(time/1000));
+                EventQueue.invokeLater(()->tul.secondUpdate(time/1000));
                 while (time > 0) {
                     Thread.sleep(10);
                     time -= 10;
