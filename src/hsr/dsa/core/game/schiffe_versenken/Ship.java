@@ -3,6 +3,7 @@ package hsr.dsa.core.game.schiffe_versenken;
 import java.util.HashMap;
 
 public class Ship {
+
     public enum Type{ BATTLESHIP, DESTROYER, CORVETTE}
     public enum Orientation{HORIZONTALLY,VERTICALLY}
     public interface ShipListener{void onSinking(Ship ship);}
@@ -36,4 +37,14 @@ public class Ship {
         if(hits>=getSize())shipListener.onSinking(this);
     }
     public Orientation getOrientation(){return orientation;}
+
+    @Override
+    public boolean equals(Object obj) {
+        return this.type.equals(((Ship)obj).type);
+    }
+
+    public Ship.Type getType() {
+        return type;
+    }
+
 }

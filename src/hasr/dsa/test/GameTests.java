@@ -1,5 +1,6 @@
 package hasr.dsa.test;
 
+import hsr.dsa.core.GameNotSetupException;
 import hsr.dsa.core.IllegalMoveException;
 import hsr.dsa.core.game.Timer;
 import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
@@ -18,7 +19,7 @@ public class GameTests {
         Thread.sleep(time*1000+1000);
     }
     @Test
-    public void testGameChoreographer() throws IllegalMoveException, InterruptedException {
+    public void testGameChoreographer() throws IllegalMoveException, InterruptedException, GameNotSetupException {
         Timer.TimerListener localTL = ()-> System.out.println("Timer for LocalPayer run out!");
         Timer.TimerListener remoteTL = ()-> System.out.println("Timer for RemotePayer run out!");
         Timer.TimerUpdateListener localTUL = remainingSecond -> System.out.println("LocalPlayer Timer: "+remainingSecond);
