@@ -2,6 +2,8 @@ package hsr.dsa.core.game.schiffe_versenken;
 
 import hsr.dsa.core.GameNotSetupException;
 import hsr.dsa.core.IllegalMoveException;
+import hsr.dsa.core.IllegalShipCountException;
+import hsr.dsa.core.ShipSpotNotFreeException;
 import hsr.dsa.core.game.Timer;
 
 public class GameChoreographer {
@@ -17,11 +19,13 @@ public class GameChoreographer {
     private PlayStage currentStage;
     private Timer.TimerListener tl;
     private Timer.TimerUpdateListener tul;
-    public GameChoreographer(Type type, Timer.TimerListener tl, Timer.TimerUpdateListener tul){
+    public GameChoreographer(Type type, Timer.TimerListener tl, Timer.TimerUpdateListener tul, Field.GameEndListener gel){
         this.type = type;
         this.tl = tl;
         this.tul = tul;
         currentStage = PlayStage.SETUP;
+        localPlayer.setup(gel);
+        remotePlayer.setup(gel);
     }
     public void start() throws GameNotSetupException {
         if(!setupComplete())throw new GameNotSetupException();
@@ -59,10 +63,14 @@ public class GameChoreographer {
         return localPlayer.field.shoot(x,y);
     }
 
-    public void localPlayermove(int x,int y,RemotePlayerMoveAnswerListener rpmal) throws IllegalMoveException {
+    public void localPlayermove(int x,int y,RemotePlayerMoveAnswerListener remotePlayerMoveAnswerListener) throws IllegalMoveException {
         if(activePlayer!=PlayerType.LOCAL) throw new IllegalMoveException();
         //TODO Transmit move
 
         localPlayerFinished();
+    }
+    public void addShip(Ship ship,int x, int y) throws IllegalShipCountException, GameNotSetupException, ShipSpotNotFreeException {
+        if(currentStage!=PlayStage.SETUP)throw new GameNotSetupException();
+        localPlayer.field.addShip(ship,x,y);
     }
 }

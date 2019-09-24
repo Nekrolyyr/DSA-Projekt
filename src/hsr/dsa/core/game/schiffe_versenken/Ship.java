@@ -18,9 +18,11 @@ public class Ship {
     private int hits = 0;
     private ShipListener shipListener;
 
+
     public Ship(Type type,ShipListener shipListener){
         this.type = type;
         this.shipListener = shipListener;
+        orientation = Orientation.HORIZONTALLY;
     }
     public void rotate(){
         if(orientation== Ship.Orientation.HORIZONTALLY){
@@ -45,6 +47,9 @@ public class Ship {
 
     public Ship.Type getType() {
         return type;
+    }
+    public boolean hasSunken(){
+        return hits>=getSize();
     }
 
 }
