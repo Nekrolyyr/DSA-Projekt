@@ -1,9 +1,9 @@
-package gui.game;
+package hsr.dsa.gui.game;
 
 import javax.swing.*;
 import java.awt.*;
 
-import static gui.UiConfiguration.*;
+import static hsr.dsa.gui.UiConfiguration.*;
 
 public class BattleField {
 

@@ -1,4 +1,4 @@
-package gui.game;
+package hsr.dsa.gui.game;
 
 import javax.swing.*;
 import java.awt.*;

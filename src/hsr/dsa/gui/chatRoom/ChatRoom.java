@@ -1,11 +1,9 @@
-package gui.chatRoom;
+package hsr.dsa.gui.chatRoom;
 
 import javax.swing.*;
-
 import java.awt.*;
-import java.util.concurrent.Flow;
 
-import static gui.UiConfiguration.*;
+import static hsr.dsa.gui.UiConfiguration.*;
 
 public class ChatRoom {
 

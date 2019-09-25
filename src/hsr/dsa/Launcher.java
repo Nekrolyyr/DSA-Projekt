@@ -1,6 +1,6 @@
 package hsr.dsa;
 
-import gui.UIController;
+import hsr.dsa.gui.UIController;
 
 public class Launcher {
     public static void main(String[] args) {

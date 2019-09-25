@@ -1,4 +1,4 @@
-package gui;
+package hsr.dsa.gui;
 
 import java.awt.*;
 
