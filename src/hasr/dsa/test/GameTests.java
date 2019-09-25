@@ -22,7 +22,7 @@ public class GameTests {
                 .build().start();
         Thread.sleep(time*1000+1000);
     }
-    private void testSetup(GameChoreographer gc){
+    public static void testSetup(GameChoreographer gc){
         try {
             Ship.ShipListener shipListener = ship -> System.out.println("A " + ship.getType().toString() + " has Sunken!");
             Ship s1 = new Ship(Ship.Type.BATTLESHIP, shipListener);

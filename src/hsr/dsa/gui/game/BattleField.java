@@ -1,5 +1,11 @@
 package hsr.dsa.gui.game;
 
+import hasr.dsa.test.GameTests;
+import hsr.dsa.core.GameNotSetupException;
+import hsr.dsa.core.IllegalMoveException;
+import hsr.dsa.core.game.schiffe_versenken.Field;
+import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -15,11 +21,22 @@ public class BattleField {
     private JPanel field;
     private JPanel shipPanel;
 
-    private Field[][] fields;
+    private FieldButton[][] fields;
+
+    private GameChoreographer gameChoreographer;
 
     public BattleField() {
 
-
+        gameChoreographer = new GameChoreographer(GameChoreographer.Type.ACTIVE,
+                () -> System.out.println("Time roun out!"),
+                remainingSecond -> System.out.println("You have "+remainingSecond+" seconds to make a move!"),
+                () -> System.out.println("Game Has ended!"));
+        GameTests.testSetup(gameChoreographer);
+        try {
+            gameChoreographer.start();
+        }catch (GameNotSetupException e){
+            System.out.println("Game was not Setup Correctly");
+        }
 
         fieldPanel = new JPanel(new FlowLayout());
         fieldPanel.setPreferredSize(new Dimension(FIELD_PANEL_WIDTH, FIELD_PANEL_HEIGHT));
@@ -33,11 +50,20 @@ public class BattleField {
         shipPanel.setBackground(Color.RED);
         framePanel = new JPanel(new BorderLayout());
 
+        GameChoreographer.RemotePlayerMoveAnswerListener remotePlayerMoveAnswerListener = shot -> {
 
-        fields = new Field[NUMBER_OF_ROWS][NUMBER_OF_COLUMNS];
+        };
+
+        fields = new FieldButton[NUMBER_OF_ROWS][NUMBER_OF_COLUMNS];
         for (int y = 0; y < NUMBER_OF_ROWS; y++) {
             for (int x = 0; x < NUMBER_OF_COLUMNS; x++) {
-                fields[y][x] = new Field();
+                fields[y][x] = new FieldButton(x,y);
+                fields[y][x].setFieldButtonClickListener((xPos,yPos)->{
+                    try{
+                        gameChoreographer.localPlayermove(xPos,yPos,remotePlayerMoveAnswerListener);
+                    }catch(IllegalMoveException e){
+                        System.out.println("This was a Illegal Move!");
+                    }});
                 field.add(fields[y][x]);
             }
         }

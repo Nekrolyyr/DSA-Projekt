@@ -1,5 +1,6 @@
 package hsr.dsa.core.game;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 public class Timer {
     private Timer(){}
     private List<TimerListener> tl = null;
-    TimerUpdateListener tul = null;
+    TimerUpdateListener tul;
     private int time = 0;
     public interface TimerListener{
         void timerRunOut();
@@ -18,7 +19,7 @@ public class Timer {
     }
     public static class Builder{
         List<TimerListener> tl = new ArrayList<>();
-        TimerUpdateListener tul = null;
+        TimerUpdateListener tul;
         int time = 0;
         public Builder setSeconds(int seconds){
             time = 1000*seconds;
@@ -43,6 +44,7 @@ public class Timer {
         public Timer build(){
             Timer t = new Timer();
             t.tl = tl;
+            t.tul = tul;
             t.time=time;
             return t;
         }
@@ -51,19 +53,19 @@ public class Timer {
         new Thread(()->{
             try {
                 while (time > 1000) {
-                    EventQueue.invokeLater(()->tul.secondUpdate(time/1000));
+                    SwingUtilities.invokeLater(()->tul.secondUpdate(time/1000));
                     Thread.sleep(1000);
                     time -= 1000;
                 }
-                EventQueue.invokeLater(()->tul.secondUpdate(time/1000));
+                SwingUtilities.invokeLater(()->tul.secondUpdate(time/1000));
                 while (time > 0) {
                     Thread.sleep(10);
                     time -= 10;
                 }
             }catch(InterruptedException ie){
-                EventQueue.invokeLater(()->{for (TimerListener timerListener : tl) {timerListener.timerInterrupted(time);}});
+                SwingUtilities.invokeLater(()->{for (TimerListener timerListener : tl) {timerListener.timerInterrupted(time);}});
             }
-            EventQueue.invokeLater(()->{for (TimerListener timerListener : tl) {timerListener.timerRunOut();}});
+            SwingUtilities.invokeLater(()->{for (TimerListener timerListener : tl) {timerListener.timerRunOut();}});
         }).start();
     }
 }
