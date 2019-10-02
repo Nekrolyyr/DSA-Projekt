@@ -6,8 +6,8 @@ import hsr.dsa.core.IllegalMoveException;
 import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
+import java.net.URL;
 
 import static hsr.dsa.gui.UiConfiguration.*;
 
@@ -28,6 +28,10 @@ public class BattleField {
     private GameChoreographer gameChoreographer;
 
     private JLabel timerLabel;
+    private JLabel corvette1;
+    private JLabel corvette2;
+    private JLabel destroyer;
+    private JLabel battleship;
 
     public BattleField() {
 
@@ -93,12 +97,21 @@ public class BattleField {
     }
 
     private void createShipPanel() {
+        Icon icon = new ImageIcon("Corvette.png");
+        corvette1 = new JLabel(icon);
+        corvette2 = new JLabel(icon);
+        icon = new ImageIcon("Destroyer.png");
+        destroyer = new JLabel(icon);
+        icon = new ImageIcon("Battleship.png");
+        battleship = new JLabel(icon);
 
 
         shipPanel = new JPanel(new GridLayout(1, NUMBER_OF_SHIPS));
         shipPanel.setPreferredSize(new Dimension((int)BATTLEFIELD_WINDOW_SIZE.getWidth(), (int)(0.15 * BATTLEFIELD_WINDOW_SIZE.getHeight())));
-        shipPanel.setBackground(Color.RED);
-
+        shipPanel.add(corvette1);
+        shipPanel.add(corvette2);
+        shipPanel.add(destroyer);
+        shipPanel.add(battleship);
     }
 
     private JPanel createNamePanel(GameChoreographer gameChoreographer) {
