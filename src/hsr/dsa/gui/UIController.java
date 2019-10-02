@@ -9,8 +9,7 @@ public class UIController {
     private ChatRoom chatRoom;
 
     public UIController() {
-        chatRoom = new ChatRoom();
         battleField = new BattleField();
-
     }
+
 }
