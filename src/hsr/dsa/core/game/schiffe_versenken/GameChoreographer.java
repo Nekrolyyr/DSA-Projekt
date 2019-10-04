@@ -6,8 +6,11 @@ import hsr.dsa.core.IllegalShipCountException;
 import hsr.dsa.core.ShipSpotNotFreeException;
 import hsr.dsa.core.game.Timer;
 
+import java.awt.event.ActionListener;
+
+import static hsr.dsa.core.game.GameConfiguration.TIME_PER_MOVE;
+
 public class GameChoreographer {
-    private static final int TIME_PER_MOVE = 15;
 
     public enum Type {ACTIVE, PASSIVE}
 
@@ -50,7 +53,7 @@ public class GameChoreographer {
         }
     }
 
-    private boolean setupComplete() {
+    public boolean setupComplete() {
         return localPlayer.field.allShipsAdded();
     }
 

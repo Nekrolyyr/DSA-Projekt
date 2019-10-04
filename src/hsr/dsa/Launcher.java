@@ -3,6 +3,8 @@ package hsr.dsa;
 import hsr.dsa.core.matchmaking.Matchmaker;
 import hsr.dsa.gui.UIController;
 
+import javax.swing.*;
+
 public class Launcher {
     public static void main(String[] args) {
 
@@ -10,8 +12,12 @@ public class Launcher {
 
         //chatRoom = new ChatRoom();
 
-        Matchmaker match = new Matchmaker();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
 
-        while (true) {}
+                Matchmaker match = new Matchmaker();
+            }
+        });
     }
 }

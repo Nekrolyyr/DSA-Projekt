@@ -2,9 +2,10 @@ package hsr.dsa.gui.game;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import static hsr.dsa.gui.UiConfiguration.MESSAGE_FONT;
-import static hsr.dsa.gui.UiConfiguration.MESSAGE_WINDOW_SIZE;
+import static hsr.dsa.gui.UiConfiguration.*;
 
 public class InfoScreen extends JWindow {
 
@@ -14,37 +15,39 @@ public class InfoScreen extends JWindow {
 
     public InfoScreen(String text) {
         placeShips = new JLabel(text);
-        placeShips.setFont(MESSAGE_FONT);
+        placeShips.setFont(INFO_SCREEN_FONT);
         placeShips.setHorizontalAlignment(SwingConstants.CENTER);
         placeShips.setVerticalAlignment(SwingConstants.CENTER);
         placeShips.setForeground(Color.RED);
         placeShips.setVisible(true);
 
-        ///this = new JWindow();
-        this.setSize(MESSAGE_WINDOW_SIZE);
-        this.setLocationRelativeTo(null);
-        this.setBackground(new Color(1.0f,1.0f,1.0f,0.0f));
+        shipWindow = new JWindow();
+        shipWindow.setSize(INFO_SCREEN_SIZE);
+        shipWindow.setLocationRelativeTo(null);
+        shipWindow.setBackground(new Color(1.0f, 1.0f, 1.0f, 0.0f));
 
-        this.add(placeShips);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        shipWindow.add(placeShips);
+        startTimer();
 
     }
+
 
     public void showInfoScreen() {
-        this.setVisible(true);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        this.setVisible(false);
+        shipWindow.setVisible(true);
+        startTimer();
     }
 
-
+    public void startTimer() {
+        Timer timer = new Timer(INFO_SCREEN_DURATION, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                shipWindow.setVisible(false);
+                shipWindow.dispose();
+            }
+        });
+        timer.setRepeats(false);
+        timer.start();
+    }
 
 
 }
