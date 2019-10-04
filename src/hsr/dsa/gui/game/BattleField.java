@@ -51,11 +51,6 @@ public class BattleField {
                 },
                 () -> System.out.println("Game Has ended!"));
         GameTests.testSetup(gameChoreographer);
-        try {
-            gameChoreographer.start();
-        }catch (GameNotSetupException e){
-            System.out.println("Game was not Setup Correctly");
-        }
 
         JPanel namePanel = createNamePanel(gameChoreographer); // On top of the Battlefield, to show which field is yours
 
@@ -94,6 +89,18 @@ public class BattleField {
         battleField.setLocationRelativeTo(null);
         battleField.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         battleField.setVisible(true);
+    }
+
+    public void startGame() {
+        try {
+            gameChoreographer.start();
+        }catch (GameNotSetupException e){
+            System.out.println("Game was not Setup Correctly");
+        }
+    }
+
+    public void showShipPlacingMessage() {
+
     }
 
     private void createShipPanel() {

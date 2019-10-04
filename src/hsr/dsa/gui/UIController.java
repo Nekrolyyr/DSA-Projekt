@@ -10,6 +10,8 @@ public class UIController {
 
     public UIController() {
         battleField = new BattleField();
+
+        battleField.startGame();
     }
 
 }
