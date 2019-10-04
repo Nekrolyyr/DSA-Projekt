@@ -10,6 +10,7 @@ import java.awt.*;
 import java.net.URL;
 
 import static hsr.dsa.gui.UiConfiguration.*;
+import static hsr.dsa.gui.game.UiStrings.*;
 
 public class BattleField {
 
@@ -99,9 +100,7 @@ public class BattleField {
         }
     }
 
-    public void showShipPlacingMessage() {
 
-    }
 
     private void createShipPanel() {
         Icon icon = new ImageIcon("Corvette.png");
@@ -162,5 +161,18 @@ public class BattleField {
         }
     }
 
+    public void showShipPlacingMessage() {
+        InfoScreen infoScreen = new InfoScreen(PLACE_YOUR_SHIPS);
+        infoScreen.showInfoScreen();
+    }
 
+    public void showYourTurnMessage() {
+        InfoScreen infoScreen = new InfoScreen(YOUR_TURN);
+        infoScreen.showInfoScreen();
+    }
+
+    public void showEnemysTurnMessage() {
+        InfoScreen infoScreen = new InfoScreen(ENEMYS_TURN);
+        infoScreen.showInfoScreen();
+    }
 }

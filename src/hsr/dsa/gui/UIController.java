@@ -11,6 +11,11 @@ public class UIController {
     public UIController() {
         battleField = new BattleField();
 
+        battleField.showShipPlacingMessage();
+
+        battleField.showYourTurnMessage();
+        battleField.showEnemysTurnMessage();
+
         battleField.startGame();
     }
 
