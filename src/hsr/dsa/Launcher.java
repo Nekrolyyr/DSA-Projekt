@@ -12,6 +12,6 @@ public class Launcher {
         System.out.println(dns3.get("David"));
         System.out.println(dns3.get("Nekrolyyr"));
         dns1.send(dns2.peer.peerAddress(),"Hallo Welt");
-        System.out.println(dns1.discoverPeers());
+        dns1.discoverPeers().forEach(peerAddress -> System.out.println(peerAddress.inetAddress()));
     }
 }
