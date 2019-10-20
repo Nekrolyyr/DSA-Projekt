@@ -1,22 +1,23 @@
 <component name="libraryTable">
   <library name="hamcrest-core-1.1">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/hamcrest-core-1.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/json-simple-1.1.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/TomP2P-4.4.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/jdbm-3.0-alpha.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/logback-core-1.0.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/logback-classic-1.0.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/netty-3.5.3.Patched.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.6.4.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/junit-4.10.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/gcm-server-1.0.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/tomp2p-replication-5.0-Beta8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/json-simple-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/tomp2p-core-5.0-Beta8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/netty-common-4.0.28.Final.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/tomp2p-dht-5.0-Beta8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mapdb-1.0.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.7.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/netty-buffer-4.0.28.Final.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/tomp2p-tracker-5.0-Beta8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/tomp2p-android-5.0-Beta8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/weupnp-0.1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/tomp2p-storage-5.0-Beta8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/tomp2p-nat-5.0-Beta8.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/netty-transport-4.0.28.Final.jar!/" />
     </CLASSES>
-    <JAVADOC>
-      <root url="jar://$PROJECT_DIR$/lib/TomP2P-4.4-javadoc.jar!/" />
-    </JAVADOC>
-    <SOURCES>
-      <root url="jar://$PROJECT_DIR$/lib/hamcrest-core-1.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/TomP2P-4.4-sources.jar!/" />
-    </SOURCES>
+    <JAVADOC />
+    <SOURCES />
   </library>
 </component>
