@@ -9,10 +9,9 @@ public class UIController {
     private ChatRoom chatRoom;
 
     public UIController() {
-        battleField = new BattleField();
-
-
-        enterPlacingPhase();
+        //battleField = new BattleField();
+        //enterPlacingPhase();
+        chatRoom = new ChatRoom();
 
    //     battleField.showYourTurnMessage();
 

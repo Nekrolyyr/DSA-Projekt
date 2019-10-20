@@ -1,7 +1,11 @@
 package hsr.dsa.gui.chatRoom;
 
+import hsr.dsa.util.IPUtil;
+
 import javax.swing.*;
 import java.awt.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 import static hsr.dsa.gui.UiConfiguration.*;
 
@@ -39,6 +43,22 @@ public class ChatRoom {
         chatRoom.setLocationRelativeTo(null);
         chatRoom.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         chatRoom.setVisible(true);
+
+        askCredentialsAndTryToConnect();
+    }
+
+    private void askCredentialsAndTryToConnect() {
+        JTextField username = new JTextField();
+        JTextField knownPeer = new JTextField();
+        Object[] message = {
+                "Username:", username,
+                "Known Peer:", knownPeer
+        };
+        JOptionPane.showConfirmDialog(null,message,"Please enter to Connect",JOptionPane.OK_CANCEL_OPTION);
+        if(!IPUtil.checkIP(knownPeer.getText())){
+            JOptionPane.showMessageDialog(null,"IP Address is not Valid!");
+            askCredentialsAndTryToConnect();
+        }
     }
 
     private void initializeUserPanel() {
