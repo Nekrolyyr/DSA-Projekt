@@ -1,17 +1,5 @@
 package hasr.dsa.test;
 
-import hsr.dsa.core.GameNotSetupException;
-import hsr.dsa.core.IllegalMoveException;
-import hsr.dsa.core.IllegalShipCountException;
-import hsr.dsa.core.ShipSpotNotFreeException;
-import hsr.dsa.core.game.Timer;
-import hsr.dsa.core.game.schiffe_versenken.Field;
-import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
-import hsr.dsa.core.game.schiffe_versenken.Ship;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 public class GameTests {
 /*
     public void testTimerRun() throws InterruptedException {
