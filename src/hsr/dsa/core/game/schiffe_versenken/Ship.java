@@ -50,6 +50,13 @@ public class Ship {
     public Orientation getOrientation() {
         return orientation;
     }
+    public void swapOrientation() {
+        if (orientation == Orientation.VERTICALLY) {
+            orientation = Orientation.HORIZONTALLY;
+        } else {
+            orientation = Orientation.VERTICALLY;
+        }
+    }
 
     @Override
     public boolean equals(Object obj) {

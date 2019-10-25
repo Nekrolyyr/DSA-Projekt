@@ -37,4 +37,9 @@ public class GameMessages {
         InfoScreen infoScreen = new InfoScreen(ENEMYS_TURN_MESSAGE);
         infoScreen.showInfoScreen();
     }
+
+    public void showShipOutOfFieldMessage() {
+        InfoScreen infoScreen = new InfoScreen(SHIP_OUT_OF_FIELD_MESSAGE);
+        infoScreen.showInfoScreen();
+    }
 }
