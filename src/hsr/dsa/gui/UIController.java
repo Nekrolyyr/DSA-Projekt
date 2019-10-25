@@ -20,12 +20,12 @@ public class UIController {
     }
 
     private void enterPlacingPhase() {
-        battleField.showShipPlacingMessage();
+        //battleField.showShipPlacingMessage();
 
     }
 
     private void startGame() {
-        battleField.startGame();
+        //battleField.startGameMessage();
     }
 
 }
