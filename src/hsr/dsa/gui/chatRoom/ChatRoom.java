@@ -73,7 +73,7 @@ public class ChatRoom {
             FutureBootstrap fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName("127.0.0.1")).ports(4002).start();
             fb.awaitUninterruptibly();
             if (fb.isSuccess()) {
-                peer.peer().discover().peerAddress(fb.bootstrapTo().iterator().next()).start().awaitUninterruptibly();
+                for (PeerAddress p :fb.bootstrapTo())peer.peer().discover().peerAddress(p).start().awaitUninterruptibly();
             }
             peer.peer().objectDataReply((peerAddress, o) -> {
                 Message m = (Message) o;
