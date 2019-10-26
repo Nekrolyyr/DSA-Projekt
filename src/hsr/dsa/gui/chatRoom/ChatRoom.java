@@ -1,11 +1,23 @@
 package hsr.dsa.gui.chatRoom;
 
+import hsr.dsa.core.Message;
 import hsr.dsa.util.IPUtil;
+import io.netty.buffer.Unpooled;
+import net.tomp2p.dht.PeerBuilderDHT;
+import net.tomp2p.dht.PeerDHT;
+import net.tomp2p.futures.FutureBootstrap;
+import net.tomp2p.message.Buffer;
+import net.tomp2p.p2p.PeerBuilder;
+import net.tomp2p.peers.Number160;
+import net.tomp2p.peers.PeerAddress;
+import net.tomp2p.rpc.ObjectDataReply;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Collection;
 
 import static hsr.dsa.gui.UiConfiguration.*;
 
@@ -21,6 +33,8 @@ public class ChatRoom {
     JTextArea chatWindow;
 
     JTextField textInputField;
+    PeerDHT peer;
+    String username;
 
     public ChatRoom() {
         chatRoom = new JFrame("Chat Room");
@@ -44,7 +58,41 @@ public class ChatRoom {
         chatRoom.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         chatRoom.setVisible(true);
 
-        askCredentialsAndTryToConnect();
+        //askCredentialsAndTryToConnect();
+        broadcastConnect();
+    }
+
+    private void broadcastConnect() {
+        username = JOptionPane.showInputDialog(null,"Username","Please enter to Connect", JOptionPane.INFORMATION_MESSAGE);
+        if(username == null || username.length()<3){
+            broadcastConnect();
+            return;
+        }
+        try {
+            peer = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(username)).ports(4000).start()).start();
+            FutureBootstrap fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName("127.0.0.1")).ports(4001).start();
+            fb.awaitUninterruptibly();
+            if (fb.isSuccess()) {
+                peer.peer().discover().peerAddress(fb.bootstrapTo().iterator().next()).start().awaitUninterruptibly();
+            }
+            peer.peer().objectDataReply((peerAddress, o) -> {
+                Message m = (Message) o;
+                appendChatMessage(m.getSender(), m.getMessage());
+                return "REPLY";
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void send(Collection<PeerAddress> peers, Message message){
+        for (PeerAddress p : peers) {
+            peer.peer().sendDirect(p).object(message).start();
+        }
+    }
+
+    public Collection<PeerAddress> discoverPeers(){
+        return peer.peerBean().peerMap().all();
     }
 
     private void askCredentialsAndTryToConnect() {
@@ -85,7 +133,10 @@ public class ChatRoom {
 
         JButton sendButton = new JButton("Send!");
         sendButton.setPreferredSize(new Dimension((int)(0.2 * writePanel.getWidth()), writePanel.getHeight()));
-        sendButton.addActionListener(actionEvent -> appendChatMessage("Martin", textInputField.getText()));
+        sendButton.addActionListener(actionEvent -> {
+            appendChatMessage("Martin", textInputField.getText());
+            send(discoverPeers(), new Message(username, textInputField.getText()));
+        });
 
         writePanel.add(textInputField);
         writePanel.add(sendButton);
