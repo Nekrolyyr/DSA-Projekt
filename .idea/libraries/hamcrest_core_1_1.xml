@@ -16,6 +16,7 @@
       <root url="jar://$PROJECT_DIR$/lib/tomp2p-storage-5.0-Beta8.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/tomp2p-nat-5.0-Beta8.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/netty-transport-4.0.28.Final.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-simple-1.7.5.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

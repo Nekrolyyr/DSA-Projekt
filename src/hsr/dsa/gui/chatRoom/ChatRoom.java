@@ -70,7 +70,7 @@ public class ChatRoom {
         }
         try {
             peer = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(username)).ports(4000).start()).start();
-            FutureBootstrap fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName("127.0.0.1")).ports(4001).start();
+            FutureBootstrap fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName("127.0.0.1")).ports(4002).start();
             fb.awaitUninterruptibly();
             if (fb.isSuccess()) {
                 peer.peer().discover().peerAddress(fb.bootstrapTo().iterator().next()).start().awaitUninterruptibly();
