@@ -58,8 +58,8 @@ public class ChatRoom {
         chatRoom.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         chatRoom.setVisible(true);
 
-        //askCredentialsAndTryToConnect();
-        broadcastConnect();
+        askCredentialsAndTryToConnect();
+        //broadcastConnect();
     }
 
     private void broadcastConnect() {
@@ -106,6 +106,26 @@ public class ChatRoom {
         if(!IPUtil.checkIP(knownPeer.getText())){
             JOptionPane.showMessageDialog(null,"IP Address is not Valid!");
             askCredentialsAndTryToConnect();
+        }
+        if(username.getText().length()<2){
+            askCredentialsAndTryToConnect();
+            JOptionPane.showMessageDialog(null,"Username too short!");
+            return;
+        }
+        try {
+            peer = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(username.getText())).ports(4000).start()).start();
+            FutureBootstrap fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName(knownPeer.getText())).ports(4000).start();
+            fb.awaitUninterruptibly();
+            if(fb.isSuccess()) {
+                peer.peer().discover().peerAddress(fb.bootstrapTo().iterator().next()).start().awaitUninterruptibly();
+            }
+            peer.peer().objectDataReply((peerAddress, o) -> {
+                Message m = (Message) o;
+                appendChatMessage(m.getSender(), m.getMessage());
+                return "REPLY";
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
