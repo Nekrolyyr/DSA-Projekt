@@ -1,41 +1,33 @@
 package hsr.dsa.gui.chatRoom;
 
-import hsr.dsa.core.Message;
+import hsr.dsa.P2P.Message;
+import hsr.dsa.P2P.P2PClient;
 import hsr.dsa.util.IPUtil;
-import io.netty.buffer.Unpooled;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
 import net.tomp2p.futures.FutureBootstrap;
-import net.tomp2p.message.Buffer;
 import net.tomp2p.p2p.PeerBuilder;
 import net.tomp2p.peers.Number160;
 import net.tomp2p.peers.PeerAddress;
-import net.tomp2p.rpc.ObjectDataReply;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.Collections;
 
 import static hsr.dsa.gui.UiConfiguration.*;
 
 public class ChatRoom {
-
     JFrame chatRoom;
-
     JPanel mainPanel;
     JPanel writePanel;
     JScrollPane chatPanel;
     JScrollPane userPanel;
-
     JTextArea chatWindow;
-
     JTextField textInputField;
-    PeerDHT peer;
     String username;
+    P2PClient client;
 
     public ChatRoom() {
         chatRoom = new JFrame("Chat Room");
@@ -59,17 +51,27 @@ public class ChatRoom {
         chatRoom.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         chatRoom.setVisible(true);
 
+        client = new P2PClient();
+        client.setOnKnownPeerNotValidListener(() -> {
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(null,"IP Address is not Valid!");
+                askCredentialsAndTryToConnect();});
+        });
+        client.setOnUsernameNotValidListener(() -> {
+            SwingUtilities.invokeLater(() -> {
+                askCredentialsAndTryToConnect();
+                JOptionPane.showMessageDialog(null, "Username too short!");
+            });
+        });
+        client.addOnMessageReceivedListener(m -> {
+            SwingUtilities.invokeLater(() -> {
+                appendChatMessage(m.getSender(), m.getMessage());
+            });
+        });
+        client.setOnConnectionNotEstablished(() -> {
+            SwingUtilities.invokeLater(() -> {JOptionPane.showMessageDialog(null,"Noone seems to be here... \n Waiting for someone to connect.");});
+        });
         askCredentialsAndTryToConnect();
-    }
-
-    public void send(Collection<PeerAddress> peers, Message message){
-        for (PeerAddress p : peers) {
-            peer.peer().sendDirect(p).object(message).start();
-        }
-    }
-
-    public Collection<PeerAddress> discoverPeers(){
-        return peer.peerBean().peerMap().all();
     }
 
     private void askCredentialsAndTryToConnect() {
@@ -80,34 +82,7 @@ public class ChatRoom {
                 "Known Peer:", knownPeer
         };
         JOptionPane.showConfirmDialog(null,message,"Please enter to Connect",JOptionPane.OK_CANCEL_OPTION);
-        if(!IPUtil.checkIP(knownPeer.getText())){
-            JOptionPane.showMessageDialog(null,"IP Address is not Valid!");
-            askCredentialsAndTryToConnect();
-        }
-        if(username.getText().length()<2){
-            askCredentialsAndTryToConnect();
-            JOptionPane.showMessageDialog(null,"Username too short!");
-            return;
-        }
-        try {
-            peer = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(username.getText())).ports(4000).start()).start();
-            FutureBootstrap fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName(knownPeer.getText())).ports(4000).start();
-            fb.awaitUninterruptibly();
-            /*if(fb.isSuccess()) {
-                peer.peer().discover().peerAddress(fb.bootstrapTo().iterator().next()).start().awaitUninterruptibly();
-            }*/
-            System.out.println("Bootstrap Sucess: "+fb.isSuccess());
-            System.out.println("Peers: ");
-            discoverPeers().forEach(System.out::println);
-            peer.peer().objectDataReply((peerAddress, o) -> {
-                Message m = (Message) o;
-                appendChatMessage(m.getSender(), m.getMessage());
-                System.out.println(m.getSender()+": "+ m.getMessage());
-                return "REPLY";
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        client.connect(username.getText(),knownPeer.getText());
     }
 
     private void initializeUserPanel() {
@@ -136,7 +111,7 @@ public class ChatRoom {
         sendButton.setPreferredSize(new Dimension((int)(0.2 * writePanel.getWidth()), writePanel.getHeight()));
         sendButton.addActionListener(actionEvent -> {
             appendChatMessage(username, textInputField.getText());
-            send(discoverPeers(), new Message(username, textInputField.getText()));
+            client.send(client.discoverPeers(), new Message(username, textInputField.getText()));
         });
 
         writePanel.add(textInputField);
