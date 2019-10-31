@@ -69,7 +69,7 @@ public class ChatRoom {
             });
         });
         client.setOnConnectionNotEstablished(() -> {
-            SwingUtilities.invokeLater(() -> {JOptionPane.showMessageDialog(null,"Noone seems to be here... \n Waiting for someone to connect.");});
+            SwingUtilities.invokeLater(() -> {JOptionPane.showMessageDialog(null,"No one seems to be here... \n Waiting for someone to connect.");});
         });
         askCredentialsAndTryToConnect();
     }

@@ -15,7 +15,6 @@ public class Launcher {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-
                 Matchmaker match = new Matchmaker();
             }
         });

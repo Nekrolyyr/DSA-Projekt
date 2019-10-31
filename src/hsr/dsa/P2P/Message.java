@@ -41,7 +41,7 @@ public class Message{
         JsonObject _package = new JsonObject();
         _package.addProperty("sender",sender);
         _package.addProperty("message",message);
-        return _package.getAsString();
+        return _package.toString();
     }
 
 }
