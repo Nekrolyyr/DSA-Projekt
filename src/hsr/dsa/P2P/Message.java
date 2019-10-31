@@ -17,7 +17,7 @@ public class Message{
             sender = _package.get("sender").getAsString();
             message = _package.get("message").getAsString();
         }catch (Exception e){
-            System.out.println("Message Illegible");
+            System.out.println("Message Illegible: "+JSONString);
         }
     }
 
@@ -41,6 +41,7 @@ public class Message{
         JsonObject _package = new JsonObject();
         _package.addProperty("sender",sender);
         _package.addProperty("message",message);
+        System.out.println(_package.toString());
         return _package.toString();
     }
 

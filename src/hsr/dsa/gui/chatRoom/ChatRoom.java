@@ -82,6 +82,7 @@ public class ChatRoom {
                 "Known Peer:", knownPeer
         };
         JOptionPane.showConfirmDialog(null,message,"Please enter to Connect",JOptionPane.OK_CANCEL_OPTION);
+        this.username = username.getText();
         client.connect(username.getText(),knownPeer.getText());
     }
 
