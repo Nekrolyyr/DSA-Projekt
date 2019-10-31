@@ -59,30 +59,6 @@ public class ChatRoom {
         chatRoom.setVisible(true);
 
         askCredentialsAndTryToConnect();
-        //broadcastConnect();
-    }
-
-    private void broadcastConnect() {
-        username = JOptionPane.showInputDialog(null,"Username","Please enter to Connect", JOptionPane.INFORMATION_MESSAGE);
-        if(username == null || username.length()<3){
-            broadcastConnect();
-            return;
-        }
-        try {
-            peer = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(username)).ports(4000).start()).start();
-            FutureBootstrap fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName("127.0.0.1")).ports(4002).start();
-            fb.awaitUninterruptibly();
-            if (fb.isSuccess()) {
-                for (PeerAddress p :fb.bootstrapTo())peer.peer().discover().peerAddress(p).start().awaitUninterruptibly();
-            }
-            peer.peer().objectDataReply((peerAddress, o) -> {
-                Message m = (Message) o;
-                appendChatMessage(m.getSender(), m.getMessage());
-                return "REPLY";
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void send(Collection<PeerAddress> peers, Message message){
