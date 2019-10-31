@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
+import java.util.Collections;
 
 import static hsr.dsa.gui.UiConfiguration.*;
 
@@ -92,12 +93,16 @@ public class ChatRoom {
             peer = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(username.getText())).ports(4000).start()).start();
             FutureBootstrap fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName(knownPeer.getText())).ports(4000).start();
             fb.awaitUninterruptibly();
-            if(fb.isSuccess()) {
+            /*if(fb.isSuccess()) {
                 peer.peer().discover().peerAddress(fb.bootstrapTo().iterator().next()).start().awaitUninterruptibly();
-            }
+            }*/
+            System.out.println("Bootstrap Sucess: "+fb.isSuccess());
+            System.out.println("Peers: ");
+            discoverPeers().forEach(System.out::println);
             peer.peer().objectDataReply((peerAddress, o) -> {
                 Message m = (Message) o;
                 appendChatMessage(m.getSender(), m.getMessage());
+                System.out.println(m.getSender()+": "+ m.getMessage());
                 return "REPLY";
             });
         } catch (IOException e) {
@@ -130,7 +135,7 @@ public class ChatRoom {
         JButton sendButton = new JButton("Send!");
         sendButton.setPreferredSize(new Dimension((int)(0.2 * writePanel.getWidth()), writePanel.getHeight()));
         sendButton.addActionListener(actionEvent -> {
-            appendChatMessage("Martin", textInputField.getText());
+            appendChatMessage(username, textInputField.getText());
             send(discoverPeers(), new Message(username, textInputField.getText()));
         });
 
