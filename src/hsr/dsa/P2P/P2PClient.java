@@ -10,6 +10,7 @@ import net.tomp2p.peers.PeerAddress;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class P2PClient {
     public interface OnMessageReceivedListener {
         void onCall(Message message);
     }
-    private List<OnMessageReceivedListener> onMessageReceivedListeners;
+    private List<OnMessageReceivedListener> onMessageReceivedListeners = new ArrayList<>();
     public void addOnMessageReceivedListener(OnMessageReceivedListener onMessageReceivedListener){
         this.onMessageReceivedListeners.add(onMessageReceivedListener);
     }
