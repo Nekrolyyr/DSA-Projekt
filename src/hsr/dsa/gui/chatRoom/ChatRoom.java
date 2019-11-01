@@ -173,12 +173,9 @@ public class ChatRoom {
         temp.setBackground(Color.lightGray);
         temp.setForeground(Color.red);
         temp.setBorder(BorderFactory.createLineBorder(Color.black));
-        temp.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                System.out.println("I challenge you, " + userName);
-                gamblingWindow = new GamblingWindow("You", userName, p2pClient);
-            }
+        temp.addActionListener(actionEvent -> {
+            System.out.println("I challenge you, " + userName);
+            gamblingWindow = new GamblingWindow("You", userName, p2pClient);
         });
         usersInChatRoom.add(temp);
         return temp;
