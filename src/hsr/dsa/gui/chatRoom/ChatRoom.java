@@ -102,6 +102,7 @@ public class ChatRoom {
         JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
         this.username = username.getText();
         p2pClient.connect(username.getText(), knownPeer.getText());
+        p2pClient.send(p2pClient.discoverPeers(), new Message(username.getText(), HAS_JOINED_MESSAGE));
     }
 
     private void initializeWritePanel() {
