@@ -79,6 +79,12 @@ public class ChatRoom {
                 } else if (m.getMessage().equals(HAS_LEFT_MESSAGE)) {
                     chatWindow.append(m.getSender() + HAS_LEFT_MESSAGE + '\n');
                     chatWindow.append("-----------------------------------------------------------------\n");
+                    for (JButton b : usersInChatRoom) {
+                        if (b.getText().equals(m.getSender())) {
+                            usersInChatRoom.remove(b);
+                            break;
+                        }
+                    }
                 } else if (m.getMessage().equals(HAS_JOINED_RESPONSE_MESSAGE)) {
                     newBoyJoinedChatRoom(m.getSender());
                 } else {
@@ -105,6 +111,9 @@ public class ChatRoom {
         this.username = username.getText();
         p2pClient.connect(username.getText(), knownPeer.getText());
         p2pClient.send(p2pClient.discoverPeers(), new Message(username.getText(), HAS_JOINED_MESSAGE));
+
+        chatWindow.append(WELCOME_MESSAGE);
+        chatWindow.append("-----------------------------------------------------------------\n");
     }
 
     private void initializeWritePanel() {
