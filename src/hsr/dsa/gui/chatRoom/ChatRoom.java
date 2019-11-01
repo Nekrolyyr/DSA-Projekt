@@ -2,7 +2,6 @@ package hsr.dsa.gui.chatRoom;
 
 import hsr.dsa.P2P.Message;
 import hsr.dsa.P2P.P2PClient;
-import hsr.dsa.P2P.Sender;
 
 import javax.swing.*;
 import java.awt.*;
@@ -58,7 +57,7 @@ public class ChatRoom {
         });
         p2pClient.addOnMessageReceivedListener(m -> {
             SwingUtilities.invokeLater(() -> {
-                appendChatMessage(m.getSender().getName(), m.getMessage());
+                appendChatMessage(m.getSender(), m.getMessage());
             });
         });
         p2pClient.setOnConnectionNotEstablished(() -> {
@@ -73,8 +72,8 @@ public class ChatRoom {
         });
     }
 
-    private void newBoyJoinedChatRoom(Sender sender) {
-        System.out.println("New Boy Joined!");
+    private void newBoyJoinedChatRoom(String senderName) {
+        System.out.println("New Boy Joined! " + senderName);
     }
 
     private void askCredentialsAndTryToConnect() {

@@ -100,6 +100,6 @@ public class P2PClient {
     }
 
     public interface OnNewPlayerJoinedChatRoomListener {
-        void onCall(Sender sender);
+        void onCall(String senderName);
     }
 }
