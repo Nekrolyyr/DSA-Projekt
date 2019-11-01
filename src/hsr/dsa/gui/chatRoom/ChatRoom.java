@@ -58,7 +58,7 @@ public class ChatRoom {
         });
         p2pClient.addOnMessageReceivedListener(m -> {
             SwingUtilities.invokeLater(() -> {
-                if (m.getMessage() == HAS_JOINED_MESSAGE) {
+                if (m.getMessage().equals(HAS_JOINED_MESSAGE)) {
                     chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE);
                 } else {
                     appendChatMessage(m.getSender(), m.getMessage());

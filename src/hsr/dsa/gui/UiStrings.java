@@ -12,6 +12,6 @@ public class UiStrings {
     public static final String START_GAME_MESSAGE = "Let's play!!";
     public static final String SHIP_OUT_OF_FIELD_MESSAGE = "Ship out of Field!";
 
-    public static final String HAS_JOINED_MESSAGE = " has joined! For chat-rules type !rules";
+    public static final String HAS_JOINED_MESSAGE = " has joined! For chat-rules type: !rules";
 
 }
