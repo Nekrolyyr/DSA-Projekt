@@ -25,7 +25,6 @@ public class P2PClient {
     private OnUsernameNotValidListener onUsernameNotValidListener;
     private OnKnownPeerNotValidListener onKnownPeerNotValidListener;
     private List<OnMessageReceivedListener> onMessageReceivedListeners = new ArrayList<>();
-    private OnNewPlayerJoinedChatRoomListener onNewPlayerJoinedChatRoomListener;
 
     public void setOnUsernameNotValidListener(OnUsernameNotValidListener onUsernameNotValidListener) {
         this.onUsernameNotValidListener = onUsernameNotValidListener;
@@ -41,10 +40,6 @@ public class P2PClient {
 
     public void setOnConnectionNotEstablished(OnConnectionNotEstablished onConnectionNotEstablished) {
         this.onConnectionNotEstablished = onConnectionNotEstablished;
-    }
-
-    public void setOnNewPlayerJoinedChatRoomListener(OnNewPlayerJoinedChatRoomListener onNewPlayerJoinedChatRoomListener) {
-        this.onNewPlayerJoinedChatRoomListener = onNewPlayerJoinedChatRoomListener;
     }
 
     public void connect(String Username, String IPPeer) {
@@ -97,9 +92,5 @@ public class P2PClient {
 
     public interface OnConnectionNotEstablished {
         void onCall();
-    }
-
-    public interface OnNewPlayerJoinedChatRoomListener {
-        void onCall(String senderName);
     }
 }

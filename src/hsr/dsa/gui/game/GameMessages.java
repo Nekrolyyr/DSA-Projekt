@@ -1,9 +1,7 @@
 package hsr.dsa.gui.game;
 
-import java.awt.*;
-
-import static hsr.dsa.gui.game.UiStrings.*;
-import static hsr.dsa.gui.game.UiStrings.ENEMYS_TURN_MESSAGE;
+import static hsr.dsa.gui.UiStrings.*;
+import static hsr.dsa.gui.UiStrings.ENEMYS_TURN_MESSAGE;
 
 public class GameMessages {
 

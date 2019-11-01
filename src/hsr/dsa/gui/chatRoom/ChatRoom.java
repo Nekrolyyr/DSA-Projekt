@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 import static hsr.dsa.gui.UiConfiguration.*;
+import static hsr.dsa.gui.UiStrings.HAS_JOINED_MESSAGE;
 
 public class ChatRoom {
     JFrame chatRoom;
@@ -57,7 +58,11 @@ public class ChatRoom {
         });
         p2pClient.addOnMessageReceivedListener(m -> {
             SwingUtilities.invokeLater(() -> {
-                appendChatMessage(m.getSender(), m.getMessage());
+                if (m.getMessage() == HAS_JOINED_MESSAGE) {
+                    chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE);
+                } else {
+                    appendChatMessage(m.getSender(), m.getMessage());
+                }
             });
         });
         p2pClient.setOnConnectionNotEstablished(() -> {
@@ -66,14 +71,6 @@ public class ChatRoom {
             });
         });
         askCredentialsAndTryToConnect();
-
-        p2pClient.setOnNewPlayerJoinedChatRoomListener(sender -> {
-            newBoyJoinedChatRoom(sender);
-        });
-    }
-
-    private void newBoyJoinedChatRoom(String senderName) {
-        System.out.println("New Boy Joined! " + senderName);
     }
 
     private void askCredentialsAndTryToConnect() {
@@ -86,6 +83,7 @@ public class ChatRoom {
         JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
         this.username = username.getText();
         p2pClient.connect(username.getText(), knownPeer.getText());
+        newBoyJoinedChatRoom(username.getText());
     }
 
     private void initializeUserPanel() {
@@ -130,6 +128,11 @@ public class ChatRoom {
     private void sendMessage() {
         appendChatMessage(username, textInputField.getText());
         p2pClient.send(p2pClient.discoverPeers(), new Message(username, textInputField.getText()));
+    }
+
+    private void newBoyJoinedChatRoom(String senderName) {
+        System.out.println("New Boy Joined! " + senderName);
+        p2pClient.send(p2pClient.discoverPeers(), new Message(senderName, HAS_JOINED_MESSAGE));
     }
 
     private void initializeChatPanel() {
