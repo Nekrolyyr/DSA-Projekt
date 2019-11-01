@@ -5,7 +5,6 @@ import hsr.dsa.core.IllegalMoveException;
 import hsr.dsa.core.IllegalShipCountException;
 import hsr.dsa.core.ShipSpotNotFreeException;
 import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
-import hsr.dsa.core.game.schiffe_versenken.Ship;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,14 +12,10 @@ import java.awt.*;
 import static hsr.dsa.core.game.GameConfiguration.NUMBER_OF_SHIPS;
 import static hsr.dsa.core.game.GameConfiguration.SHIPS;
 import static hsr.dsa.gui.UiConfiguration.*;
-import static hsr.dsa.gui.game.UiStrings.*;
 
 public class BattleField {
 
-    private int shipCounter = 0;
-
     private JFrame battleField;
-
 
     private JPanel framePanel;  // Frame that holds all the panels
     private JPanel fieldPanel;  // Holds the two battlefiels
@@ -29,36 +24,33 @@ public class BattleField {
     private JPanel shipPanel;   // Holds the ships at the bottom of the window
 
     private FieldButton[][] yourField;
+
+    private ShipPlacer shipPlacer;
+
     private FieldButton[][] enemyField;
-
-    public GameChoreographer getGameChoreographer() {
-        return gameChoreographer;
-    }
-
     private GameChoreographer gameChoreographer;
-
-    private JLabel timerLabel;
+    private GameMessages messageProvider;
+    private JLabel infoLabel; // To show info's and the Timer
     private JLabel corvette1;
     private JLabel corvette2;
     private JLabel destroyer;
     private JLabel battleship;
 
-    private Ship.Type actualShip = SHIPS[shipCounter];
-
     public BattleField() {
-
-        timerLabel = new JLabel();
+        infoLabel = new JLabel();
+        shipPlacer = new ShipPlacer(this);
 
         gameChoreographer = new GameChoreographer(GameChoreographer.Type.ACTIVE,
                 () -> {
                     System.out.println("Time ran out!");
-                    timerLabel.setText("Time ran out! Noob!");
+                    infoLabel.setText("Time ran out! Noob!");
                 },
                 remainingSecond -> {
                     System.out.println("You have " + remainingSecond + " seconds to make a move!");
-                    timerLabel.setText(String.valueOf(remainingSecond));
+                    infoLabel.setForeground(Color.BLACK);
+                    infoLabel.setText(String.valueOf(remainingSecond));
                     if (remainingSecond <= 5) {
-                        timerLabel.setForeground(Color.RED);
+                        infoLabel.setForeground(Color.RED);
                     }
                 },
                 () -> System.out.println("Game Has ended!"));
@@ -100,47 +92,36 @@ public class BattleField {
         battleField.setLocationRelativeTo(null);
         battleField.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         battleField.setVisible(true);
+
+        messageProvider = new GameMessages();
+        messageProvider.showShipPlacingMessage();
     }
 
-    public void startGame() {
-        try {
-            gameChoreographer.start();
-        } catch (GameNotSetupException e) {
-            System.out.println("Game was not Setup Correctly");
-        }
+    public GameChoreographer getGameChoreographer() {
+        return gameChoreographer;
     }
 
+    public JPanel getYourFieldPanel() {
+        return yourFieldPanel;
+    }
+
+    public JLabel getInfoLabel() {
+        return infoLabel;
+    }
+
+    public FieldButton getYourField(int xPos, int yPos) {
+        return yourField[yPos][xPos];
+    }
+
+    public FieldButton getEnemyField(int xPos, int yPos) {
+        return enemyField[yPos][xPos];
+    }
+
+    public GameMessages getMessageProvider() {
+        return messageProvider;
+    }
 
     private void createShipPanel() {
-        /*Icon icon = new ImageIcon("Corvette.png");
-        corvette1 = new ShipButton(Ship.Type.CORVETTE, icon);
-        corvette2 = new ShipButton(Ship.Type.CORVETTE, icon);
-        icon = new ImageIcon("Destroyer.png");
-        destroyer = new ShipButton(Ship.Type.DESTROYER, icon);
-        icon = new ImageIcon("Battleship.png");
-        battleship = new ShipButton(Ship.Type.BATTLESHIP, icon);
-
-        corvette1.setShipButtonClickListener(() -> {
-            InfoScreen infoScreen = new InfoScreen("Place your " + corvette1.getName());
-            infoScreen.showInfoScreen();
-            actualShip = Ship.Type.CORVETTE;
-        });
-        corvette2.setShipButtonClickListener(() -> {
-            InfoScreen infoScreen = new InfoScreen("Place your " + corvette2.getName());
-            infoScreen.showInfoScreen();
-            actualShip = Ship.Type.CORVETTE;
-        });
-        destroyer.setShipButtonClickListener(() -> {
-            InfoScreen infoScreen = new InfoScreen("Place your " + destroyer.getName());
-            infoScreen.showInfoScreen();
-            actualShip = Ship.Type.DESTROYER;
-        });
-        battleship.setShipButtonClickListener(() -> {
-            InfoScreen infoScreen = new InfoScreen("Place your " + battleship.getName());
-            infoScreen.showInfoScreen();
-            actualShip = Ship.Type.BATTLESHIP;
-        });
-*/
         Icon icon = new ImageIcon("Corvette.png");
         corvette1 = new JLabel(icon);
         corvette2 = new JLabel(icon);
@@ -164,10 +145,10 @@ public class BattleField {
         yourLabel.setVerticalAlignment(JLabel.CENTER);
         yourLabel.setBorder(TOP_MARGIN);
 
-        timerLabel.setFont(BATTLEFIELD_FONT);
-        timerLabel.setHorizontalAlignment(JLabel.CENTER);
-        timerLabel.setVerticalAlignment(JLabel.CENTER);
-        timerLabel.setBorder(TOP_MARGIN);
+        infoLabel.setFont(BATTLEFIELD_FONT);
+        infoLabel.setHorizontalAlignment(JLabel.CENTER);
+        infoLabel.setVerticalAlignment(JLabel.CENTER);
+        infoLabel.setBorder(TOP_MARGIN);
 
         JLabel enemyLabel = new JLabel("Enemys field");
         enemyLabel.setFont(BATTLEFIELD_FONT);
@@ -178,21 +159,30 @@ public class BattleField {
         JPanel namePanel = new JPanel(new GridLayout(1, 3));
         namePanel.setPreferredSize(new Dimension(FIELD_PANEL_WIDTH, (int) (0.1 * FIELD_PANEL_HEIGHT)));
         namePanel.add(yourLabel);
-        namePanel.add(timerLabel);
+        namePanel.add(infoLabel);
         namePanel.add(enemyLabel);
         return namePanel;
     }
 
     private FieldButton[][] generateFields(JPanel fields, GameChoreographer.RemotePlayerMoveAnswerListener remotePlayerMoveAnswerListener, boolean isYourField) {
+        infoLabel.setForeground(Color.RED);
+        infoLabel.setText("Place your " + SHIPS[0]);
+
         FieldButton[][] temp = new FieldButton[NUMBER_OF_ROWS][NUMBER_OF_COLUMNS];
         for (int y = 0; y < NUMBER_OF_ROWS; y++) {
             for (int x = 0; x < NUMBER_OF_COLUMNS; x++) {
-                temp[y][x] = new FieldButton(x, y);
+                temp[y][x] = new FieldButton(x, y, gameChoreographer);
                 if (isYourField) {
                     temp[y][x].setFieldButtonClickListener((xPos, yPos) -> {
                         try {
                             if (!gameChoreographer.setupComplete()) {
-                                placeShip(xPos, yPos);
+                                shipPlacer.placeShip(xPos, yPos);
+                                if (gameChoreographer.setupComplete()) {
+                                    enableGameField(yourField, false);
+                                    enableGameField(enemyField, true);
+                                    messageProvider.startGameMessage();
+                                    gameChoreographer.start();
+                                }
                             } else {
                                 gameChoreographer.localPlayermove(xPos, yPos, remotePlayerMoveAnswerListener);
                             }
@@ -215,33 +205,14 @@ public class BattleField {
         return temp;
     }
 
-
-    private void placeShip(int xPos, int yPos) throws ShipSpotNotFreeException, IllegalShipCountException, GameNotSetupException {
-        Ship ship = new Ship(actualShip, ship1 -> {
-            System.out.println("What ShipListener????????????????????????????");
-        });
-        yourField[yPos][xPos].setShipPlacedColor();
-        gameChoreographer.addShip(ship, xPos, yPos);
-        if (shipCounter < (NUMBER_OF_SHIPS - 1)) {
-            shipCounter++;
-            actualShip = SHIPS[shipCounter];
-            InfoScreen infoScreen1 = new InfoScreen("Place your " + actualShip.toString());
-            infoScreen1.showInfoScreen();
+    private void enableGameField(FieldButton[][] field, boolean enable) {
+        // Make your field unclickable
+        for (int y = 0; y < NUMBER_OF_ROWS; y++) {
+            for (int x = 0; x < NUMBER_OF_COLUMNS; x++) {
+                field[y][x].setEnabled(enable);
+            }
         }
     }
-    public void showShipPlacingMessage() {
-        InfoScreen infoScreen = new InfoScreen("Place your " + actualShip.toString());
-        infoScreen.showInfoScreen();
-    }
 
-    public void showYourTurnMessage() {
-        InfoScreen infoScreen = new InfoScreen(YOUR_TURN);
-        infoScreen.showInfoScreen();
-    }
-
-    public void showEnemysTurnMessage() {
-        InfoScreen infoScreen = new InfoScreen(ENEMYS_TURN);
-        infoScreen.showInfoScreen();
-    }
 
 }

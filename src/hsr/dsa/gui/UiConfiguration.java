@@ -35,4 +35,10 @@ public class UiConfiguration {
     public static final Border FIELD_BORDER = BorderFactory.createEmptyBorder(0, 50, 50, 50);
     public static final Border TOP_MARGIN = BorderFactory.createEmptyBorder(20, 0, 20, 0);
 
+    public static final Color BUTTON_SHIP_PLACED = Color.BLACK;
+    public static final Color BUTTON_FOG_OF_WAR = Color.LIGHT_GRAY;
+    public static final Color BUTTON_MISSED_SHOT = Color.BLACK;
+    public static final Color BUTTON_SHIP_HIT = Color.RED;
+
+
 }
