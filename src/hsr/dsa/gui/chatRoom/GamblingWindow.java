@@ -55,7 +55,7 @@ public class GamblingWindow {
         gamblingWindow.setSize(GAMBLING_WINDOW_SIZE);
         gamblingWindow.setResizable(false);
         gamblingWindow.setLocationRelativeTo(null);
-        gamblingWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        gamblingWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         gamblingWindow.setVisible(true);
     }
 

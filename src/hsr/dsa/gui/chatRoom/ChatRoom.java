@@ -73,11 +73,14 @@ public class ChatRoom {
                     chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE + '\n');
                     chatWindow.append("-----------------------------------------------------------------\n");
                     newBoyJoinedChatRoom(m.getSender());
+                    p2pClient.send(p2pClient.discoverPeers(), new Message(username, HAS_JOINED_RESPONSE_MESSAGE));
                 } else if (m.getMessage().equals(I_WANNA_PLAY_MESSAGE)) {
                     gamblingWindow = new GamblingWindow("You", m.getSender(), p2pClient);
                 } else if (m.getMessage().equals(HAS_LEFT_MESSAGE)) {
                     chatWindow.append(m.getSender() + HAS_LEFT_MESSAGE + '\n');
                     chatWindow.append("-----------------------------------------------------------------\n");
+                } else if (m.getMessage().equals(HAS_JOINED_RESPONSE_MESSAGE)) {
+                    newBoyJoinedChatRoom(m.getSender());
                 } else {
                     appendChatMessage(m.getSender(), m.getMessage());
                 }
@@ -161,14 +164,7 @@ public class ChatRoom {
         userPanel.setLayout(new FlowLayout());
         userPanel.setPreferredSize(new Dimension((int) (0.2 * CHAT_ROOM_WINDOW_SIZE.getWidth()), (int) (0.85 * CHAT_ROOM_WINDOW_SIZE.getHeight())));
         userPanel.setBackground(Color.white);
-        /*for (int i = 0; i < 5; i++) {
-            generateUserForUserPanel("User " + i);
-            userPanel.add(usersInChatRoom.get(i));
-        }
-        userPanel.setVisible(true);
-
-         */
-    }
+     }
 
     private void generateUserForUserPanel(String userName) {
         JButton temp = new JButton(userName);
