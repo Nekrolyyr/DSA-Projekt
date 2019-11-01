@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import static hsr.dsa.gui.UiConfiguration.*;
-import static hsr.dsa.gui.UiStrings.HAS_JOINED_MESSAGE;
+import static hsr.dsa.gui.UiStrings.*;
 
 public class ChatRoom {
 
@@ -69,12 +69,18 @@ public class ChatRoom {
         });
         p2pClient.addOnMessageReceivedListener(m -> {
             SwingUtilities.invokeLater(() -> {
-                if (m.getMessage().equals(HAS_JOINED_MESSAGE)) {
-                    chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE + '\n');
-                    chatWindow.append("-----------------------------------------------------------------\n");
-                    newBoyJoinedChatRoom(m.getSender());
-                } else {
-                    appendChatMessage(m.getSender(), m.getMessage());
+                switch (m.getMessage()) {
+                    case NEW_USER_IN_CHAT_ROOM:
+                        chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE + '\n');
+                        chatWindow.append("-----------------------------------------------------------------\n");
+                        newBoyJoinedChatRoom(m.getSender());
+                        break;
+                    case I_WANNA_PLAY:
+                        gamblingWindow = new GamblingWindow("You", m.getSender(), p2pClient);
+                        break;
+                    default:
+                        appendChatMessage(m.getSender(), m.getMessage());
+                        break;
                 }
             });
         });
