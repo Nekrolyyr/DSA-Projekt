@@ -69,18 +69,17 @@ public class ChatRoom {
         });
         p2pClient.addOnMessageReceivedListener(m -> {
             SwingUtilities.invokeLater(() -> {
-                switch (m.getMessage()) {
-                    case NEW_USER_IN_CHAT_ROOM:
-                        chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE + '\n');
-                        chatWindow.append("-----------------------------------------------------------------\n");
-                        newBoyJoinedChatRoom(m.getSender());
-                        break;
-                    case I_WANNA_PLAY:
-                        gamblingWindow = new GamblingWindow("You", m.getSender(), p2pClient);
-                        break;
-                    default:
-                        appendChatMessage(m.getSender(), m.getMessage());
-                        break;
+                if (m.getMessage().equals(HAS_JOINED_MESSAGE)) {
+                    chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE + '\n');
+                    chatWindow.append("-----------------------------------------------------------------\n");
+                    newBoyJoinedChatRoom(m.getSender());
+                } else if (m.getMessage().equals(I_WANNA_PLAY_MESSAGE)) {
+                    gamblingWindow = new GamblingWindow("You", m.getSender(), p2pClient);
+                } else if (m.getMessage().equals(HAS_LEFT_MESSAGE)) {
+                    chatWindow.append(m.getSender() + HAS_LEFT_MESSAGE + '\n');
+                    chatWindow.append("-----------------------------------------------------------------\n");
+                } else {
+                    appendChatMessage(m.getSender(), m.getMessage());
                 }
             });
         });

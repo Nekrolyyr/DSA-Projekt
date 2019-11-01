@@ -13,7 +13,8 @@ public class UiStrings {
     public static final String SHIP_OUT_OF_FIELD_MESSAGE = "Ship out of Field!";
 
     public static final String NEW_USER_IN_CHAT_ROOM = "User joined";
-    public static final String I_WANNA_PLAY = "I wanna play";
+    public static final String I_WANNA_PLAY_MESSAGE = "I wanna play";
+    public static final String HAS_LEFT_MESSAGE  = "player has left";
     public static final String HAS_JOINED_MESSAGE = " has joined! For chat-rules type: !rules";
 
 
