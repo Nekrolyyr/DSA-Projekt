@@ -15,61 +15,57 @@ import java.util.Collection;
 import java.util.List;
 
 public class P2PClient {
-    private PeerDHT peer;
-    public interface OnUsernameNotValidListener{
-        void onCall();
+    public OnConnectionNotEstablished onConnectionNotEstablished;
+
+    public PeerDHT getPeerDHT() {
+        return peerDHT;
     }
+
+    private PeerDHT peerDHT;
     private OnUsernameNotValidListener onUsernameNotValidListener;
+    private OnKnownPeerNotValidListener onKnownPeerNotValidListener;
+    private List<OnMessageReceivedListener> onMessageReceivedListeners = new ArrayList<>();
+    private OnNewPlayerJoinedChatRoomListener onNewPlayerJoinedChatRoomListener;
 
     public void setOnUsernameNotValidListener(OnUsernameNotValidListener onUsernameNotValidListener) {
         this.onUsernameNotValidListener = onUsernameNotValidListener;
     }
 
-    public interface OnKnownPeerNotValidListener{
-        void onCall();
-    }
-    private OnKnownPeerNotValidListener onKnownPeerNotValidListener;
-
     public void setOnKnownPeerNotValidListener(OnKnownPeerNotValidListener onKnownPeerNotValidListener) {
         this.onKnownPeerNotValidListener = onKnownPeerNotValidListener;
     }
 
-    public interface OnMessageReceivedListener {
-        void onCall(Message message);
-    }
-    private List<OnMessageReceivedListener> onMessageReceivedListeners = new ArrayList<>();
-    public void addOnMessageReceivedListener(OnMessageReceivedListener onMessageReceivedListener){
+    public void addOnMessageReceivedListener(OnMessageReceivedListener onMessageReceivedListener) {
         this.onMessageReceivedListeners.add(onMessageReceivedListener);
     }
-
-    public interface OnConnectionNotEstablished{
-        void onCall();
-    }
-    public OnConnectionNotEstablished onConnectionNotEstablished;
 
     public void setOnConnectionNotEstablished(OnConnectionNotEstablished onConnectionNotEstablished) {
         this.onConnectionNotEstablished = onConnectionNotEstablished;
     }
 
-    public void connect(String Username, String IPPeer){
-        if(!IPUtil.checkIP(IPPeer)){
-            if(onKnownPeerNotValidListener!=null)onKnownPeerNotValidListener.onCall();
+    public void setOnNewPlayerJoinedChatRoomListener(OnNewPlayerJoinedChatRoomListener onNewPlayerJoinedChatRoomListener) {
+        this.onNewPlayerJoinedChatRoomListener = onNewPlayerJoinedChatRoomListener;
+    }
+
+    public void connect(String Username, String IPPeer) {
+        if (!IPUtil.checkIP(IPPeer)) {
+            if (onKnownPeerNotValidListener != null) onKnownPeerNotValidListener.onCall();
         }
-        if(Username.length()<2){
-            if(onUsernameNotValidListener!=null) onUsernameNotValidListener.onCall();
+        if (Username.length() < 2) {
+            if (onUsernameNotValidListener != null) onUsernameNotValidListener.onCall();
         }
         try {
-            peer = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(Username)).ports(4000).start()).start();
-            FutureBootstrap fb = this.peer.peer().bootstrap().inetAddress(InetAddress.getByName(IPPeer)).ports(4000).start();
+            peerDHT = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(Username)).ports(4000).start()).start();
+            FutureBootstrap fb = this.peerDHT.peer().bootstrap().inetAddress(InetAddress.getByName(IPPeer)).ports(4000).start();
             fb.awaitUninterruptibly();
-            System.out.println("Bootstrap Success: "+fb.isSuccess());
-            if(!fb.isSuccess()){
-                if(onConnectionNotEstablished!=null)onConnectionNotEstablished.onCall();
+            System.out.println("Bootstrap Success: " + fb.isSuccess());
+            if (!fb.isSuccess()) {
+                if (onConnectionNotEstablished != null) onConnectionNotEstablished.onCall();
             }
-            peer.peer().objectDataReply((peerAddress, o) -> {
+            peerDHT.peer().objectDataReply((peerAddress, o) -> {
                 Message m = new Message((String) o);
                 onMessageReceivedListeners.forEach(onMessageReceivedListener -> onMessageReceivedListener.onCall(m));
-                System.out.println(m.getSender()+": "+ m.getMessage());
+                System.out.println(m.getSender() + ": " + m.getMessage());
                 return "REPLY";
             });
         } catch (IOException e) {
@@ -77,13 +73,33 @@ public class P2PClient {
         }
     }
 
-    public void send(Collection<PeerAddress> peers, Message message){
+    public void send(Collection<PeerAddress> peers, Message message) {
         for (PeerAddress p : peers) {
-            peer.peer().sendDirect(p).object(message.pack()).start();
+            peerDHT.peer().sendDirect(p).object(message.pack()).start();
         }
     }
 
-    public Collection<PeerAddress> discoverPeers(){
-        return peer.peerBean().peerMap().all();
+    public Collection<PeerAddress> discoverPeers() {
+        return peerDHT.peerBean().peerMap().all();
+    }
+
+    public interface OnUsernameNotValidListener {
+        void onCall();
+    }
+
+    public interface OnKnownPeerNotValidListener {
+        void onCall();
+    }
+
+    public interface OnMessageReceivedListener {
+        void onCall(Message message);
+    }
+
+    public interface OnConnectionNotEstablished {
+        void onCall();
+    }
+
+    public interface OnNewPlayerJoinedChatRoomListener {
+        void onCall(Sender sender);
     }
 }

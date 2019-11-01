@@ -1,0 +1,29 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="DSA_Projekt:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/DSA_Projekt_jar</output-path>
+    <root id="archive" name="DSA_Projekt.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="D:/Martin J. Sauter/Downloads/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="DSA_Projekt" />
+      <element id="library" level="module" name="JUnit5.4" module-name="DSA_Projekt" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/gcm-server-1.0.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/tomp2p-replication-5.0-Beta8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/json-simple-1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/tomp2p-core-5.0-Beta8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/netty-common-4.0.28.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/tomp2p-dht-5.0-Beta8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/mapdb-1.0.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/slf4j-api-1.7.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/netty-buffer-4.0.28.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/tomp2p-tracker-5.0-Beta8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/tomp2p-android-5.0-Beta8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/weupnp-0.1.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/tomp2p-storage-5.0-Beta8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/tomp2p-nat-5.0-Beta8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/netty-transport-4.0.28.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/slf4j-simple-1.7.5.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

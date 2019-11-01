@@ -2,19 +2,11 @@ package hsr.dsa.gui.chatRoom;
 
 import hsr.dsa.P2P.Message;
 import hsr.dsa.P2P.P2PClient;
-import hsr.dsa.util.IPUtil;
-import net.tomp2p.dht.PeerBuilderDHT;
-import net.tomp2p.dht.PeerDHT;
-import net.tomp2p.futures.FutureBootstrap;
-import net.tomp2p.p2p.PeerBuilder;
-import net.tomp2p.peers.Number160;
-import net.tomp2p.peers.PeerAddress;
+import hsr.dsa.P2P.Sender;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.Collection;
+import java.awt.event.ActionEvent;
 
 import static hsr.dsa.gui.UiConfiguration.*;
 
@@ -27,7 +19,7 @@ public class ChatRoom {
     JTextArea chatWindow;
     JTextField textInputField;
     String username;
-    P2PClient client;
+    P2PClient p2pClient;
 
     public ChatRoom() {
         chatRoom = new JFrame("Chat Room");
@@ -51,27 +43,38 @@ public class ChatRoom {
         chatRoom.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         chatRoom.setVisible(true);
 
-        client = new P2PClient();
-        client.setOnKnownPeerNotValidListener(() -> {
+        p2pClient = new P2PClient();
+        p2pClient.setOnKnownPeerNotValidListener(() -> {
             SwingUtilities.invokeLater(() -> {
-                JOptionPane.showMessageDialog(null,"IP Address is not Valid!");
-                askCredentialsAndTryToConnect();});
+                JOptionPane.showMessageDialog(null, "IP Address is not Valid!");
+                askCredentialsAndTryToConnect();
+            });
         });
-        client.setOnUsernameNotValidListener(() -> {
+        p2pClient.setOnUsernameNotValidListener(() -> {
             SwingUtilities.invokeLater(() -> {
                 askCredentialsAndTryToConnect();
                 JOptionPane.showMessageDialog(null, "Username too short!");
             });
         });
-        client.addOnMessageReceivedListener(m -> {
+        p2pClient.addOnMessageReceivedListener(m -> {
             SwingUtilities.invokeLater(() -> {
-                appendChatMessage(m.getSender(), m.getMessage());
+                appendChatMessage(m.getSender().getName(), m.getMessage());
             });
         });
-        client.setOnConnectionNotEstablished(() -> {
-            SwingUtilities.invokeLater(() -> {JOptionPane.showMessageDialog(null,"No one seems to be here... \n Waiting for someone to connect.");});
+        p2pClient.setOnConnectionNotEstablished(() -> {
+            SwingUtilities.invokeLater(() -> {
+                JOptionPane.showMessageDialog(null, "No one seems to be here... \n Waiting for someone to connect.");
+            });
         });
         askCredentialsAndTryToConnect();
+
+        p2pClient.setOnNewPlayerJoinedChatRoomListener(sender -> {
+            newBoyJoinedChatRoom(sender);
+        });
+    }
+
+    private void newBoyJoinedChatRoom(Sender sender) {
+        System.out.println("New Boy Joined!");
     }
 
     private void askCredentialsAndTryToConnect() {
@@ -81,9 +84,9 @@ public class ChatRoom {
                 "Username:", username,
                 "Known Peer:", knownPeer
         };
-        JOptionPane.showConfirmDialog(null,message,"Please enter to Connect",JOptionPane.OK_CANCEL_OPTION);
+        JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
         this.username = username.getText();
-        client.connect(username.getText(),knownPeer.getText());
+        p2pClient.connect(username.getText(), knownPeer.getText());
     }
 
     private void initializeUserPanel() {
@@ -91,32 +94,43 @@ public class ChatRoom {
         userPanel.setLayout(new ScrollPaneLayout());
         userPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         userPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        userPanel.setPreferredSize(new Dimension((int)(0.2 * CHAT_ROOM_WINDOW_SIZE.getWidth()), (int)CHAT_ROOM_WINDOW_SIZE.getHeight()));
+        userPanel.setPreferredSize(new Dimension((int) (0.2 * CHAT_ROOM_WINDOW_SIZE.getWidth()), (int) CHAT_ROOM_WINDOW_SIZE.getHeight()));
 
         for (int i = 0; i < 5; i++) {
             userPanel.add(new JButton("User" + i));
         }
     }
 
+
     private void initializeWritePanel() {
         writePanel = new JPanel(new GridLayout(1, 2));
         writePanel.setBackground(Color.green);
-        writePanel.setPreferredSize(new Dimension((int)CHAT_ROOM_WINDOW_SIZE.getWidth(), (int)(0.15 * CHAT_ROOM_WINDOW_SIZE.getHeight())));
+        writePanel.setPreferredSize(new Dimension((int) CHAT_ROOM_WINDOW_SIZE.getWidth(), (int) (0.15 * CHAT_ROOM_WINDOW_SIZE.getHeight())));
 
         textInputField = new JTextField(3);
-        textInputField.setPreferredSize(new Dimension((int)(0.8 * writePanel.getWidth()), writePanel.getHeight()));
+        textInputField.setPreferredSize(new Dimension((int) (0.8 * writePanel.getWidth()), writePanel.getHeight()));
         textInputField.setFont(WRITE_FONT);
         textInputField.setText("Write a message!");
 
         JButton sendButton = new JButton("Send!");
-        sendButton.setPreferredSize(new Dimension((int)(0.2 * writePanel.getWidth()), writePanel.getHeight()));
+        sendButton.setPreferredSize(new Dimension((int) (0.2 * writePanel.getWidth()), writePanel.getHeight()));
         sendButton.addActionListener(actionEvent -> {
-            appendChatMessage(username, textInputField.getText());
-            client.send(client.discoverPeers(), new Message(username, textInputField.getText()));
+            sendMessage();
+        });
+        textInputField.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                sendMessage();
+            }
         });
 
         writePanel.add(textInputField);
         writePanel.add(sendButton);
+    }
+
+    private void sendMessage() {
+        appendChatMessage(username, textInputField.getText());
+        p2pClient.send(p2pClient.discoverPeers(), new Message(username, textInputField.getText()));
     }
 
     private void initializeChatPanel() {
