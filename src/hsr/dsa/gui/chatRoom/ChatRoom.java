@@ -76,15 +76,6 @@ public class ChatRoom {
                     p2pClient.send(p2pClient.discoverPeers(), new Message(username, HAS_JOINED_RESPONSE_MESSAGE));
                 } else if (m.getMessage().equals(I_WANNA_PLAY_MESSAGE)) {
                     gamblingWindow = new GamblingWindow("You", m.getSender(), p2pClient);
-                } else if (m.getMessage().equals(HAS_LEFT_MESSAGE)) {
-                    chatWindow.append(m.getSender() + HAS_LEFT_MESSAGE + '\n');
-                    chatWindow.append("-----------------------------------------------------------------\n");
-                    for (JButton b : usersInChatRoom) {
-                        if (b.getText().equals(m.getSender())) {
-                            usersInChatRoom.remove(b);
-                            break;
-                        }
-                    }
                 } else if (m.getMessage().equals(HAS_JOINED_RESPONSE_MESSAGE)) {
                     newBoyJoinedChatRoom(m.getSender());
                 } else {
@@ -112,7 +103,7 @@ public class ChatRoom {
         p2pClient.connect(username.getText(), knownPeer.getText());
         p2pClient.send(p2pClient.discoverPeers(), new Message(username.getText(), HAS_JOINED_MESSAGE));
 
-        chatWindow.append(WELCOME_MESSAGE);
+        chatWindow.append(WELCOME_MESSAGE + '\n');
         chatWindow.append("-----------------------------------------------------------------\n");
     }
 
@@ -149,8 +140,8 @@ public class ChatRoom {
 
     private void newBoyJoinedChatRoom(String senderName) {
         System.out.println("New Boy Joined! " + senderName);
-        generateUserForUserPanel(senderName);
-        userPanel.add(usersInChatRoom.get(usersInChatRoom.size() - 1));
+        JButton temp = generateUserForUserPanel(senderName);
+        userPanel.add(temp);
     }
 
     private void initializeChatPanel() {
@@ -175,7 +166,7 @@ public class ChatRoom {
         userPanel.setBackground(Color.white);
      }
 
-    private void generateUserForUserPanel(String userName) {
+    private JButton generateUserForUserPanel(String userName) {
         JButton temp = new JButton(userName);
         temp.setPreferredSize(new Dimension((int) (0.18 * CHAT_ROOM_WINDOW_SIZE.getWidth()), (int) (0.10 * CHAT_ROOM_WINDOW_SIZE.getHeight())));
         temp.setFont(USER_WINDOW_FONT);
@@ -190,6 +181,7 @@ public class ChatRoom {
             }
         });
         usersInChatRoom.add(temp);
+        return temp;
     }
 
 

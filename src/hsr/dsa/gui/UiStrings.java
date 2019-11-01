@@ -15,7 +15,6 @@ public class UiStrings {
     public static final String NEW_USER_IN_CHAT_ROOM = "User joined";
     public static final String HAS_JOINED_RESPONSE_MESSAGE = "Hi im also here";
     public static final String I_WANNA_PLAY_MESSAGE = "I wanna play";
-    public static final String HAS_LEFT_MESSAGE  = "player has left";
     public static final String HAS_JOINED_MESSAGE = " has joined!";
     public static final String WELCOME_MESSAGE = "Welcome in our Chat-Room! For chat-rules type: !rules";
 
