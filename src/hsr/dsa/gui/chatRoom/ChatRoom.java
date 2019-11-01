@@ -6,20 +6,31 @@ import hsr.dsa.P2P.P2PClient;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Random;
 
 import static hsr.dsa.gui.UiConfiguration.*;
 import static hsr.dsa.gui.UiStrings.HAS_JOINED_MESSAGE;
 
 public class ChatRoom {
+
+    final Random randomGenerator = new Random();
+
     JFrame chatRoom;
     JPanel mainPanel;
     JPanel writePanel;
     JScrollPane chatPanel;
-    JScrollPane userPanel;
+    JPanel userPanel;
     JTextArea chatWindow;
+    JTextArea userWindow;
     JTextField textInputField;
     String username;
     P2PClient p2pClient;
+
+    GamblingWindow gamblingWindow;
+
+    ArrayList<JButton> usersInChatRoom = new ArrayList<>();
 
     public ChatRoom() {
         chatRoom = new JFrame("Chat Room");
@@ -59,7 +70,9 @@ public class ChatRoom {
         p2pClient.addOnMessageReceivedListener(m -> {
             SwingUtilities.invokeLater(() -> {
                 if (m.getMessage().equals(HAS_JOINED_MESSAGE)) {
-                    chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE);
+                    chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE + '\n');
+                    chatWindow.append("-----------------------------------------------------------------\n");
+                    newBoyJoinedChatRoom(m.getSender());
                 } else {
                     appendChatMessage(m.getSender(), m.getMessage());
                 }
@@ -83,21 +96,7 @@ public class ChatRoom {
         JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
         this.username = username.getText();
         p2pClient.connect(username.getText(), knownPeer.getText());
-        newBoyJoinedChatRoom(username.getText());
     }
-
-    private void initializeUserPanel() {
-        userPanel = new JScrollPane();
-        userPanel.setLayout(new ScrollPaneLayout());
-        userPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        userPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        userPanel.setPreferredSize(new Dimension((int) (0.2 * CHAT_ROOM_WINDOW_SIZE.getWidth()), (int) CHAT_ROOM_WINDOW_SIZE.getHeight()));
-
-        for (int i = 0; i < 5; i++) {
-            userPanel.add(new JButton("User" + i));
-        }
-    }
-
 
     private void initializeWritePanel() {
         writePanel = new JPanel(new GridLayout(1, 2));
@@ -132,7 +131,8 @@ public class ChatRoom {
 
     private void newBoyJoinedChatRoom(String senderName) {
         System.out.println("New Boy Joined! " + senderName);
-        p2pClient.send(p2pClient.discoverPeers(), new Message(senderName, HAS_JOINED_MESSAGE));
+        generateUserForUserPanel(senderName);
+        userPanel.add(usersInChatRoom.get(usersInChatRoom.size() - 1));
     }
 
     private void initializeChatPanel() {
@@ -142,13 +142,45 @@ public class ChatRoom {
         chatPanel.setLayout(new ScrollPaneLayout());
         chatPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         chatPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        chatPanel.setBackground(Color.red);
+        chatPanel.setPreferredSize(new Dimension((int) (0.8 * CHAT_ROOM_WINDOW_SIZE.getWidth()), (int) (0.85 * CHAT_ROOM_WINDOW_SIZE.getHeight())));
     }
 
     private void initializeChatWindow() {
         chatWindow = new JTextArea(30, 2);
         chatWindow.setFont(CHAT_FONT);
     }
+
+    private void initializeUserPanel() {
+        userPanel = new JPanel();
+        userPanel.setLayout(new FlowLayout());
+        userPanel.setPreferredSize(new Dimension((int) (0.2 * CHAT_ROOM_WINDOW_SIZE.getWidth()), (int) (0.85 * CHAT_ROOM_WINDOW_SIZE.getHeight())));
+        userPanel.setBackground(Color.white);
+        /*for (int i = 0; i < 5; i++) {
+            generateUserForUserPanel("User " + i);
+            userPanel.add(usersInChatRoom.get(i));
+        }
+        userPanel.setVisible(true);
+
+         */
+    }
+
+    private void generateUserForUserPanel(String userName) {
+        JButton temp = new JButton(userName);
+        temp.setPreferredSize(new Dimension((int) (0.18 * CHAT_ROOM_WINDOW_SIZE.getWidth()), (int) (0.10 * CHAT_ROOM_WINDOW_SIZE.getHeight())));
+        temp.setFont(USER_WINDOW_FONT);
+        temp.setBackground(Color.lightGray);
+        temp.setForeground(Color.red);
+        temp.setBorder(BorderFactory.createLineBorder(Color.black));
+        temp.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                System.out.println("I challenge you, " + userName);
+                gamblingWindow = new GamblingWindow("You", userName, p2pClient);
+            }
+        });
+        usersInChatRoom.add(temp);
+    }
+
 
     public void appendChatMessage(String userName, String message) {
         chatWindow.append(userName + " wrote: " + message + '\n');

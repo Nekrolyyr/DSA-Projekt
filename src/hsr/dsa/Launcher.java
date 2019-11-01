@@ -2,6 +2,7 @@ package hsr.dsa;
 
 import hsr.dsa.core.matchmaking.Matchmaker;
 import hsr.dsa.gui.UIController;
+import hsr.dsa.gui.chatRoom.GamblingWindow;
 
 import javax.swing.*;
 
@@ -15,6 +16,7 @@ public class Launcher {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+                //GamblingWindow g = new GamblingWindow("You", "Enemy");
                 Matchmaker match = new Matchmaker();
             }
         });

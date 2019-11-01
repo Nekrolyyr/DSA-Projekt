@@ -17,7 +17,7 @@ public class BattleField {
 
     private JFrame battleField;
 
-    private JPanel framePanel;  // Frame that holds all the panels
+    private JPanel mainPanel;  // Frame that holds all the panels
     private JPanel fieldPanel;  // Holds the two battlefiels
     private JPanel yourFieldPanel;   // Field with your ships
     private JPanel enemyFieldPanel;  // Field with the enemys ships
@@ -80,13 +80,13 @@ public class BattleField {
         fieldPanel.add(yourFieldPanel);
         fieldPanel.add(enemyFieldPanel);
 
-        framePanel = new JPanel(new BorderLayout());
-        framePanel.add(namePanel, BorderLayout.NORTH);
-        framePanel.add(fieldPanel, BorderLayout.CENTER);
-        framePanel.add(shipPanel, BorderLayout.SOUTH);
+        mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(namePanel, BorderLayout.NORTH);
+        mainPanel.add(fieldPanel, BorderLayout.CENTER);
+        mainPanel.add(shipPanel, BorderLayout.SOUTH);
 
         battleField = new JFrame("Battleships");
-        battleField.add(framePanel);
+        battleField.add(mainPanel);
         battleField.setSize(BATTLEFIELD_WINDOW_SIZE);
         battleField.setResizable(false);
         battleField.setLocationRelativeTo(null);
