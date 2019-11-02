@@ -33,7 +33,7 @@ public class UiConfiguration {
     public static final Font WRITE_FONT = new Font(Font.SANS_SERIF, Font.BOLD, (int) (30 * screenResolutionFactor));
     public static final Font BATTLEFIELD_FONT = new Font(Font.SANS_SERIF, Font.BOLD, (int) (60 * screenResolutionFactor));
     public static final Font INFO_SCREEN_FONT = new Font(Font.SERIF, Font.PLAIN, (int)(100 * screenResolutionFactor));
-    public static final Font USER_WINDOW_FONT = new Font(Font.SANS_SERIF, Font.BOLD, (int)(40 * screenResolutionFactor));
+    public static final Font USER_WINDOW_FONT = new Font(Font.SANS_SERIF, Font.BOLD, (int)(20 * screenResolutionFactor));
 
     public static final Border FIELD_BORDER = BorderFactory.createEmptyBorder(0, 50, 50, 50);
     public static final Border TOP_MARGIN = BorderFactory.createEmptyBorder(20, 0, 20, 0);
