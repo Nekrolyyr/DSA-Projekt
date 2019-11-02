@@ -3,7 +3,6 @@ package hsr.dsa.gui;
 public class UiStrings {
 
 
-
     public static final String PLACE_YOUR_SHIPS_MESSAGE = "Place your ships!";
     public static final String YOUR_TURN_MESSAGE = "Your turn!";
     public static final String ENEMYS_TURN_MESSAGE = "Enemys turn!";
@@ -17,7 +16,8 @@ public class UiStrings {
     public static final String I_WANNA_PLAY_MESSAGE = "I wanna play";
     public static final String HAS_JOINED_MESSAGE = " has joined!";
     public static final String WELCOME_MESSAGE = "Welcome in our Chat-Room! For chat-rules type: !rules";
-
+    public static final String WHO_ARE_YOU_MESSAGE = "Who are you?";
+    public static final String I_AM_MESSAGE = "I am";
 
     public static final String OK = "OK";
     public static final String ACCEPT_ENEMYS_OFFER = "Accept enemys offer";
@@ -27,4 +27,5 @@ public class UiStrings {
     public static final String YOUR_AMOUNT = "Your offer:";
     public static final String ENEMY_AMOUNT = "Enemy's offer:";
 
+    public static final String CHAT_SEPARATOR = "-----------------------------------------------------------------\n";
 }

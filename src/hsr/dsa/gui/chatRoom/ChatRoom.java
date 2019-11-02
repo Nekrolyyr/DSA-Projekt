@@ -2,11 +2,11 @@ package hsr.dsa.gui.chatRoom;
 
 import hsr.dsa.P2P.Message;
 import hsr.dsa.P2P.P2PClient;
+import hsr.dsa.P2P.PollTimer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -31,6 +31,8 @@ public class ChatRoom {
     GamblingWindow gamblingWindow;
 
     ArrayList<JButton> usersInChatRoom = new ArrayList<>();
+
+    PollTimer pollTimer = new PollTimer();
 
     public ChatRoom() {
         chatRoom = new JFrame("Chat Room");
@@ -71,12 +73,14 @@ public class ChatRoom {
             SwingUtilities.invokeLater(() -> {
                 if (m.getMessage().equals(HAS_JOINED_MESSAGE)) {
                     chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE + '\n');
-                    chatWindow.append("-----------------------------------------------------------------\n");
+                    chatWindow.append(CHAT_SEPARATOR);
                     newBoyJoinedChatRoom(m.getSender());
                     p2pClient.send(p2pClient.discoverPeers(), new Message(username, HAS_JOINED_RESPONSE_MESSAGE));
                 } else if (m.getMessage().equals(I_WANNA_PLAY_MESSAGE)) {
                     gamblingWindow = new GamblingWindow("You", m.getSender(), p2pClient);
-                } else if (m.getMessage().equals(HAS_JOINED_RESPONSE_MESSAGE)) {
+                } else if (m.getMessage().equals(WHO_ARE_YOU_MESSAGE)) {
+                    p2pClient.send(p2pClient.discoverPeers(), new Message(username, I_AM_MESSAGE));
+                } else if (m.getMessage().equals(I_AM_MESSAGE)) {
                     newBoyJoinedChatRoom(m.getSender());
                 } else {
                     appendChatMessage(m.getSender(), m.getMessage());
@@ -104,7 +108,10 @@ public class ChatRoom {
         p2pClient.send(p2pClient.discoverPeers(), new Message(username.getText(), HAS_JOINED_MESSAGE));
 
         chatWindow.append(WELCOME_MESSAGE + '\n');
-        chatWindow.append("-----------------------------------------------------------------\n");
+        chatWindow.append(CHAT_SEPARATOR);
+
+        pollTimer.startUserDiscovery(p2pClient, username.getText());
+
     }
 
     private void initializeWritePanel() {
@@ -140,8 +147,10 @@ public class ChatRoom {
 
     private void newBoyJoinedChatRoom(String senderName) {
         System.out.println("New Boy Joined! " + senderName);
-        JButton temp = generateUserForUserPanel(senderName);
-        userPanel.add(temp);
+        if (!usersInChatRoom.contains(senderName)) {
+            JButton temp = generateUserForUserPanel(senderName);
+            userPanel.add(temp);
+        }
     }
 
     private void initializeChatPanel() {
@@ -164,7 +173,7 @@ public class ChatRoom {
         userPanel.setLayout(new FlowLayout());
         userPanel.setPreferredSize(new Dimension((int) (0.2 * CHAT_ROOM_WINDOW_SIZE.getWidth()), (int) (0.85 * CHAT_ROOM_WINDOW_SIZE.getHeight())));
         userPanel.setBackground(Color.white);
-     }
+    }
 
     private JButton generateUserForUserPanel(String userName) {
         JButton temp = new JButton(userName);
@@ -184,6 +193,6 @@ public class ChatRoom {
 
     public void appendChatMessage(String userName, String message) {
         chatWindow.append(userName + " wrote: " + message + '\n');
-        chatWindow.append("-----------------------------------------------------------------\n");
+        chatWindow.append(CHAT_SEPARATOR);
     }
 }
