@@ -32,8 +32,6 @@ public class ChatRoom {
 
     ArrayList<JButton> usersInChatRoom = new ArrayList<>();
 
-    PollTimer pollTimer = new PollTimer();
-
     public ChatRoom() {
         chatRoom = new JFrame("Chat Room");
 
@@ -78,11 +76,9 @@ public class ChatRoom {
                     p2pClient.send(p2pClient.discoverPeers(), new Message(username, HAS_JOINED_RESPONSE_MESSAGE));
                 } else if (m.getMessage().equals(I_WANNA_PLAY_MESSAGE)) {
                     gamblingWindow = new GamblingWindow("You", m.getSender(), p2pClient);
-                } else if (m.getMessage().equals(WHO_ARE_YOU_MESSAGE)) {
-                    p2pClient.send(p2pClient.discoverPeers(), new Message(username, I_AM_MESSAGE));
-                } else if (m.getMessage().equals(I_AM_MESSAGE)) {
+                } else if (m.getMessage().equals(HAS_JOINED_RESPONSE_MESSAGE)) {
                     newBoyJoinedChatRoom(m.getSender());
-                } else {
+                }  else {
                     appendChatMessage(m.getSender(), m.getMessage());
                 }
             });
@@ -93,6 +89,12 @@ public class ChatRoom {
             });
         });
         askCredentialsAndTryToConnect();
+
+        for (int i = 0; i < 3; i++) {
+            JButton temp = generateUserForUserPanel("User " + i);
+            usersInChatRoom.add(temp);
+            userPanel.add(temp);
+        }
     }
 
     private void askCredentialsAndTryToConnect() {
@@ -109,9 +111,6 @@ public class ChatRoom {
 
         chatWindow.append(WELCOME_MESSAGE + '\n');
         chatWindow.append(CHAT_SEPARATOR);
-
-        pollTimer.startUserDiscovery(p2pClient, username.getText());
-
     }
 
     private void initializeWritePanel() {
@@ -145,11 +144,21 @@ public class ChatRoom {
         p2pClient.send(p2pClient.discoverPeers(), new Message(username, textInputField.getText()));
     }
 
-    private void newBoyJoinedChatRoom(String senderName) {
-        System.out.println("New Boy Joined! " + senderName);
-        if (!usersInChatRoom.contains(senderName)) {
+    private synchronized void newBoyJoinedChatRoom(String senderName) {
+        for (JButton b : usersInChatRoom) {
+            if (!b.getText().equals(senderName)) { // Exists in chat
+                JButton temp = generateUserForUserPanel(senderName);
+                usersInChatRoom.add(temp);
+                userPanel.add(temp);
+            }
+        }
+        if (usersInChatRoom.size() == 0) {
             JButton temp = generateUserForUserPanel(senderName);
+            usersInChatRoom.add(temp);
             userPanel.add(temp);
+        }
+        for (JButton b : usersInChatRoom) {
+            System.out.println("User : " + b.getText());
         }
     }
 
@@ -169,10 +178,11 @@ public class ChatRoom {
     }
 
     private void initializeUserPanel() {
-        userPanel = new JPanel();
-        userPanel.setLayout(new FlowLayout());
+        userPanel = new JPanel(new FlowLayout());
         userPanel.setPreferredSize(new Dimension((int) (0.2 * CHAT_ROOM_WINDOW_SIZE.getWidth()), (int) (0.85 * CHAT_ROOM_WINDOW_SIZE.getHeight())));
         userPanel.setBackground(Color.white);
+        userPanel.setEnabled(true);
+        userPanel.setVisible(true);
     }
 
     private JButton generateUserForUserPanel(String userName) {
@@ -186,7 +196,6 @@ public class ChatRoom {
             System.out.println("I challenge you, " + userName);
             gamblingWindow = new GamblingWindow("You", userName, p2pClient);
         });
-        usersInChatRoom.add(temp);
         return temp;
     }
 
