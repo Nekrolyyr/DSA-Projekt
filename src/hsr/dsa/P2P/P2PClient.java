@@ -33,7 +33,6 @@ public class P2PClient {
     private OnKnownPeerNotValidListener onKnownPeerNotValidListener;
     private List<OnMessageReceivedListener> onMessageReceivedListeners = new ArrayList<>();
 
-    private Lock peerMapLock = new ReentrantLock();
     private Map<Number160,String> peerMap = new HashMap<>();
 
     public interface OnPeerMapChangeListener{
@@ -61,16 +60,12 @@ public class P2PClient {
     }
 
     public Map<Number160,String> getPeerMap(){
-        while (peerMapLock.tryLock());
         Map<Number160,String> map = new HashMap<>(peerMap);
-        peerMapLock.unlock();
         return map;
     }
 
     private void fireOnPeerMapChanged(){
-        while (peerMapLock.tryLock());
         Map<Number160,String> map = new HashMap<>(peerMap);
-        peerMapLock.unlock();
         onPeerMapChangesListeners.forEach(onPeerMapChangeListener -> onPeerMapChangeListener.onCall(map));
     }
 
@@ -111,9 +106,7 @@ public class P2PClient {
                                     e.printStackTrace();
                                 } finally {
                                     if(username!=null && !username.isEmpty()){
-                                        while(peerMapLock.tryLock());
                                         peerMap.put(peerAddress.peerId(),username);
-                                        peerMapLock.unlock();
                                         fireOnPeerMapChanged();
                                     }
                                 }
@@ -129,11 +122,8 @@ public class P2PClient {
 
                 @Override
                 public void peerRemoved(PeerAddress peerAddress, PeerStatistic peerStatistic) {
-                    while(peerMapLock.tryLock()) {
-                        peerMap.remove(peerAddress.peerId());
-                        peerMapLock.unlock();
-                        fireOnPeerMapChanged();
-                    }
+                    peerMap.remove(peerAddress.peerId());
+                    fireOnPeerMapChanged();
                 }
 
                 @Override
