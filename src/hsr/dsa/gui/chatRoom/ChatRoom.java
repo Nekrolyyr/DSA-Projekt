@@ -121,6 +121,7 @@ public class ChatRoom {
         sendButton.setPreferredSize(new Dimension((int) (0.2 * writePanel.getWidth()), writePanel.getHeight()));
         sendButton.addActionListener(actionEvent -> {
             sendMessage();
+            textInputField.setText("");
         });
         textInputField.addActionListener(new AbstractAction() {
             @Override
@@ -135,7 +136,7 @@ public class ChatRoom {
 
     private void sendMessage() {
         appendChatMessage(username, textInputField.getText());
-        p2pClient.send(p2pClient.discoverPeers(), new Message(username, textInputField.getText()));
+        p2pClient.send(p2pClient.discoverPeers(), new Message(username, new String(textInputField.getText())));
     }
 
     private synchronized void newBoyJoinedChatRoom(String senderName) {
