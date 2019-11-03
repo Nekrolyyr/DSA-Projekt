@@ -93,18 +93,23 @@ public class ChatRoom {
             });
         });
         p2pClient.addOnPeerMapChangeListener(peerMap -> {
-            peerMap.forEach((number160, s) -> {
-                if (!userButtons.containsKey(s)){
+            peerMap.forEach((number160,s) -> {
+                if (!userButtons.containsKey(s)) {
                     JButton temp = generateUserForUserPanel(s);
-                    userButtons.put(s,temp);
-                    SwingUtilities.invokeLater(() -> userPanel.add(temp));
-
+                    userButtons.put(s, temp);
+                    SwingUtilities.invokeLater(() -> {
+                        userPanel.add(temp);
+                        userPanel.updateUI();
+                    });
                 }
             });
             userButtons.forEach((s, jButton) -> {
                 if(!peerMap.containsValue(s)){
                     userButtons.remove(s);
-                    SwingUtilities.invokeLater(() -> userPanel.remove(jButton));
+                    SwingUtilities.invokeLater(() -> {
+                        userPanel.remove(jButton);
+                        userPanel.updateUI();
+                    });
                 }
             });
         });

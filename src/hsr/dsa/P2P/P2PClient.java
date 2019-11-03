@@ -94,30 +94,7 @@ public class P2PClient {
             peerDHT.peerBean().peerMap().addPeerMapChangeListener(new PeerMapChangeListener() {
                 @Override
                 public void peerInserted(PeerAddress peerAddress, boolean b) {
-                    FutureGet fGet = peerDHT.get(peerAddress.peerId()).start();
-                    fGet.addListener(new BaseFutureListener<FutureGet>() {
-                        @Override
-                        public void operationComplete(FutureGet futureGet) throws Exception {
-                            new Thread(() -> {
-                                String username = null;
-                                try {
-                                    username = futureGet.dataMap().values().iterator().next().object().toString();
-                                } catch (ClassNotFoundException | IOException e) {
-                                    e.printStackTrace();
-                                } finally {
-                                    if(username!=null && !username.isEmpty()){
-                                        peerMap.put(peerAddress.peerId(),username);
-                                        fireOnPeerMapChanged();
-                                    }
-                                }
-                            }).start();
-                        }
-
-                        @Override
-                        public void exceptionCaught(Throwable throwable) throws Exception {
-
-                        }
-                    });
+                    getUsernameFromPeer(peerAddress);
                 }
 
                 @Override
@@ -129,9 +106,38 @@ public class P2PClient {
                 @Override
                 public void peerUpdated(PeerAddress peerAddress, PeerStatistic peerStatistic) {}
             });
+            discoverPeers().forEach(this::getUsernameFromPeer);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void getUsernameFromPeer(PeerAddress peerAddress){
+        FutureGet fGet = peerDHT.get(peerAddress.peerId()).start();
+        fGet.addListener(new BaseFutureListener<FutureGet>() {
+            @Override
+            public void operationComplete(FutureGet futureGet){
+                new Thread(() -> {
+                    String username = null;
+                    try {
+                        username = futureGet.dataMap().values().iterator().next().object().toString();
+                    } catch (ClassNotFoundException | IOException | NoSuchElementException e) {
+                        System.out.println("Cannot find Peer Username");
+                    } finally {
+                        if(username!=null && !username.isEmpty()){
+                            peerMap.put(peerAddress.peerId(),username);
+                            System.out.println("Peername found: "+username);
+                            fireOnPeerMapChanged();
+                        }else {
+                            System.out.println("Cannot find Peer Username "+username);
+                        }
+                    }
+                }).start();
+            }
+
+            @Override
+            public void exceptionCaught(Throwable throwable) throws Exception {}
+        });
     }
 
     public void send(Collection<PeerAddress> peers, Message message) {
