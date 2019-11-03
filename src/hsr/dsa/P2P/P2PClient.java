@@ -11,17 +11,15 @@ import net.tomp2p.futures.BaseFutureAdapter;
 import net.tomp2p.futures.BaseFutureListener;
 import net.tomp2p.futures.FutureBootstrap;
 import net.tomp2p.p2p.PeerBuilder;
-import net.tomp2p.peers.Number160;
-import net.tomp2p.peers.PeerAddress;
-import net.tomp2p.peers.PeerStatusListener;
-import net.tomp2p.peers.RTT;
+import net.tomp2p.peers.*;
 import net.tomp2p.storage.Data;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class P2PClient {
     public OnConnectionNotEstablished onConnectionNotEstablished;
@@ -34,6 +32,17 @@ public class P2PClient {
     private OnUsernameNotValidListener onUsernameNotValidListener;
     private OnKnownPeerNotValidListener onKnownPeerNotValidListener;
     private List<OnMessageReceivedListener> onMessageReceivedListeners = new ArrayList<>();
+
+    private Lock peerMapLock = new ReentrantLock();
+    private Map<Number160,String> peerMap = new HashMap<>();
+
+    public interface OnPeerMapChangeListener{
+        void onCall(Map<Number160,String> peerMap);
+    }
+    private List<OnPeerMapChangeListener> onPeerMapChangesListeners = new ArrayList<>();
+    public void addOnPeerMapChangeListener(OnPeerMapChangeListener onPeerMapChangeListener){
+        onPeerMapChangesListeners.add(onPeerMapChangeListener);
+    }
 
     public void setOnUsernameNotValidListener(OnUsernameNotValidListener onUsernameNotValidListener) {
         this.onUsernameNotValidListener = onUsernameNotValidListener;
@@ -49,6 +58,20 @@ public class P2PClient {
 
     public void setOnConnectionNotEstablished(OnConnectionNotEstablished onConnectionNotEstablished) {
         this.onConnectionNotEstablished = onConnectionNotEstablished;
+    }
+
+    public Map<Number160,String> getPeerMap(){
+        while (peerMapLock.tryLock());
+        Map<Number160,String> map = new HashMap<>(peerMap);
+        peerMapLock.unlock();
+        return map;
+    }
+
+    private void fireOnPeerMapChanged(){
+        while (peerMapLock.tryLock());
+        Map<Number160,String> map = new HashMap<>(peerMap);
+        peerMapLock.unlock();
+        onPeerMapChangesListeners.forEach(onPeerMapChangeListener -> onPeerMapChangeListener.onCall(map));
     }
 
     public void connect(String Username, String IPPeer) {
@@ -73,26 +96,48 @@ public class P2PClient {
                 return "REPLY";
             });
             peerDHT.put(peerDHT.peerID()).data(new Data(Username)).start();
-            peerDHT.peerBean().addPeerStatusListener(new PeerStatusListener() {
+            peerDHT.peerBean().peerMap().addPeerMapChangeListener(new PeerMapChangeListener() {
                 @Override
-                public boolean peerFailed(PeerAddress peerAddress, PeerException e) {
-                    System.err.println(e.toString());
-                    return true;
+                public void peerInserted(PeerAddress peerAddress, boolean b) {
+                    FutureGet fGet = peerDHT.get(peerAddress.peerId()).start();
+                    fGet.addListener(new BaseFutureListener<FutureGet>() {
+                        @Override
+                        public void operationComplete(FutureGet futureGet) throws Exception {
+                            new Thread(() -> {
+                                String username = null;
+                                try {
+                                    username = futureGet.dataMap().values().iterator().next().object().toString();
+                                } catch (ClassNotFoundException | IOException e) {
+                                    e.printStackTrace();
+                                } finally {
+                                    if(username!=null && !username.isEmpty()){
+                                        while(peerMapLock.tryLock());
+                                        peerMap.put(peerAddress.peerId(),username);
+                                        peerMapLock.unlock();
+                                        fireOnPeerMapChanged();
+                                    }
+                                }
+                            }).start();
+                        }
+
+                        @Override
+                        public void exceptionCaught(Throwable throwable) throws Exception {
+
+                        }
+                    });
                 }
 
                 @Override
-                public boolean peerFound(PeerAddress peerAddress, PeerAddress peerAddress1, PeerConnection peerConnection, RTT rtt) {
-                    FutureGet futureGet = peerDHT.get(peerAddress.peerId()).start();
-                    futureGet.addListener(new BaseFutureAdapter<FutureGet>() {
-                        @Override
-                        public void operationComplete(FutureGet future) throws Exception {
-                            if(future.isSuccess()) {
-                                System.out.println(future.digest());
-                            }
-                        }
-                    });
-                    return false;
+                public void peerRemoved(PeerAddress peerAddress, PeerStatistic peerStatistic) {
+                    while(peerMapLock.tryLock()) {
+                        peerMap.remove(peerAddress.peerId());
+                        peerMapLock.unlock();
+                        fireOnPeerMapChanged();
+                    }
                 }
+
+                @Override
+                public void peerUpdated(PeerAddress peerAddress, PeerStatistic peerStatistic) {}
             });
         } catch (IOException e) {
             e.printStackTrace();

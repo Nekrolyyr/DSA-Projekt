@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static hsr.dsa.gui.UiConfiguration.*;
 import static hsr.dsa.gui.UiStrings.*;
@@ -29,6 +31,7 @@ public class ChatRoom {
     ArrayList<JButton> usersInChatRoom = new ArrayList<>();
 
     Object globalLock = new Object();
+    Map<String,JButton> userButtons = new HashMap<>();
 
     public ChatRoom() {
         chatRoom = new JFrame("Chat Room");
@@ -68,7 +71,7 @@ public class ChatRoom {
         p2pClient.addOnMessageReceivedListener(m -> {
             SwingUtilities.invokeLater(() -> {
                 synchronized (globalLock) {
-                    if (m.getMessage().equals(HAS_JOINED_MESSAGE)) {
+                    /*if (m.getMessage().equals(HAS_JOINED_MESSAGE)) {
                         chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE + '\n');
                         chatWindow.append(CHAT_SEPARATOR);
                         newBoyJoinedChatRoom(m.getSender());
@@ -79,13 +82,30 @@ public class ChatRoom {
                         newBoyJoinedChatRoom(m.getSender());
                     }  else {
                         appendChatMessage(m.getSender(), m.getMessage());
-                    }
+                    }*/
+                    appendChatMessage(m.getSender(), m.getMessage());
                 }
             });
         });
         p2pClient.setOnConnectionNotEstablished(() -> {
             SwingUtilities.invokeLater(() -> {
                 JOptionPane.showMessageDialog(null, "No one seems to be here... \n Waiting for someone to connect.");
+            });
+        });
+        p2pClient.addOnPeerMapChangeListener(peerMap -> {
+            peerMap.forEach((number160, s) -> {
+                if (!userButtons.containsKey(s)){
+                    JButton temp = generateUserForUserPanel(s);
+                    userButtons.put(s,temp);
+                    SwingUtilities.invokeLater(() -> userPanel.add(temp));
+
+                }
+            });
+            userButtons.forEach((s, jButton) -> {
+                if(!peerMap.containsValue(s)){
+                    userButtons.remove(s);
+                    SwingUtilities.invokeLater(() -> userPanel.remove(jButton));
+                }
             });
         });
         askCredentialsAndTryToConnect();
@@ -101,8 +121,12 @@ public class ChatRoom {
         JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
         this.username = username.getText();
         p2pClient.connect(username.getText(), knownPeer.getText());
-        p2pClient.send(p2pClient.discoverPeers(), new Message(username.getText(), HAS_JOINED_MESSAGE));
-
+        //p2pClient.send(p2pClient.discoverPeers(), new Message(username.getText(), HAS_JOINED_MESSAGE));
+        p2pClient.getPeerMap().forEach((number160, s) -> {
+            JButton temp = generateUserForUserPanel(s);
+            userButtons.put(s,temp);
+            userPanel.add(temp);
+        });
         chatWindow.append(WELCOME_MESSAGE + '\n');
         chatWindow.append(CHAT_SEPARATOR);
     }
