@@ -23,7 +23,6 @@ public class ChatRoom {
     private JTextArea chatWindow;
     private JTextArea userWindow;
     private JTextField textInputField;
-    private String username;
     private P2PClient p2pClient;
     private GamblingWindow gamblingWindow;
     private Object globalLock = new Object();
@@ -70,7 +69,7 @@ public class ChatRoom {
                     if(m.getType() == Message.Type.CHAT) {
                         appendChatMessage(m.getSender(), m.getMessage());
                     }else if(m.getType() == Message.Type.CHALLENGE){
-                        gamblingWindow = new GamblingWindow("You", m.getSender(), p2pClient);
+                        gamblingWindow = new GamblingWindow("You", m.getSender(),m.getGambleamount(), p2pClient);
                     }
                 }
             });
@@ -101,6 +100,7 @@ public class ChatRoom {
                 }
             });
         });
+        userPanel.add(generateUserForUserPanel("Test"));
         askCredentialsAndTryToConnect();
     }
 
@@ -112,7 +112,6 @@ public class ChatRoom {
                 "Known Peer:", knownPeer
         };
         JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
-        this.username = username.getText();
         p2pClient.connect(username.getText(), knownPeer.getText());
         p2pClient.getPeerMap().forEach((number160, s) -> {
             JButton temp = generateUserForUserPanel(s);
@@ -151,8 +150,8 @@ public class ChatRoom {
     }
 
     private void sendMessage() {
-        appendChatMessage(username, textInputField.getText());
-        p2pClient.send(p2pClient.discoverPeers(), new Message(username, new String(textInputField.getText())));
+        appendChatMessage(p2pClient.getUsername(), textInputField.getText());
+        p2pClient.send(p2pClient.discoverPeers(), new Message(p2pClient.getUsername(), new String(textInputField.getText())));
     }
 
     private void initializeChatPanel() {
@@ -186,7 +185,8 @@ public class ChatRoom {
         temp.setBorder(BorderFactory.createLineBorder(Color.black));
         temp.addActionListener(actionEvent -> {
             System.out.println("I challenge you, " + userName);
-            gamblingWindow = new GamblingWindow("You", userName, p2pClient);
+            p2pClient.send(userName,new Message(p2pClient.getUsername(),1));
+            gamblingWindow = new GamblingWindow("You", userName, 1, p2pClient);
         });
         return temp;
     }

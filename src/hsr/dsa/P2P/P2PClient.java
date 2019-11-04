@@ -20,6 +20,12 @@ import java.util.*;
 public class P2PClient {
     public OnConnectionNotEstablished onConnectionNotEstablished;
 
+    public String getUsername() {
+        return username;
+    }
+
+    private String username;
+
     public PeerDHT getPeerDHT() {
         return peerDHT;
     }
@@ -29,10 +35,10 @@ public class P2PClient {
     private OnKnownPeerNotValidListener onKnownPeerNotValidListener;
     private List<OnMessageReceivedListener> onMessageReceivedListeners = new ArrayList<>();
 
-    private Map<Number160,String> peerMap = new HashMap<>();
+    private Map<PeerAddress,String> peerMap = new HashMap<>();
 
     public interface OnPeerMapChangeListener{
-        void onCall(Map<Number160,String> peerMap);
+        void onCall(Map<PeerAddress,String> peerMap);
     }
     private List<OnPeerMapChangeListener> onPeerMapChangesListeners = new ArrayList<>();
     public void addOnPeerMapChangeListener(OnPeerMapChangeListener onPeerMapChangeListener){
@@ -55,13 +61,13 @@ public class P2PClient {
         this.onConnectionNotEstablished = onConnectionNotEstablished;
     }
 
-    public Map<Number160,String> getPeerMap(){
-        Map<Number160,String> map = new HashMap<>(peerMap);
+    public Map<PeerAddress,String> getPeerMap(){
+        Map<PeerAddress,String> map = new HashMap<>(peerMap);
         return map;
     }
 
     private void fireOnPeerMapChanged(){
-        Map<Number160,String> map = new HashMap<>(peerMap);
+        Map<PeerAddress,String> map = new HashMap<>(peerMap);
         onPeerMapChangesListeners.forEach(onPeerMapChangeListener -> onPeerMapChangeListener.onCall(map));
     }
 
@@ -73,6 +79,7 @@ public class P2PClient {
             if (onUsernameNotValidListener != null) onUsernameNotValidListener.onCall();
         }
         try {
+            this.username = Username;
             peerDHT = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(Username)).ports(4000).start()).start();
             FutureBootstrap fb = this.peerDHT.peer().bootstrap().inetAddress(InetAddress.getByName(IPPeer)).ports(4000).start();
             fb.awaitUninterruptibly();
@@ -121,7 +128,7 @@ public class P2PClient {
                         System.out.println("Cannot find Peer Username");
                     } finally {
                         if(username!=null && !username.isEmpty()){
-                            peerMap.put(peerAddress.peerId(),username);
+                            peerMap.put(peerAddress,username);
                             System.out.println("Peername found: "+username);
                             fireOnPeerMapChanged();
                         }else {
@@ -139,6 +146,14 @@ public class P2PClient {
     public void send(Collection<PeerAddress> peers, Message message) {
         for (PeerAddress p : peers) {
             peerDHT.peer().sendDirect(p).object(message.pack()).start();
+        }
+    }
+    public void send(String username, Message message) {
+        if(peerMap.containsValue(username)) {
+            PeerAddress peer = peerMap.entrySet().stream().filter(entry -> entry.getValue().equals(username)).findFirst().get().getKey();
+            peerDHT.peer().sendDirect(peer).object(message.pack()).start();
+        }else{
+            System.err.println("Could not find Peer, message stopped!");
         }
     }
 

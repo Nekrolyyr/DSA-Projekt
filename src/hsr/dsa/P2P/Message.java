@@ -2,6 +2,7 @@ package hsr.dsa.P2P;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import hsr.dsa.core.game.schiffe_versenken.Field;
 import hsr.dsa.core.game.schiffe_versenken.Move;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -10,9 +11,14 @@ public class Message{
     private String message;
     private Type type;
     private Move move;
-    private long gambleamount;
+    private Field.Shot shot;
+    private double gambleamount;
 
-    public enum Type{CHAT,CHALLENGE,MOVE}
+    public Field.Shot getShot() {
+        return shot;
+    }
+
+    public enum Type{CHAT,CHALLENGE,MOVE,SHOT}
 
     public Message(String sender, String message) {
         this.sender = sender;
@@ -20,7 +26,7 @@ public class Message{
         this.type = Type.CHAT;
     }
 
-    public Message(String sender, long gambleamount){
+    public Message(String sender, double gambleamount){
         this.sender = sender;
         this.gambleamount = gambleamount;
         this.type = Type.CHALLENGE;
@@ -29,6 +35,11 @@ public class Message{
     public Message(String sender, Move move){
         this.sender = sender;
         this.move = move;
+        this.type = Type.MOVE;
+    }
+    public Message(String sender, Field.Shot shot){
+        this.sender = sender;
+        this.shot = shot;
         this.type = Type.MOVE;
     }
 
@@ -46,6 +57,9 @@ public class Message{
                 case MOVE:
                     parseMove(json);
                     break;
+                case SHOT:
+                    parseShot(json);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -60,11 +74,15 @@ public class Message{
     }
     private void parseChallenge(JsonObject json) throws Exception{
         sender = json.get("sender").getAsString();
-        gambleamount = json.get("gambleamount").getAsLong();
+        gambleamount = json.get("gambleamount").getAsDouble();
     }
     private void parseMove(JsonObject json) throws Exception{
         sender = json.get("sender").getAsString();
         move = new Move(json.get("x").getAsInt(),json.get("y").getAsInt());
+    }
+    private void parseShot(JsonObject json) throws Exception{
+        sender = json.get("sender").getAsString();
+        shot = Field.Shot.valueOf(json.get("shot").getAsString());
     }
 
     public Type getType() {
@@ -83,7 +101,7 @@ public class Message{
         this.move = move;
     }
 
-    public long getGambleamount() {
+    public double getGambleamount() {
         return gambleamount;
     }
 
@@ -123,6 +141,9 @@ public class Message{
                 _package.addProperty("x",move.getX());
                 _package.addProperty("y",move.getY());
                 break;
+            case SHOT:
+                _package.addProperty("sender",sender);
+                _package.addProperty("shot",shot.toString());
             default:
                 throw new NotImplementedException();
         }

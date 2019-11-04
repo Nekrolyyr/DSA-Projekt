@@ -2,6 +2,7 @@ package hsr.dsa.gui.chatRoom;
 
 import hsr.dsa.P2P.Message;
 import hsr.dsa.P2P.P2PClient;
+import hsr.dsa.gui.game.BattleField;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,9 +32,14 @@ public class GamblingWindow {
     private Dimension gambleFieldSize;
 
     private P2PClient p2pClient;
+    private BattleField battleField;
+    private String localUser;
+    private String remoteUser;
 
-    public GamblingWindow(String localUser, String remoteUser, P2PClient p2pClient) {
+    public GamblingWindow(String localUser, String remoteUser, double gambleamount, P2PClient p2pClient) {
         this.p2pClient = p2pClient;
+        this.localUser = localUser;
+        this.remoteUser = remoteUser;
 
         localUserLabel = generateUserLabel(localUser);
         remoteUserLabel = generateUserLabel(remoteUser);
@@ -41,7 +47,7 @@ public class GamblingWindow {
 
         generateNameHolderPanel(localUser, remoteUser);
 
-        generateGamblePanel();
+        generateGamblePanel(gambleamount);
 
         generateButtonPanel();
 
@@ -57,6 +63,21 @@ public class GamblingWindow {
         gamblingWindow.setLocationRelativeTo(null);
         gamblingWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         gamblingWindow.setVisible(true);
+
+        p2pClient.addOnMessageReceivedListener(message -> {
+            if(message.getType() == Message.Type.CHALLENGE){
+                double amount = Double.parseDouble(gambleAmountInput.getText());
+                if(message.getGambleamount() == amount){
+                    //Accepted
+                    battleField = new BattleField(localUser, remoteUser, p2pClient);
+                }else{
+                    if(message.getGambleamount()<0){
+                        gamblingWindow.dispose();
+                    }
+                    enemysGambleOffer.setText(String.valueOf(message.getGambleamount()));
+                }
+            }
+        });
     }
 
     private void generateButtonPanel() {
@@ -64,20 +85,29 @@ public class GamblingWindow {
         offerButton.setPreferredSize(BUTTON_SIZE);
         offerButton.setBackground(GENERAL_BUTTON_COLOR);
         offerButton.addActionListener(actionEvent -> {
-            System.out.println("I offer you: " + gambleAmountInput.getText());
-            p2pClient.send(p2pClient.discoverPeers(), new Message(localUserLabel.getText(), gambleAmountInput.getText()));
+            try {
+                double amount = Double.parseDouble(gambleAmountInput.getText());
+                p2pClient.send(remoteUser, new Message(p2pClient.getUsername(), amount));
+            } catch (NumberFormatException e){
+                JOptionPane.showMessageDialog(gamblingWindow,"Value not valid!","!",JOptionPane.ERROR_MESSAGE);
+            }
         });
         enemysOfferButton = new JButton(ACCEPT_ENEMYS_OFFER);
         enemysOfferButton.setPreferredSize(BUTTON_SIZE);
         enemysOfferButton.setBackground(GENERAL_BUTTON_COLOR);
         enemysOfferButton.addActionListener(actionEvent -> {
-            System.out.println(enemysGambleOffer.getText() + " accepted!");
+            double amount = Double.parseDouble(enemysGambleOffer.getText());
+            p2pClient.send(remoteUser, new Message(localUser, amount));
+            battleField = new BattleField(localUser, remoteUser, p2pClient);
         });
 
         abortButton = new JButton(ABORT);
         abortButton.setPreferredSize(BUTTON_SIZE);
         abortButton.setBackground(GENERAL_BUTTON_COLOR);
-        abortButton.addActionListener(actionEvent -> gamblingWindow.dispose());
+        abortButton.addActionListener(actionEvent -> {
+            p2pClient.send(remoteUser,new Message(localUser,-1));
+            gamblingWindow.dispose();
+        });
 
 
         buttonPanel = new JPanel(new FlowLayout());
@@ -91,19 +121,24 @@ public class GamblingWindow {
         this.enemysGambleOffer.setText(amount);
     }
 
-    private void generateGamblePanel() {
+    private void generateGamblePanel(double initalOffer) {
         gambleFieldSize = new Dimension((int) (0.2 * GAMBLING_WINDOW_SIZE.getWidth()), (int) (2 * WRITE_FONT.getSize()));
 
         gambleAmountInput = new JTextField();
-        gambleAmountInput.setText(0 + CURRENCY);
+        gambleAmountInput.setText(0+"");
         gambleAmountInput.setPreferredSize(gambleFieldSize);
         gambleAmountInput.setFont(WRITE_FONT);
         gambleAmountInput.setBorder(BorderFactory.createEmptyBorder());
         gambleAmountInput.addActionListener(actionEvent -> {
-            System.out.println("New offer: " + gambleAmountInput.getText());
+            try {
+                double amount = Double.parseDouble(gambleAmountInput.getText());
+                p2pClient.send(remoteUser, new Message(p2pClient.getUsername(), amount));
+            } catch (NumberFormatException e){
+                JOptionPane.showMessageDialog(gamblingWindow,"Value not valid!","!",JOptionPane.ERROR_MESSAGE);
+            }
         });
 
-        enemysGambleOffer = new JLabel("700" + CURRENCY);
+        enemysGambleOffer = new JLabel(initalOffer+"");
         enemysGambleOffer.setPreferredSize(gambleFieldSize);
         enemysGambleOffer.setFont(WRITE_FONT);
         enemysGambleOffer.setBorder(BorderFactory.createEmptyBorder());

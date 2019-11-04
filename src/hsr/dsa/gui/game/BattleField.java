@@ -1,10 +1,12 @@
 package hsr.dsa.gui.game;
 
+import hsr.dsa.P2P.P2PClient;
 import hsr.dsa.core.GameNotSetupException;
 import hsr.dsa.core.IllegalMoveException;
 import hsr.dsa.core.IllegalShipCountException;
 import hsr.dsa.core.ShipSpotNotFreeException;
 import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
+import hsr.dsa.core.game.schiffe_versenken.Move;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,7 +38,8 @@ public class BattleField {
     private JLabel destroyer;
     private JLabel battleship;
 
-    public BattleField() {
+
+    public BattleField(String localUser, String remoteUser, P2PClient p2pClient) {
         infoLabel = new JLabel();
         shipPlacer = new ShipPlacer(this);
 
@@ -53,7 +56,7 @@ public class BattleField {
                         infoLabel.setForeground(Color.RED);
                     }
                 },
-                () -> System.out.println("Game Has ended!"));
+                () -> System.out.println("Game Has ended!"), p2pClient,localUser,remoteUser);
         //GameTests.testSetup(gameChoreographer);
 
         JPanel namePanel = createNamePanel(gameChoreographer); // On top of the Battlefield, to show which field is yours
@@ -184,7 +187,7 @@ public class BattleField {
                                     gameChoreographer.start();
                                 }
                             } else {
-                                gameChoreographer.localPlayermove(xPos, yPos, remotePlayerMoveAnswerListener);
+                                gameChoreographer.localPlayermove(new Move(xPos, yPos), remotePlayerMoveAnswerListener);
                             }
                         } catch (IllegalMoveException e) {
                             System.out.println("This was a Illegal Move!");
