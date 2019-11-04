@@ -10,6 +10,7 @@ import hsr.dsa.core.game.schiffe_versenken.Move;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 import static hsr.dsa.core.game.GameConfiguration.NUMBER_OF_SHIPS;
 import static hsr.dsa.core.game.GameConfiguration.SHIPS;
@@ -124,14 +125,31 @@ public class BattleField {
         return messageProvider;
     }
 
+    private Image scaleShipImages(Image image, int width, int height) {
+        BufferedImage resizedImg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = resizedImg.createGraphics();
+
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g2.drawImage(image, 0, 0, width, height, null);
+        g2.dispose();
+
+        return resizedImg;
+    }
+
     private void createShipPanel() {
-        Icon icon = new ImageIcon("Corvette.png");
-        corvette1 = new JLabel(icon);
-        corvette2 = new JLabel(icon);
+        Dimension shipImageSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.15 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
+
+        ImageIcon icon = new ImageIcon("Corvette.png");
+        Icon scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)shipImageSize.getWidth(), (int)shipImageSize.getHeight()));
+        corvette1 = new JLabel(scaledIcon);
+        corvette2 = new JLabel(scaledIcon);
+
         icon = new ImageIcon("Destroyer.png");
-        destroyer = new JLabel(icon);
+        scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)shipImageSize.getWidth(), (int)shipImageSize.getHeight()));
+        destroyer = new JLabel(scaledIcon);
         icon = new ImageIcon("Battleship.png");
-        battleship = new JLabel(icon);
+        scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)shipImageSize.getWidth(), (int)shipImageSize.getHeight()));
+        battleship = new JLabel(scaledIcon);
 
         shipPanel = new JPanel(new GridLayout(1, NUMBER_OF_SHIPS));
         shipPanel.setPreferredSize(new Dimension((int) BATTLEFIELD_WINDOW_SIZE.getWidth(), (int) (0.15 * BATTLEFIELD_WINDOW_SIZE.getHeight())));
