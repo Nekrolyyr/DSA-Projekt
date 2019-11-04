@@ -187,4 +187,7 @@ public class GamblingWindow {
         return temp;
     }
 
+    public boolean isShowing() {
+        return mainPanel.isShowing();
+    }
 }

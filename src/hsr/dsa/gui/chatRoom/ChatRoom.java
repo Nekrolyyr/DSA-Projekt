@@ -68,7 +68,7 @@ public class ChatRoom {
                 synchronized (globalLock) {
                     if(m.getType() == Message.Type.CHAT) {
                         appendChatMessage(m.getSender(), m.getMessage());
-                    }else if(m.getType() == Message.Type.CHALLENGE){
+                    }else if(m.getType() == Message.Type.CHALLENGE && (gamblingWindow == null || gamblingWindow.isShowing()==true)){
                         gamblingWindow = new GamblingWindow("You", m.getSender(),m.getGambleamount(), p2pClient);
                     }
                 }
