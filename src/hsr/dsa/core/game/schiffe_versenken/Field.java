@@ -4,9 +4,7 @@ import hsr.dsa.core.IllegalShipCountException;
 import hsr.dsa.core.ShipSpotNotFreeException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static hsr.dsa.core.game.GameConfiguration.FIELD_SIZE;
 import static hsr.dsa.core.game.GameConfiguration.NUMBER_OF_SHIPS;
@@ -58,15 +56,15 @@ public class Field {
         return true;
     }
 
-    public Shot shoot(int x, int y) {
-        if (ships[x][y] != null) {
-            if (shots[x][y] != Shot.HIT) ships[x][y].hit();
-            shots[x][y] = Shot.HIT;
+    public Shot shoot(Move move) {
+        if (ships[move.getX()][move.getY()] != null) {
+            if (shots[move.getX()][move.getY()] != Shot.HIT) ships[move.getX()][move.getY()].hit();
+            shots[move.getX()][move.getY()] = Shot.HIT;
             if (addedShips.stream().allMatch(Ship::hasSunken)) gameEndListener.onGameEndet();
         } else {
-            shots[x][y] = Shot.MISS;
+            shots[move.getX()][move.getY()] = Shot.MISS;
         }
-        return shots[x][y];
+        return shots[move.getX()][move.getY()];
     }
 
 }

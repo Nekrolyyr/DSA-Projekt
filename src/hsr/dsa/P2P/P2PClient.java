@@ -1,25 +1,21 @@
 package hsr.dsa.P2P;
 
 import hsr.dsa.util.IPUtil;
-import net.tomp2p.connection.PeerConnection;
-import net.tomp2p.connection.PeerException;
 import net.tomp2p.dht.FutureGet;
 import net.tomp2p.dht.PeerBuilderDHT;
 import net.tomp2p.dht.PeerDHT;
-import net.tomp2p.futures.BaseFuture;
-import net.tomp2p.futures.BaseFutureAdapter;
 import net.tomp2p.futures.BaseFutureListener;
 import net.tomp2p.futures.FutureBootstrap;
 import net.tomp2p.p2p.PeerBuilder;
-import net.tomp2p.peers.*;
+import net.tomp2p.peers.Number160;
+import net.tomp2p.peers.PeerAddress;
+import net.tomp2p.peers.PeerMapChangeListener;
+import net.tomp2p.peers.PeerStatistic;
 import net.tomp2p.storage.Data;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class P2PClient {
     public OnConnectionNotEstablished onConnectionNotEstablished;

@@ -6,8 +6,6 @@ import hsr.dsa.core.IllegalShipCountException;
 import hsr.dsa.core.ShipSpotNotFreeException;
 import hsr.dsa.core.game.Timer;
 
-import java.awt.event.ActionListener;
-
 import static hsr.dsa.core.game.GameConfiguration.TIME_PER_MOVE;
 
 public class GameChoreographer {
@@ -69,13 +67,13 @@ public class GameChoreographer {
                 .addTimerListener(tl).setTimerUpdateListener(tul).build().start();
     }
 
-    public Field.Shot remotePlayerMove(int x, int y) throws IllegalMoveException {
+    public Field.Shot remotePlayerMove(Move move) throws IllegalMoveException {
         if (activePlayer != PlayerType.REMOTE) throw new IllegalMoveException();
         remotePlayerFinished();
-        return localPlayer.field.shoot(x, y);
+        return localPlayer.field.shoot(move);
     }
 
-    public void localPlayermove(int x, int y, RemotePlayerMoveAnswerListener remotePlayerMoveAnswerListener) throws IllegalMoveException {
+    public void localPlayermove(Move move, RemotePlayerMoveAnswerListener remotePlayerMoveAnswerListener) throws IllegalMoveException {
         if (activePlayer != PlayerType.LOCAL) throw new IllegalMoveException();
         //TODO Transmit move
 

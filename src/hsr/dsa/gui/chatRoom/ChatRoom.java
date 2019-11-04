@@ -6,32 +6,28 @@ import hsr.dsa.P2P.P2PClient;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import static hsr.dsa.gui.UiConfiguration.*;
-import static hsr.dsa.gui.UiStrings.*;
+import static hsr.dsa.gui.UiStrings.CHAT_SEPARATOR;
+import static hsr.dsa.gui.UiStrings.WELCOME_MESSAGE;
 
 public class ChatRoom {
 
-    JFrame chatRoom;
-    JPanel mainPanel;
-    JPanel writePanel;
-    JScrollPane chatPanel;
-    JPanel userPanel;
-    JTextArea chatWindow;
-    JTextArea userWindow;
-    JTextField textInputField;
-    String username;
-    P2PClient p2pClient;
-
-    GamblingWindow gamblingWindow;
-
-    ArrayList<JButton> usersInChatRoom = new ArrayList<>();
-
-    Object globalLock = new Object();
-    Map<String,JButton> userButtons = new HashMap<>();
+    private JFrame chatRoom;
+    private JPanel mainPanel;
+    private JPanel writePanel;
+    private JScrollPane chatPanel;
+    private JPanel userPanel;
+    private JTextArea chatWindow;
+    private JTextArea userWindow;
+    private JTextField textInputField;
+    private String username;
+    private P2PClient p2pClient;
+    private GamblingWindow gamblingWindow;
+    private Object globalLock = new Object();
+    private Map<String,JButton> userButtons = new HashMap<>();
 
     public ChatRoom() {
         chatRoom = new JFrame("Chat Room");
@@ -71,19 +67,11 @@ public class ChatRoom {
         p2pClient.addOnMessageReceivedListener(m -> {
             SwingUtilities.invokeLater(() -> {
                 synchronized (globalLock) {
-                    /*if (m.getMessage().equals(HAS_JOINED_MESSAGE)) {
-                        chatWindow.append(m.getSender() + HAS_JOINED_MESSAGE + '\n');
-                        chatWindow.append(CHAT_SEPARATOR);
-                        newBoyJoinedChatRoom(m.getSender());
-                        p2pClient.send(p2pClient.discoverPeers(), new Message(username, HAS_JOINED_RESPONSE_MESSAGE));
-                    } else if (m.getMessage().equals(I_WANNA_PLAY_MESSAGE)) {
-                        gamblingWindow = new GamblingWindow("You", m.getSender(), p2pClient);
-                    } else if (m.getMessage().equals(HAS_JOINED_RESPONSE_MESSAGE)) {
-                        newBoyJoinedChatRoom(m.getSender());
-                    }  else {
+                    if(m.getType() == Message.Type.CHAT) {
                         appendChatMessage(m.getSender(), m.getMessage());
-                    }*/
-                    appendChatMessage(m.getSender(), m.getMessage());
+                    }else if(m.getType() == Message.Type.CHALLENGE){
+                        gamblingWindow = new GamblingWindow("You", m.getSender(), p2pClient);
+                    }
                 }
             });
         });
@@ -126,7 +114,6 @@ public class ChatRoom {
         JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
         this.username = username.getText();
         p2pClient.connect(username.getText(), knownPeer.getText());
-        //p2pClient.send(p2pClient.discoverPeers(), new Message(username.getText(), HAS_JOINED_MESSAGE));
         p2pClient.getPeerMap().forEach((number160, s) -> {
             JButton temp = generateUserForUserPanel(s);
             userButtons.put(s,temp);
@@ -168,32 +155,8 @@ public class ChatRoom {
         p2pClient.send(p2pClient.discoverPeers(), new Message(username, new String(textInputField.getText())));
     }
 
-    private synchronized void newBoyJoinedChatRoom(String senderName) {
-        JButton temp = generateUserForUserPanel(senderName);
-        userPanel.add(temp);
-        /*
-        for (JButton b : usersInChatRoom) {
-            if (!b.getText().equals(senderName)) { // Exists in chat
-                JButton temp = generateUserForUserPanel(senderName);
-                usersInChatRoom.add(temp);
-                userPanel.add(temp);
-            }
-        }
-        if (usersInChatRoom.size() == 0) {
-            JButton temp = generateUserForUserPanel(senderName);
-            usersInChatRoom.add(temp);
-            userPanel.add(temp);
-        }
-        for (JButton b : usersInChatRoom) {
-            System.out.println("User : " + b.getText());
-        }
-
-         */
-    }
-
     private void initializeChatPanel() {
         initializeChatWindow();
-
         chatPanel = new JScrollPane(chatWindow);
         chatPanel.setLayout(new ScrollPaneLayout());
         chatPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
