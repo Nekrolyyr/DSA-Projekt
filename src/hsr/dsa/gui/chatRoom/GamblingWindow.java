@@ -69,6 +69,7 @@ public class GamblingWindow {
                 double amount = Double.parseDouble(gambleAmountInput.getText());
                 if(message.getGambleamount() == amount){
                     //Accepted
+                    JOptionPane.showMessageDialog(null,"Your Offer was Accepted!");
                     battleField = new BattleField(localUser, remoteUser, p2pClient);
                 }else{
                     if(message.getGambleamount()<0){

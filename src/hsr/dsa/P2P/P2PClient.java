@@ -90,7 +90,6 @@ public class P2PClient {
             peerDHT.peer().objectDataReply((peerAddress, o) -> {
                 Message m = new Message((String) o);
                 onMessageReceivedListeners.forEach(onMessageReceivedListener -> onMessageReceivedListener.onCall(m));
-                System.out.println(m.getSender() + ": " + m.getMessage());
                 return "REPLY";
             });
             peerDHT.put(peerDHT.peerID()).data(new Data(Username)).start();

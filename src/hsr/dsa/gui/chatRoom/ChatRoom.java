@@ -5,7 +5,6 @@ import hsr.dsa.P2P.P2PClient;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,8 +67,8 @@ public class ChatRoom {
                 synchronized (globalLock) {
                     if(m.getType() == Message.Type.CHAT) {
                         appendChatMessage(m.getSender(), m.getMessage());
-                    }else if(m.getType() == Message.Type.CHALLENGE && (gamblingWindow == null || gamblingWindow.isShowing()==true)){
-                        gamblingWindow = new GamblingWindow("You", m.getSender(),m.getGambleamount(), p2pClient);
+                    }else if(m.getType() == Message.Type.CHALLENGE && (gamblingWindow == null || !gamblingWindow.isShowing())){
+                        gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(),m.getGambleamount(), p2pClient);
                     }
                 }
             });
@@ -138,12 +137,7 @@ public class ChatRoom {
             sendMessage();
             textInputField.setText("");
         });
-        textInputField.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                sendMessage();
-            }
-        });
+        textInputField.addActionListener(e -> sendMessage());
 
         writePanel.add(textInputField);
         writePanel.add(sendButton);
