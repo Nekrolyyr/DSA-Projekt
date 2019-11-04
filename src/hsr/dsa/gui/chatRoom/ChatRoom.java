@@ -99,7 +99,6 @@ public class ChatRoom {
                 }
             });
         });
-        userPanel.add(generateUserForUserPanel("Test"));
         askCredentialsAndTryToConnect();
     }
 
