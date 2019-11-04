@@ -186,7 +186,7 @@ public class ChatRoom {
         temp.addActionListener(actionEvent -> {
             System.out.println("I challenge you, " + userName);
             p2pClient.send(userName,new Message(p2pClient.getUsername(),1));
-            gamblingWindow = new GamblingWindow("You", userName, 1, p2pClient);
+            gamblingWindow = new GamblingWindow(p2pClient.getUsername(), userName, 1, p2pClient);
         });
         return temp;
     }

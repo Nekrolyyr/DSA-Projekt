@@ -127,6 +127,7 @@ public class Message{
 
     public String pack(){
         JsonObject _package = new JsonObject();
+        _package.addProperty("type",type.toString());
         switch (type){
             case CHAT:
                 _package.addProperty("sender",sender);
