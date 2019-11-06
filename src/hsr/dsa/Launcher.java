@@ -11,12 +11,9 @@ public class Launcher {
 
         System.out.println("Hoi DSA");
 
-        //chatRoom = new ChatRoom();
-
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                //GamblingWindow g = new GamblingWindow("You", "Enemy");
                 Matchmaker match = new Matchmaker();
             }
         });
