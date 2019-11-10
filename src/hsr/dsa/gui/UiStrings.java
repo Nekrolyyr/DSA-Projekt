@@ -11,19 +11,15 @@ public class UiStrings {
     public static final String START_GAME_MESSAGE = "Let's play!!";
     public static final String SHIP_OUT_OF_FIELD_MESSAGE = "Ship out of Field!";
 
-    public static final String NEW_USER_IN_CHAT_ROOM = "User joined";
-    public static final String HAS_JOINED_RESPONSE_MESSAGE = "Hi im also here";
-    public static final String I_WANNA_PLAY_MESSAGE = "I wanna play";
-    public static final String HAS_JOINED_MESSAGE = " has joined!";
+
     public static final String WELCOME_MESSAGE = "Welcome in our Chat-Room! For chat-rules type: !rules";
     public static final String WHO_ARE_YOU_MESSAGE = "Who are you?";
-    public static final String I_AM_MESSAGE = "I am";
 
     public static final String OK = "OK";
     public static final String ACCEPT_ENEMYS_OFFER = "Accept enemys offer";
     public static final String MAKE_AN_OFFER = "Offer";
     public static final String ABORT = "Abort";
-    public static final String CURRENCY = " BTC";
+    public static final String CURRENCY = " ETH";
     public static final String YOUR_AMOUNT = "Your offer:";
     public static final String ENEMY_AMOUNT = "Enemy's offer:";
 

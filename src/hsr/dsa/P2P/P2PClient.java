@@ -78,6 +78,7 @@ public class P2PClient {
         if (Username.length() < 2) {
             if (onUsernameNotValidListener != null) onUsernameNotValidListener.onCall();
         }
+        // TODO: Ether Account valid check!
         try {
             this.username = Username;
             peerDHT = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(Username)).ports(4000).start()).start();

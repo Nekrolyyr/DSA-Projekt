@@ -2,6 +2,7 @@ package hsr.dsa.gui.chatRoom;
 
 import hsr.dsa.P2P.Message;
 import hsr.dsa.P2P.P2PClient;
+import hsr.dsa.ethereum.BlockchainHandler;
 import hsr.dsa.gui.game.BattleField;
 
 import javax.swing.*;
@@ -32,12 +33,14 @@ public class GamblingWindow {
     private Dimension gambleFieldSize;
 
     private P2PClient p2pClient;
+    private BlockchainHandler blockchainHandler;
     private BattleField battleField;
     private String localUser;
     private String remoteUser;
 
-    public GamblingWindow(String localUser, String remoteUser, double gambleamount, P2PClient p2pClient) {
+    public GamblingWindow(String localUser, String remoteUser, double gambleamount, P2PClient p2pClient, BlockchainHandler blockchainHandler) {
         this.p2pClient = p2pClient;
+        this.blockchainHandler = blockchainHandler;
         this.localUser = localUser;
         this.remoteUser = remoteUser;
 
@@ -70,6 +73,10 @@ public class GamblingWindow {
                 if (message.getGambleamount() == amount) {
                     //Accepted
                     JOptionPane.showMessageDialog(null, "Your Offer was Accepted!");
+
+                    //Handle Blockchain
+                    blockchainHandler.storeAmountInBlockchain(amount);
+
                     battleField = new BattleField(localUser, remoteUser, p2pClient);
                 } else {
                     if (message.getGambleamount() < 0) {

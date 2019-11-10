@@ -2,6 +2,7 @@ package hsr.dsa.gui.chatRoom;
 
 import hsr.dsa.P2P.Message;
 import hsr.dsa.P2P.P2PClient;
+import hsr.dsa.ethereum.BlockchainHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +24,7 @@ public class ChatRoom {
     private JTextArea userWindow;
     private JTextField textInputField;
     private P2PClient p2pClient;
+    private BlockchainHandler blockchainHandler;
     private GamblingWindow gamblingWindow;
     private Object globalLock = new Object();
     private Map<String,JButton> userButtons = new HashMap<>();
@@ -105,11 +107,14 @@ public class ChatRoom {
     private void askCredentialsAndTryToConnect() {
         JTextField username = new JTextField();
         JTextField knownPeer = new JTextField();
+        JTextField etherAccount = new JTextField();
         Object[] message = {
                 "Username:", username,
-                "Known Peer:", knownPeer
+                "Known Peer:", knownPeer,
+                "EtherAccount:", etherAccount
         };
         JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
+        blockchainHandler = new BlockchainHandler(etherAccount.getText());
         p2pClient.connect(username.getText(), knownPeer.getText());
         p2pClient.getPeerMap().forEach((number160, s) -> {
             JButton temp = generateUserForUserPanel(s);
