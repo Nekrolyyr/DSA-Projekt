@@ -12,13 +12,14 @@ public class Message{
     private Type type;
     private Move move;
     private Field.Shot shot;
+    private String pk;
     private double gambleamount;
 
     public Field.Shot getShot() {
         return shot;
     }
 
-    public enum Type{CHAT,CHALLENGE,MOVE,SHOT}
+    public enum Type{CHAT,CHALLENGE,MOVE,SHOT,PK_EXCHANGE}
 
     public Message(String sender, String message) {
         this.sender = sender;
@@ -42,6 +43,11 @@ public class Message{
         this.shot = shot;
         this.type = Type.MOVE;
     }
+    public Message(String sender, String pk, Type pk_Exchange){
+        this.sender = sender;
+        this.pk = pk;
+        this.type = Type.PK_EXCHANGE;
+    }
 
     public Message(String JSONString){
         try{
@@ -60,12 +66,19 @@ public class Message{
                 case SHOT:
                     parseShot(json);
                     break;
+                case PK_EXCHANGE:
+                    parsePK(json);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
         }catch (Exception e){
             System.out.println("Message Illegible: "+JSONString);
         }
+    }
+    private void parsePK(JsonObject json) throws  Exception{
+        sender = json.get("sender").getAsString();
+        pk = json.get("pk").getAsString();
     }
 
     private void parseChat(JsonObject json) throws Exception{
@@ -83,6 +96,46 @@ public class Message{
     private void parseShot(JsonObject json) throws Exception{
         sender = json.get("sender").getAsString();
         shot = Field.Shot.valueOf(json.get("shot").getAsString());
+    }
+    public String pack(){
+        JsonObject _package = new JsonObject();
+        _package.addProperty("type",type.toString());
+        switch (type){
+            case CHAT:
+                _package.addProperty("sender",sender);
+                _package.addProperty("message",message);
+                break;
+            case CHALLENGE:
+                _package.addProperty("sender",sender);
+                _package.addProperty("gambleamount",gambleamount);
+                break;
+            case MOVE:
+                _package.addProperty("sender",sender);
+                _package.addProperty("x",move.getX());
+                _package.addProperty("y",move.getY());
+                break;
+            case SHOT:
+                _package.addProperty("sender",sender);
+                _package.addProperty("shot",shot.toString());
+            case PK_EXCHANGE:
+                _package.addProperty("sender",sender);
+                _package.addProperty("pk",pk);
+            default:
+                throw new NotImplementedException();
+        }
+        return _package.toString();
+    }
+
+    public void setShot(Field.Shot shot) {
+        this.shot = shot;
+    }
+
+    public String getPk() {
+        return pk;
+    }
+
+    public void setPk(String pk) {
+        this.pk = pk;
     }
 
     public Type getType() {
@@ -125,30 +178,5 @@ public class Message{
         this.message = message;
     }
 
-    public String pack(){
-        JsonObject _package = new JsonObject();
-        _package.addProperty("type",type.toString());
-        switch (type){
-            case CHAT:
-                _package.addProperty("sender",sender);
-                _package.addProperty("message",message);
-                break;
-            case CHALLENGE:
-                _package.addProperty("sender",sender);
-                _package.addProperty("gambleamount",gambleamount);
-                break;
-            case MOVE:
-                _package.addProperty("sender",sender);
-                _package.addProperty("x",move.getX());
-                _package.addProperty("y",move.getY());
-                break;
-            case SHOT:
-                _package.addProperty("sender",sender);
-                _package.addProperty("shot",shot.toString());
-            default:
-                throw new NotImplementedException();
-        }
-        return _package.toString();
-    }
 
 }
