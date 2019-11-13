@@ -70,7 +70,7 @@ public class ChatRoom {
                     if(m.getType() == Message.Type.CHAT) {
                         appendChatMessage(m.getSender(), m.getMessage());
                     }else if(m.getType() == Message.Type.CHALLENGE && (gamblingWindow == null || !gamblingWindow.isShowing())){
-                        gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(),m.getGambleamount(), p2pClient);
+                        gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(),m.getGambleamount(), p2pClient, blockchainHandler);
                     }
                 }
             });
@@ -114,7 +114,6 @@ public class ChatRoom {
                 "EtherAccount:", etherAccount
         };
         JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
-        blockchainHandler = new BlockchainHandler(etherAccount.getText());
         p2pClient.connect(username.getText(), knownPeer.getText());
         p2pClient.getPeerMap().forEach((number160, s) -> {
             JButton temp = generateUserForUserPanel(s);
@@ -123,6 +122,9 @@ public class ChatRoom {
         });
         chatWindow.append(WELCOME_MESSAGE + '\n');
         chatWindow.append(CHAT_SEPARATOR);
+
+        String remoteEtherAccount = "David: Do muass de Ether Account fum andera ina";
+        blockchainHandler = new BlockchainHandler(etherAccount.getText(), remoteEtherAccount);
     }
 
     private void initializeWritePanel() {
@@ -184,7 +186,7 @@ public class ChatRoom {
         temp.addActionListener(actionEvent -> {
             System.out.println("I challenge you, " + userName);
             p2pClient.send(userName,new Message(p2pClient.getUsername(),1));
-            gamblingWindow = new GamblingWindow(p2pClient.getUsername(), userName, 1, p2pClient);
+            gamblingWindow = new GamblingWindow(p2pClient.getUsername(), userName, 1, p2pClient, blockchainHandler);
         });
         return temp;
     }
