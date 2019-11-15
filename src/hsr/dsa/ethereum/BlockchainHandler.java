@@ -66,6 +66,7 @@ public class BlockchainHandler {
 
         try {
             //receipt = smartContract.storeAmountInContract(gambleAmount).send();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
