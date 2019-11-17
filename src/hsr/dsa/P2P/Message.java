@@ -121,9 +121,11 @@ public class Message{
                 _package.addProperty("shot",shot.toString());
                 _package.addProperty("x",move.getX());
                 _package.addProperty("y",move.getY());
+                break;
             case PK_EXCHANGE:
                 _package.addProperty("sender",sender);
                 _package.addProperty("pk",pk);
+                break;
             default:
                 throw new NotImplementedException();
         }
