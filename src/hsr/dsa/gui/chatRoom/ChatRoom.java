@@ -6,6 +6,7 @@ import hsr.dsa.ethereum.BlockchainHandler;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -83,21 +84,27 @@ public class ChatRoom {
         });
         p2pClient.addOnPeerMapChangeListener(peerMap -> {
             SwingUtilities.invokeLater(() -> {
-                peerMap.forEach((number160,s) -> {
-                    if (!userButtons.containsKey(s)) {
-                        JButton temp = generateUserForUserPanel(s);
-                        userButtons.put(s, temp);
-                        userPanel.add(temp);
-                        userPanel.updateUI();
+                try{
+                    synchronized (globalLock) {
+                        peerMap.forEach((number160,s) -> {
+                            if (!userButtons.containsKey(s)) {
+                                JButton temp = generateUserForUserPanel(s);
+                                userButtons.put(s, temp);
+                                userPanel.add(temp);
+                                userPanel.updateUI();
+                            }
+                        });
+                        userButtons.forEach((s, jButton) -> {
+                                if (!peerMap.containsValue(s)) {
+                                    userButtons.remove(s);
+                                    userPanel.remove(jButton);
+                                    userPanel.updateUI();
+                                }
+                        });
                     }
-                });
-                userButtons.forEach((s, jButton) -> {
-                    if(!peerMap.containsValue(s)){
-                        userButtons.remove(s);
-                        userPanel.remove(jButton);
-                        userPanel.updateUI();
-                    }
-                });
+                }catch (ConcurrentModificationException e){
+                    System.out.println("Concurrency problem on PeerMap Update");
+                }
             });
         });
         askCredentialsAndTryToConnect();

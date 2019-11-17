@@ -101,6 +101,7 @@ public class P2PClient {
 
                 @Override
                 public void peerRemoved(PeerAddress peerAddress, PeerStatistic peerStatistic) {
+                    System.out.println(peerMap.get(peerAddress)+" Left");
                     peerMap.remove(peerAddress);
                     fireOnPeerMapChanged();
                 }
@@ -127,8 +128,8 @@ public class P2PClient {
                         System.out.println("Cannot find Peer Username");
                     } finally {
                         if(username!=null && !username.isEmpty()){
-                            peerMap.put(peerAddress,username);
-                            System.out.println("Peername found: "+username);
+                            peerMap.put(peerAddress, username);
+                            System.out.println("Peername found: " + username);
                             fireOnPeerMapChanged();
                         }else {
                             System.out.println("Cannot find Peer Username "+username);
