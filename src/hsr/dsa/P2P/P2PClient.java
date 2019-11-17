@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class P2PClient {
     public OnConnectionNotEstablished onConnectionNotEstablished;
@@ -34,14 +35,14 @@ public class P2PClient {
     private PeerDHT peerDHT;
     private OnUsernameNotValidListener onUsernameNotValidListener;
     private OnKnownPeerNotValidListener onKnownPeerNotValidListener;
-    private List<OnMessageReceivedListener> onMessageReceivedListeners = new ArrayList<>();
+    private CopyOnWriteArrayList<OnMessageReceivedListener> onMessageReceivedListeners = new CopyOnWriteArrayList<>();
 
     private ConcurrentHashMap<PeerAddress,String> peerMap = new ConcurrentHashMap<>();
 
     public interface OnPeerMapChangeListener{
-        void onCall(Map<PeerAddress,String> peerMap);
+        void onCall(ConcurrentHashMap<PeerAddress,String> peerMap);
     }
-    private List<OnPeerMapChangeListener> onPeerMapChangesListeners = new ArrayList<>();
+    private CopyOnWriteArrayList<OnPeerMapChangeListener> onPeerMapChangesListeners = new CopyOnWriteArrayList<>();
     public void addOnPeerMapChangeListener(OnPeerMapChangeListener onPeerMapChangeListener){
         onPeerMapChangesListeners.add(onPeerMapChangeListener);
     }
@@ -67,8 +68,7 @@ public class P2PClient {
     }
 
     private void fireOnPeerMapChanged(){
-        Map<PeerAddress,String> map = new HashMap<>(peerMap);
-        onPeerMapChangesListeners.forEach(onPeerMapChangeListener -> onPeerMapChangeListener.onCall(map));
+        onPeerMapChangesListeners.forEach(onPeerMapChangeListener -> onPeerMapChangeListener.onCall(peerMap));
     }
 
     public void connect(String Username, String IPPeer) {
