@@ -76,9 +76,10 @@ public class GamblingWindow {
                     JOptionPane.showMessageDialog(null, "Your Offer was Accepted!");
 
                     //Handle Blockchain
-                    blockchainHandler.storeAmountInBlockchain(amount);
+                    //blockchainHandler.storeAmountInBlockchain(amount);
 
                     battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.PASSIVE);
+                    gamblingWindow.dispose();
                 } else {
                     if (message.getGambleamount() < 0) {
                         gamblingWindow.dispose();

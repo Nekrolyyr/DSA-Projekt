@@ -62,8 +62,7 @@ public class P2PClient {
     }
 
     public Map<PeerAddress,String> getPeerMap(){
-        Map<PeerAddress,String> map = new HashMap<>(peerMap);
-        return map;
+        return new HashMap<>(peerMap);
     }
 
     private void fireOnPeerMapChanged(){
