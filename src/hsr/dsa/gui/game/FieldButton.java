@@ -18,7 +18,7 @@ public class FieldButton extends JButton {
         this.yPos = yPos;
         this.gameChoreographer = gameChoreographer;
         this.setBackground(BUTTON_FOG_OF_WAR);
-        this.addActionListener(actionEvent -> fieldClicked());
+        //this.addActionListener(actionEvent -> fieldClicked());
         // Needed for ShipPlacer
         this.addActionListener(actionEvent -> {
             if (fieldButtonClickListener != null) fieldButtonClickListener.onClick(xPos, yPos);
@@ -41,11 +41,11 @@ public class FieldButton extends JButton {
         if (gameChoreographer.setupComplete()) {
             this.setEnabled(false);
 
-            if (hasPartOfShip) {
+            /*if (hasPartOfShip) {
                 setShipHitColor();
             } else {
                 setMissedShotColor();
-            }
+            }*/
 
             this.addActionListener(actionEvent -> {
                 if (fieldButtonClickListener != null) fieldButtonClickListener.onClick(xPos, yPos);
