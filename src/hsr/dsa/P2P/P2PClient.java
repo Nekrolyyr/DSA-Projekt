@@ -90,6 +90,7 @@ public class P2PClient {
             }
             peerDHT.peer().objectDataReply((peerAddress, o) -> {
                 Message m = new Message((String) o);
+                if(!peerMap.containsValue(m.getSender())) discoverPeers().forEach(this::getUsernameFromPeer);
                 onMessageReceivedListeners.forEach(onMessageReceivedListener -> onMessageReceivedListener.onCall(m));
                 return "REPLY";
             });
