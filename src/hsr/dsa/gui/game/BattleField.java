@@ -193,7 +193,7 @@ public class BattleField {
                     if (isYourField) {
                         try {
                             if (!gameChoreographer.setupComplete()) {
-                                gameChoreographer.addShip(null,xPos, yPos);
+                                gameChoreographer.addShip(xPos, yPos);
                                 renderShips();
                                 if (gameChoreographer.setupComplete()) {
                                     enableGameField(yourField, false);

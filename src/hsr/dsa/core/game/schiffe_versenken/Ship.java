@@ -44,7 +44,7 @@ public class Ship {
 
     public void hit() {
         hits++;
-        if (hits >= getSize()) shipListener.onSinking(this);
+        if (shipListener != null && hits >= getSize()) shipListener.onSinking(this);
     }
 
     public Orientation getOrientation() {

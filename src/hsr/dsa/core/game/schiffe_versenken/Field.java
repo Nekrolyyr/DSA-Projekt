@@ -6,8 +6,7 @@ import hsr.dsa.core.ShipSpotNotFreeException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static hsr.dsa.core.game.GameConfiguration.FIELD_SIZE;
-import static hsr.dsa.core.game.GameConfiguration.NUMBER_OF_SHIPS;
+import static hsr.dsa.core.game.GameConfiguration.*;
 
 public class Field {
 
@@ -26,9 +25,10 @@ public class Field {
         this.gameEndListener = gameEndListener;
     }
 
-    public void addShip(Ship ship, int x, int y) throws IllegalShipCountException, ShipSpotNotFreeException {
+    public void addShip(int x, int y) throws IllegalShipCountException, ShipSpotNotFreeException {
         if (addedShips.size() >= NUMBER_OF_SHIPS)
             throw new IllegalShipCountException();
+        Ship ship = getNextShip();
         if (!shipSpotFree(ship, x, y)) throw new ShipSpotNotFreeException(x + " | " + y);
         addedShips.add(ship);
         for (int i = 0; i < ship.getSize(); i++) {
@@ -38,6 +38,10 @@ public class Field {
                 ships[x][y + i] = ship;
             }
         }
+    }
+
+    private Ship getNextShip() {
+        return new Ship(SHIPS[addedShips.size()],null);
     }
 
     public boolean allShipsAdded() {

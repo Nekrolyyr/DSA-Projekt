@@ -104,9 +104,9 @@ public class GameChoreographer {
         localPlayerFinished();
     }
 
-    public void addShip(Ship ship, int x, int y) throws IllegalShipCountException, GameNotSetupException, ShipSpotNotFreeException {
+    public void addShip(int x, int y) throws IllegalShipCountException, GameNotSetupException, ShipSpotNotFreeException {
         if (currentStage != PlayStage.SETUP) throw new GameNotSetupException();
-        localPlayer.field.addShip(ship, x, y);
+        localPlayer.field.addShip(x, y);
     }
 
     public Ship[][] getShipMatrix(){
