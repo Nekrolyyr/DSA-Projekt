@@ -27,8 +27,6 @@ public class BattleField {
     private JPanel shipPanel;   // Holds the ships at the bottom of the window
 
     private FieldButton[][] yourField;
-
-
     private FieldButton[][] enemyField;
     private GameChoreographer gameChoreographer;
     private GameMessages messageProvider;
@@ -37,7 +35,6 @@ public class BattleField {
     private JLabel corvette2;
     private JLabel destroyer;
     private JLabel battleship;
-
 
     public BattleField(String localUser, String remoteUser, P2PClient p2pClient, GameChoreographer.Type initiatedByLocalPlayer) {
         infoLabel = new JLabel();

@@ -9,6 +9,7 @@ import java.awt.*;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static hsr.dsa.gui.UiConfiguration.*;
 import static hsr.dsa.gui.UiStrings.CHAT_SEPARATOR;
@@ -28,7 +29,7 @@ public class ChatRoom {
     private BlockchainHandler blockchainHandler;
     private GamblingWindow gamblingWindow;
     private Object globalLock = new Object();
-    private Map<String,JButton> userButtons = new HashMap<>();
+    private ConcurrentHashMap<String,JButton> userButtons = new ConcurrentHashMap<>();
     private boolean gameInProgress = false;
 
     public ChatRoom() {
@@ -85,23 +86,21 @@ public class ChatRoom {
         p2pClient.addOnPeerMapChangeListener(peerMap -> {
             SwingUtilities.invokeLater(() -> {
                 try{
-                    synchronized (globalLock) {
-                        peerMap.forEach((number160,s) -> {
-                            if (!userButtons.containsKey(s)) {
-                                JButton temp = generateUserForUserPanel(s);
-                                userButtons.put(s, temp);
-                                userPanel.add(temp);
+                    peerMap.forEach((number160,s) -> {
+                        if (!userButtons.containsKey(s)) {
+                            JButton temp = generateUserForUserPanel(s);
+                            userButtons.put(s, temp);
+                            userPanel.add(temp);
+                            userPanel.updateUI();
+                        }
+                    });
+                    userButtons.forEach((s, jButton) -> {
+                            if (!peerMap.containsValue(s)) {
+                                userButtons.remove(s);
+                                userPanel.remove(jButton);
                                 userPanel.updateUI();
                             }
-                        });
-                        userButtons.forEach((s, jButton) -> {
-                                if (!peerMap.containsValue(s)) {
-                                    userButtons.remove(s);
-                                    userPanel.remove(jButton);
-                                    userPanel.updateUI();
-                                }
-                        });
-                    }
+                    });
                 }catch (ConcurrentModificationException e){
                     System.out.println("Concurrency problem on PeerMap Update");
                 }

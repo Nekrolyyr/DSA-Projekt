@@ -16,6 +16,7 @@ import net.tomp2p.storage.Data;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class P2PClient {
     public OnConnectionNotEstablished onConnectionNotEstablished;
@@ -35,7 +36,7 @@ public class P2PClient {
     private OnKnownPeerNotValidListener onKnownPeerNotValidListener;
     private List<OnMessageReceivedListener> onMessageReceivedListeners = new ArrayList<>();
 
-    private Map<PeerAddress,String> peerMap = new HashMap<>();
+    private ConcurrentHashMap<PeerAddress,String> peerMap = new ConcurrentHashMap<>();
 
     public interface OnPeerMapChangeListener{
         void onCall(Map<PeerAddress,String> peerMap);
