@@ -10,6 +10,7 @@ public class Timer {
     private List<TimerListener> tl = null;
     TimerUpdateListener tul;
     private int time = 0;
+    private boolean running = true;
     public interface TimerListener{
         void timerRunOut();
         default void timerInterrupted(int remainingMillisecond) {}
@@ -52,20 +53,25 @@ public class Timer {
     public void start(){
         new Thread(()->{
             try {
-                while (time > 1000) {
+                while (time > 1000 && running) {
                     SwingUtilities.invokeLater(()->tul.secondUpdate(time/1000));
                     Thread.sleep(1000);
                     time -= 1000;
                 }
+                if(!running)return;
                 SwingUtilities.invokeLater(()->tul.secondUpdate(time/1000));
-                while (time > 0) {
+                while (time > 0 && running) {
                     Thread.sleep(10);
                     time -= 10;
                 }
             }catch(InterruptedException ie){
                 SwingUtilities.invokeLater(()->{for (TimerListener timerListener : tl) {timerListener.timerInterrupted(time);}});
             }
+            if(!running)return;
             SwingUtilities.invokeLater(()->{for (TimerListener timerListener : tl) {timerListener.timerRunOut();}});
         }).start();
+    }
+    public void stop(){
+        running = false;
     }
 }

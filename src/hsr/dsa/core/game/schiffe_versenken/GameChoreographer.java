@@ -30,6 +30,7 @@ public class GameChoreographer {
     private PlayStage currentStage;
     private Timer.TimerListener tl;
     private Timer.TimerUpdateListener tul;
+    private Timer timer;
     private P2PClient p2pClient;
 
     public GameChoreographer(Type type, Timer.TimerListener tl, Timer.TimerUpdateListener tul, Field.GameEndListener gel,FieldUpdateListener fieldUpdateListener, P2PClient p2pClient,String localuser, String remoteUser) {
@@ -52,6 +53,7 @@ public class GameChoreographer {
                 }
             }else if(message.getType() == Message.Type.SHOT){
                 localPlayer.attackField[message.getMove().getX()][message.getMove().getY()] = message.getShot();
+                timer.stop();
                 fieldUpdateListener.onCall();
             }
         });
@@ -63,8 +65,9 @@ public class GameChoreographer {
         if (type == Type.ACTIVE) {
             //localPayer's Move Start
             activePlayer = PlayerType.LOCAL;
-            new Timer.Builder().setSeconds(TIME_PER_MOVE).addTimerListener(this::localPlayerFinished)
-                    .addTimerListener(tl).addTimerListener(this::noMove).setTimerUpdateListener(tul).build().start();
+            timer = new Timer.Builder().setSeconds(TIME_PER_MOVE).addTimerListener(this::localPlayerFinished)
+                    .addTimerListener(tl).addTimerListener(this::noMove).setTimerUpdateListener(tul).build();
+            timer.start();
         } else {
             //remotePayer's Move Start
             activePlayer = PlayerType.REMOTE;
@@ -82,13 +85,15 @@ public class GameChoreographer {
     private void localPlayerFinished() {
         //remotePayer's Move Start
         activePlayer = PlayerType.REMOTE;
+        timer.stop();
     }
 
     private void remotePlayerFinished() {
         //localPayer's Move Start
         activePlayer = PlayerType.LOCAL;
-        new Timer.Builder().setSeconds(TIME_PER_MOVE).addTimerListener(this::localPlayerFinished)
-                .addTimerListener(tl).addTimerListener(this::noMove).setTimerUpdateListener(tul).build().start();
+        timer = new Timer.Builder().setSeconds(TIME_PER_MOVE).addTimerListener(this::localPlayerFinished)
+                .addTimerListener(tl).addTimerListener(this::noMove).setTimerUpdateListener(tul).build();
+        timer.start();
     }
 
     public Field.Shot remotePlayerMove(Move move) throws IllegalMoveException {

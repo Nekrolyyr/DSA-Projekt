@@ -38,8 +38,10 @@ public class FieldButton extends JButton {
     }
 
     public void setShotColoring(Field.Shot shot){
-        if (shot.equals(Field.Shot.HIT)) setShipHitColor();
-        if (shot.equals(Field.Shot.MISS)) setMissedShotColor();
+        if (shot!=null) {
+            if (shot.equals(Field.Shot.HIT)) setShipHitColor();
+            if (shot.equals(Field.Shot.MISS)) setMissedShotColor();
+        }
     }
 
     public interface FieldButtonClickListener {
