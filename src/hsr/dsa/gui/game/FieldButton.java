@@ -29,6 +29,7 @@ public class FieldButton extends JButton {
         this.setEnabled(false); // Needed only here because this fields are never clicked
         this.setBackground(BUTTON_SHIP_PLACED);
     }
+
     public void setShipHitColor() {
         this.setBackground(BUTTON_SHIP_HIT);
     }

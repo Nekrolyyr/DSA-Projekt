@@ -10,6 +10,7 @@ import static hsr.dsa.core.game.GameConfiguration.*;
 
 public class Field {
 
+
     public interface GameEndListener {
         void onGameEndet();
     }
@@ -20,6 +21,7 @@ public class Field {
     public Ship[][] ships = new Ship[FIELD_SIZE][FIELD_SIZE];
     private List<Ship> addedShips = new ArrayList<>();
     private GameEndListener gameEndListener;
+    private boolean rotated = false;
 
     public Field(GameEndListener gameEndListener) {
         this.gameEndListener = gameEndListener;
@@ -29,6 +31,7 @@ public class Field {
         if (addedShips.size() >= NUMBER_OF_SHIPS)
             throw new IllegalShipCountException();
         Ship ship = getNextShip();
+        if(rotated)ship.rotate();
         if (!shipSpotFree(ship, x, y)) throw new ShipSpotNotFreeException(x + " | " + y);
         addedShips.add(ship);
         for (int i = 0; i < ship.getSize(); i++) {
@@ -40,6 +43,13 @@ public class Field {
         }
     }
 
+    public void rotateCalled() {
+        if(rotated){
+            rotated = false;
+        }else{
+            rotated = true;
+        }
+    }
     private Ship getNextShip() {
         return new Ship(SHIPS[addedShips.size()],null);
     }

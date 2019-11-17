@@ -12,6 +12,7 @@ import static hsr.dsa.core.game.GameConfiguration.TIME_PER_MOVE;
 
 public class GameChoreographer {
 
+
     public enum Type {ACTIVE, PASSIVE}
 
     public enum PlayerType {LOCAL, REMOTE}
@@ -74,6 +75,9 @@ public class GameChoreographer {
         }
     }
 
+    public void rotateCalled() {
+        localPlayer.field.rotateCalled();
+    }
     private void noMove() {
         p2pClient.send(remotePlayer.getUsername(),new Message(localPlayer.getUsername(),new Move(-1,-1)));
     }

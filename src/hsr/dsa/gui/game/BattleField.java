@@ -8,9 +8,12 @@ import hsr.dsa.core.ShipSpotNotFreeException;
 import hsr.dsa.core.game.schiffe_versenken.Field;
 import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
 import hsr.dsa.core.game.schiffe_versenken.Move;
+import javafx.scene.input.KeyCode;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 
 import static hsr.dsa.core.game.GameConfiguration.*;
@@ -85,11 +88,28 @@ public class BattleField {
         battleField.setSize(BATTLEFIELD_WINDOW_SIZE);
         battleField.setResizable(false);
         battleField.setLocationRelativeTo(null);
-        battleField.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        battleField.setVisible(true);
+        //battleField.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        battleField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_R){
+                    System.out.println("Rotating");
+                    gameChoreographer.rotateCalled();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        });
 
         messageProvider = new GameMessages();
         messageProvider.showShipPlacingMessage();
+
+        battleField.setVisible(true);
     }
 
     public GameChoreographer getGameChoreographer() {
