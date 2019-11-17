@@ -40,11 +40,11 @@ public class BattleField {
     private JLabel battleship;
 
 
-    public BattleField(String localUser, String remoteUser, P2PClient p2pClient) {
+    public BattleField(String localUser, String remoteUser, P2PClient p2pClient, GameChoreographer.Type initiatedByLocalPlayer) {
         infoLabel = new JLabel();
         shipPlacer = new ShipPlacer(this);
 
-        gameChoreographer = new GameChoreographer(GameChoreographer.Type.ACTIVE,
+        gameChoreographer = new GameChoreographer(initiatedByLocalPlayer,
                 () -> {
                     System.out.println("Time ran out!");
                     infoLabel.setText("Time ran out! Noob!");

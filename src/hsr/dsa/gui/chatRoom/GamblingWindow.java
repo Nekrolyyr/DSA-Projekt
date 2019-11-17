@@ -2,6 +2,7 @@ package hsr.dsa.gui.chatRoom;
 
 import hsr.dsa.P2P.Message;
 import hsr.dsa.P2P.P2PClient;
+import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
 import hsr.dsa.ethereum.BlockchainHandler;
 import hsr.dsa.gui.game.BattleField;
 
@@ -77,7 +78,7 @@ public class GamblingWindow {
                     //Handle Blockchain
                     blockchainHandler.storeAmountInBlockchain(amount);
 
-                    battleField = new BattleField(localUser, remoteUser, p2pClient);
+                    battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.PASSIVE);
                 } else {
                     if (message.getGambleamount() < 0) {
                         gamblingWindow.dispose();
@@ -106,7 +107,7 @@ public class GamblingWindow {
         enemysOfferButton.addActionListener(actionEvent -> {
             double amount = Double.parseDouble(enemysGambleOffer.getText());
             p2pClient.send(remoteUser, new Message(localUser, amount));
-            battleField = new BattleField(localUser, remoteUser, p2pClient);
+            battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.ACTIVE);
         });
 
         abortButton = new JButton(ABORT);
