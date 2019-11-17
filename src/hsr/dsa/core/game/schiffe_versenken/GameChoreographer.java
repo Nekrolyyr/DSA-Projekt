@@ -125,4 +125,8 @@ public class GameChoreographer {
     public Field.Shot[][] getAttackShotMatrix(){
         return localPlayer.attackField;
     }
+
+    public PlayerType getActivePlayer(){
+        return activePlayer;
+    }
 }

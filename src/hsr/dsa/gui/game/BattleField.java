@@ -209,7 +209,6 @@ public class BattleField {
                     } else {
                         try {
                             gameChoreographer.localPlayermove(new Move(xPos, yPos));
-                            enableGameField(enemyField,false);
                         } catch (IllegalMoveException e) {
                             System.out.println("This was a Illegal Move!");
                         }
@@ -230,6 +229,11 @@ public class BattleField {
     }
 
     private void renderField(){
+        if(gameChoreographer.getActivePlayer().equals(GameChoreographer.PlayerType.LOCAL)){
+            enableGameField(enemyField,true);
+        }else{
+            enableGameField(enemyField,false);
+        }
         for (int y = 0; y < FIELD_SIZE; y++) {
             for (int x = 0; x < FIELD_SIZE; x++) {
                 yourField[x][y].setShotColoring(gameChoreographer.getShotMatrix()[x][y]);
