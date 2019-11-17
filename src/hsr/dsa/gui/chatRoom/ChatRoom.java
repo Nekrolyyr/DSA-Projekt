@@ -81,24 +81,22 @@ public class ChatRoom {
             });
         });
         p2pClient.addOnPeerMapChangeListener(peerMap -> {
-            peerMap.forEach((number160,s) -> {
-                if (!userButtons.containsKey(s)) {
-                    JButton temp = generateUserForUserPanel(s);
-                    userButtons.put(s, temp);
-                    SwingUtilities.invokeLater(() -> {
+            SwingUtilities.invokeLater(() -> {
+                peerMap.forEach((number160,s) -> {
+                    if (!userButtons.containsKey(s)) {
+                        JButton temp = generateUserForUserPanel(s);
+                        userButtons.put(s, temp);
                         userPanel.add(temp);
                         userPanel.updateUI();
-                    });
-                }
-            });
-            userButtons.forEach((s, jButton) -> {
-                if(!peerMap.containsValue(s)){
-                    userButtons.remove(s);
-                    SwingUtilities.invokeLater(() -> {
+                    }
+                });
+                userButtons.forEach((s, jButton) -> {
+                    if(!peerMap.containsValue(s)){
+                        userButtons.remove(s);
                         userPanel.remove(jButton);
                         userPanel.updateUI();
-                    });
-                }
+                    }
+                });
             });
         });
         askCredentialsAndTryToConnect();
@@ -123,8 +121,9 @@ public class ChatRoom {
         chatWindow.append(WELCOME_MESSAGE + '\n');
         chatWindow.append(CHAT_SEPARATOR);
 
+        //TODO: Martin das goht do nid du weisch jo nonid mit wer du Challengesch
         String remoteEtherAccount = "David: Do muass de Ether Account fum andera ina";
-        blockchainHandler = new BlockchainHandler(etherAccount.getText(), remoteEtherAccount);
+        //blockchainHandler = new BlockchainHandler(etherAccount.getText(), remoteEtherAccount);
     }
 
     private void initializeWritePanel() {
