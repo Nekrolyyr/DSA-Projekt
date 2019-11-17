@@ -56,7 +56,6 @@ public class GameChoreographer {
                 }
             }
         });
-
     }
 
     public void start() throws GameNotSetupException {
