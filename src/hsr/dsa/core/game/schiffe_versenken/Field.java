@@ -11,15 +11,14 @@ import static hsr.dsa.core.game.GameConfiguration.NUMBER_OF_SHIPS;
 
 public class Field {
 
-
     public interface GameEndListener {
         void onGameEndet();
     }
 
     public enum Shot {NULL, HIT, MISS}
 
-    private Shot[][] shots = new Shot[FIELD_SIZE][FIELD_SIZE];
-    private Ship[][] ships = new Ship[FIELD_SIZE][FIELD_SIZE];
+    public Shot[][] shots = new Shot[FIELD_SIZE][FIELD_SIZE];
+    public Ship[][] ships = new Ship[FIELD_SIZE][FIELD_SIZE];
     private List<Ship> addedShips = new ArrayList<>();
     private GameEndListener gameEndListener;
 

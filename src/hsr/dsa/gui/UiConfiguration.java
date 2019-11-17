@@ -8,9 +8,6 @@ import static hsr.dsa.core.game.GameConfiguration.FIELD_SIZE;
 
 public class UiConfiguration {
 
-    public final static int NUMBER_OF_ROWS = FIELD_SIZE;
-    public final static int NUMBER_OF_COLUMNS = FIELD_SIZE;
-
     public final static int INFO_SCREEN_DURATION = 2000;
 
     private static final float SCREEN_RESOLUTION = Toolkit.getDefaultToolkit().getScreenResolution();

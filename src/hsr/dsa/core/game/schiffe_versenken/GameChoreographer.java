@@ -18,11 +18,11 @@ public class GameChoreographer {
 
     public enum PlayStage {SETUP, PLAYING}
 
-    public interface RemotePlayerMoveAnswerListener {
-        void answer(Field.Shot shot);
+    public interface FieldUpdateListener {
+        void onCall();
     }
 
-    private RemotePlayerMoveAnswerListener currentMoveAnswerListener;
+    private FieldUpdateListener fieldUpdateListener;
     private Player localPlayer;
     private Player remotePlayer;
     private Type type;
@@ -32,28 +32,27 @@ public class GameChoreographer {
     private Timer.TimerUpdateListener tul;
     private P2PClient p2pClient;
 
-    public GameChoreographer(Type type, Timer.TimerListener tl, Timer.TimerUpdateListener tul, Field.GameEndListener gel, P2PClient p2pClient,String localuser, String remoteUser) {
+    public GameChoreographer(Type type, Timer.TimerListener tl, Timer.TimerUpdateListener tul, Field.GameEndListener gel,FieldUpdateListener fieldUpdateListener, P2PClient p2pClient,String localuser, String remoteUser) {
         this.type = type;
         this.tl = tl;
         this.tul = tul;
         this.p2pClient = p2pClient;
+        this.fieldUpdateListener = fieldUpdateListener;
         currentStage = PlayStage.SETUP;
         localPlayer = new Player(localuser, gel);
-        remotePlayer = new Player(remoteUser, gel);
+        remotePlayer = new Player(remoteUser, null);
         p2pClient.addOnMessageReceivedListener(message -> {
             if(message.getType() == Message.Type.MOVE) {
                 try {
                     Field.Shot result = remotePlayerMove(message.getMove());
-                    p2pClient.send(remotePlayer.getUsername(),new Message(localPlayer.getUsername(),result));
+                    p2pClient.send(remotePlayer.getUsername(),new Message(localPlayer.getUsername(), result, message.getMove()));
+                    fieldUpdateListener.onCall();
                 } catch (IllegalMoveException e) {
                     System.err.println("Remote Player made a Illegal Move");
                 }
             }else if(message.getType() == Message.Type.SHOT){
-                if(currentMoveAnswerListener != null){
-                    currentMoveAnswerListener.answer(message.getShot());
-                }else{
-                    System.err.println("Receieved unwanted Move response");
-                }
+                localPlayer.attackField[message.getMove().getX()][message.getMove().getY()] = message.getShot();
+                fieldUpdateListener.onCall();
             }
         });
     }
@@ -99,15 +98,26 @@ public class GameChoreographer {
         return localPlayer.field.shoot(move);
     }
 
-    public void localPlayermove(Move move, RemotePlayerMoveAnswerListener remotePlayerMoveAnswerListener) throws IllegalMoveException {
+    public void localPlayermove(Move move) throws IllegalMoveException {
         if (activePlayer != PlayerType.LOCAL) throw new IllegalMoveException();
         p2pClient.send(remotePlayer.getUsername(), new Message(localPlayer.getUsername(), move));
-        currentMoveAnswerListener = remotePlayerMoveAnswerListener;
         localPlayerFinished();
     }
 
     public void addShip(Ship ship, int x, int y) throws IllegalShipCountException, GameNotSetupException, ShipSpotNotFreeException {
         if (currentStage != PlayStage.SETUP) throw new GameNotSetupException();
         localPlayer.field.addShip(ship, x, y);
+    }
+
+    public Ship[][] getShipMatrix(){
+        return localPlayer.field.ships;
+    }
+
+    public Field.Shot[][] getShotMatrix(){
+        return localPlayer.field.shots;
+    }
+
+    public Field.Shot[][] getAttackShotMatrix(){
+        return localPlayer.attackField;
     }
 }

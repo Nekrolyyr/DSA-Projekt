@@ -38,10 +38,11 @@ public class Message{
         this.move = move;
         this.type = Type.MOVE;
     }
-    public Message(String sender, Field.Shot shot){
+    public Message(String sender, Field.Shot shot, Move move){
         this.sender = sender;
         this.shot = shot;
-        this.type = Type.MOVE;
+        this.move = move;
+        this.type = Type.SHOT;
     }
     public Message(String sender, String pk, Type pk_Exchange){
         this.sender = sender;
@@ -96,6 +97,7 @@ public class Message{
     private void parseShot(JsonObject json) throws Exception{
         sender = json.get("sender").getAsString();
         shot = Field.Shot.valueOf(json.get("shot").getAsString());
+        move = new Move(json.get("x").getAsInt(),json.get("y").getAsInt());
     }
     public String pack(){
         JsonObject _package = new JsonObject();
@@ -117,6 +119,8 @@ public class Message{
             case SHOT:
                 _package.addProperty("sender",sender);
                 _package.addProperty("shot",shot.toString());
+                _package.addProperty("x",move.getX());
+                _package.addProperty("y",move.getY());
             case PK_EXCHANGE:
                 _package.addProperty("sender",sender);
                 _package.addProperty("pk",pk);
