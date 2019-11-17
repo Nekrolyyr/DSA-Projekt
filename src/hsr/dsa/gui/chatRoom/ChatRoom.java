@@ -28,6 +28,7 @@ public class ChatRoom {
     private GamblingWindow gamblingWindow;
     private Object globalLock = new Object();
     private Map<String,JButton> userButtons = new HashMap<>();
+    private boolean gameInProgress = false;
 
     public ChatRoom() {
         chatRoom = new JFrame("Chat Room");
@@ -70,7 +71,7 @@ public class ChatRoom {
                     if(m.getType() == Message.Type.CHAT) {
                         appendChatMessage(m.getSender(), m.getMessage());
                     }else if(m.getType() == Message.Type.CHALLENGE && (gamblingWindow == null || !gamblingWindow.isShowing())){
-                        gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(),m.getGambleamount(), p2pClient, blockchainHandler);
+                        gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(), m.getGambleamount(), p2pClient, blockchainHandler);
                     }
                 }
             });
@@ -183,9 +184,11 @@ public class ChatRoom {
         temp.setForeground(Color.red);
         temp.setBorder(BorderFactory.createLineBorder(Color.black));
         temp.addActionListener(actionEvent -> {
-            System.out.println("I challenge you, " + userName);
-            p2pClient.send(userName,new Message(p2pClient.getUsername(),1));
-            gamblingWindow = new GamblingWindow(p2pClient.getUsername(), userName, 1, p2pClient, blockchainHandler);
+            if(!gameInProgress) {
+                System.out.println("I challenge you, " + userName);
+                p2pClient.send(userName, new Message(p2pClient.getUsername(), 1));
+                gamblingWindow = new GamblingWindow(p2pClient.getUsername(), userName, 1, p2pClient, blockchainHandler);
+            }else {JOptionPane.showMessageDialog(null,"You are already in a Game!");}
         });
         return temp;
     }

@@ -84,7 +84,7 @@ public class GamblingWindow {
                     if (message.getGambleamount() < 0) {
                         gamblingWindow.dispose();
                     }
-                    enemysGambleOffer.setText(String.valueOf(message.getGambleamount()));
+                    setGamblingAmountFromEnemy(String.valueOf(message.getGambleamount()));
                 }
             }
         });
@@ -109,6 +109,7 @@ public class GamblingWindow {
             double amount = Double.parseDouble(enemysGambleOffer.getText());
             p2pClient.send(remoteUser, new Message(localUser, amount));
             battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.ACTIVE);
+            gamblingWindow.dispose();
         });
 
         abortButton = new JButton(ABORT);
@@ -135,7 +136,7 @@ public class GamblingWindow {
         gambleFieldSize = new Dimension((int) (0.2 * GAMBLING_WINDOW_SIZE.getWidth()), 2 * WRITE_FONT.getSize());
 
         gambleAmountInput = new JTextField();
-        gambleAmountInput.setText(0 + "");
+        gambleAmountInput.setText(initialOffer + "");
         gambleAmountInput.setPreferredSize(gambleFieldSize);
         gambleAmountInput.setFont(WRITE_FONT);
         gambleAmountInput.setHorizontalAlignment(SwingUtilities.CENTER);

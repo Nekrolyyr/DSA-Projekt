@@ -101,7 +101,7 @@ public class P2PClient {
 
                 @Override
                 public void peerRemoved(PeerAddress peerAddress, PeerStatistic peerStatistic) {
-                    peerMap.remove(peerAddress.peerId());
+                    peerMap.remove(peerAddress);
                     fireOnPeerMapChanged();
                 }
 
