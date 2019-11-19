@@ -26,9 +26,9 @@ import org.web3j.tx.gas.ContractGasProvider;
  */
 @SuppressWarnings("rawtypes")
 public class SmartContractDSAProject extends Contract {
-    private static final String BINARY = "[{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"int256\",\"name\":\"number\",\"type\":\"int256\"}],\"name\":\"testFunction\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
+    private static final String BINARY = "[{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address payable\",\"name\":\"otherPlayer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"startTransaction\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
 
-    public static final String FUNC_TESTFUNCTION = "testFunction";
+    public static final String FUNC_STARTTRANSACTION = "startTransaction";
 
     @Deprecated
     protected SmartContractDSAProject(String contractAddress, Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
@@ -48,10 +48,11 @@ public class SmartContractDSAProject extends Contract {
         super(BINARY, contractAddress, web3j, transactionManager, contractGasProvider);
     }
 
-    public RemoteFunctionCall<TransactionReceipt> testFunction(BigInteger number) {
+    public RemoteFunctionCall<TransactionReceipt> startTransaction(String otherPlayer, BigInteger amount) {
         final Function function = new Function(
-                FUNC_TESTFUNCTION, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Int256(number)), 
+                FUNC_STARTTRANSACTION, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, otherPlayer), 
+                new org.web3j.abi.datatypes.generated.Uint256(amount)), 
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }

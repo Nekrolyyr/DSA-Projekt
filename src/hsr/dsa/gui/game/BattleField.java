@@ -5,15 +5,18 @@ import hsr.dsa.core.GameNotSetupException;
 import hsr.dsa.core.IllegalMoveException;
 import hsr.dsa.core.IllegalShipCountException;
 import hsr.dsa.core.ShipSpotNotFreeException;
+import hsr.dsa.core.game.schiffe_versenken.Field;
 import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
 import hsr.dsa.core.game.schiffe_versenken.Move;
 
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 
-import static hsr.dsa.core.game.GameConfiguration.NUMBER_OF_SHIPS;
-import static hsr.dsa.core.game.GameConfiguration.SHIPS;
+import static hsr.dsa.core.game.GameConfiguration.*;
 import static hsr.dsa.gui.UiConfiguration.*;
 
 public class BattleField {
@@ -27,9 +30,6 @@ public class BattleField {
     private JPanel shipPanel;   // Holds the ships at the bottom of the window
 
     private FieldButton[][] yourField;
-
-    private ShipPlacer shipPlacer;
-
     private FieldButton[][] enemyField;
     private GameChoreographer gameChoreographer;
     private GameMessages messageProvider;
@@ -39,12 +39,10 @@ public class BattleField {
     private JLabel destroyer;
     private JLabel battleship;
 
-
-    public BattleField(String localUser, String remoteUser, P2PClient p2pClient) {
+    public BattleField(String localUser, String remoteUser, P2PClient p2pClient, GameChoreographer.Type initiatedByLocalPlayer) {
         infoLabel = new JLabel();
-        shipPlacer = new ShipPlacer(this);
 
-        gameChoreographer = new GameChoreographer(GameChoreographer.Type.ACTIVE,
+        gameChoreographer = new GameChoreographer(initiatedByLocalPlayer,
                 () -> {
                     System.out.println("Time ran out!");
                     infoLabel.setText("Time ran out! Noob!");
@@ -57,27 +55,23 @@ public class BattleField {
                         infoLabel.setForeground(Color.RED);
                     }
                 },
-                () -> System.out.println("Game Has ended!"), p2pClient,localUser,remoteUser);
-        //GameTests.testSetup(gameChoreographer);
+                () -> System.out.println("Game Has ended!"),
+                this::renderField
+                , p2pClient,localUser,remoteUser);
 
         JPanel namePanel = createNamePanel(gameChoreographer); // On top of the Battlefield, to show which field is yours
 
         fieldPanel = new JPanel(new GridLayout(1, 2));
         fieldPanel.setPreferredSize(new Dimension(FIELD_PANEL_WIDTH, FIELD_PANEL_HEIGHT));
-        yourFieldPanel = new JPanel(new GridLayout(NUMBER_OF_ROWS, NUMBER_OF_COLUMNS));
+        yourFieldPanel = new JPanel(new GridLayout(FIELD_SIZE, FIELD_SIZE));
         yourFieldPanel.setPreferredSize(new Dimension((int) (0.8 * BATTLEFIELD_WINDOW_SIZE.getHeight()), (int) (0.8 * BATTLEFIELD_WINDOW_SIZE.getHeight())));
         yourFieldPanel.setBorder(FIELD_BORDER);
-        enemyFieldPanel = new JPanel(new GridLayout(NUMBER_OF_ROWS, NUMBER_OF_COLUMNS));
+        enemyFieldPanel = new JPanel(new GridLayout(FIELD_SIZE, FIELD_SIZE));
         enemyFieldPanel.setPreferredSize(new Dimension((int) (0.8 * BATTLEFIELD_WINDOW_SIZE.getHeight()), (int) (0.8 * BATTLEFIELD_WINDOW_SIZE.getHeight())));
         enemyFieldPanel.setBorder(FIELD_BORDER);
 
-
-        GameChoreographer.RemotePlayerMoveAnswerListener remotePlayerMoveAnswerListener = shot -> {
-
-        };
-
-        yourField = generateFields(yourFieldPanel, remotePlayerMoveAnswerListener, true);
-        enemyField = generateFields(enemyFieldPanel, remotePlayerMoveAnswerListener, false);
+        yourField = generateFields(yourFieldPanel , true);
+        enemyField = generateFields(enemyFieldPanel, false);
 
         createShipPanel(); // Must be called after generateFields();
 
@@ -94,11 +88,28 @@ public class BattleField {
         battleField.setSize(BATTLEFIELD_WINDOW_SIZE);
         battleField.setResizable(false);
         battleField.setLocationRelativeTo(null);
-        battleField.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        battleField.setVisible(true);
+        //battleField.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        battleField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {}
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if(e.getKeyCode() == KeyEvent.VK_R){
+                    System.out.println("Rotating");
+                    gameChoreographer.rotateCalled();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        });
 
         messageProvider = new GameMessages();
         messageProvider.showShipPlacingMessage();
+
+        battleField.setVisible(true);
     }
 
     public GameChoreographer getGameChoreographer() {
@@ -137,18 +148,20 @@ public class BattleField {
     }
 
     private void createShipPanel() {
-        Dimension shipImageSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.15 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
+        Dimension corvetteSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.15 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
+        Dimension destroyerSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.10 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
+        Dimension battleshipSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.075 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
 
         ImageIcon icon = new ImageIcon("Corvette.png");
-        Icon scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)shipImageSize.getWidth(), (int)shipImageSize.getHeight()));
+        Icon scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)corvetteSize.getWidth(), (int)corvetteSize.getHeight()));
         corvette1 = new JLabel(scaledIcon);
         corvette2 = new JLabel(scaledIcon);
 
         icon = new ImageIcon("Destroyer.png");
-        scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)shipImageSize.getWidth(), (int)shipImageSize.getHeight()));
+        scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)destroyerSize.getWidth(), (int)destroyerSize.getHeight()));
         destroyer = new JLabel(scaledIcon);
         icon = new ImageIcon("Battleship.png");
-        scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)shipImageSize.getWidth(), (int)shipImageSize.getHeight()));
+        scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)battleshipSize.getWidth(), (int)battleshipSize.getHeight()));
         battleship = new JLabel(scaledIcon);
 
         shipPanel = new JPanel(new GridLayout(1, NUMBER_OF_SHIPS));
@@ -185,52 +198,74 @@ public class BattleField {
         return namePanel;
     }
 
-    private FieldButton[][] generateFields(JPanel fields, GameChoreographer.RemotePlayerMoveAnswerListener remotePlayerMoveAnswerListener, boolean isYourField) {
+    private FieldButton[][] generateFields(JPanel fields, boolean isYourField) {
         infoLabel.setForeground(Color.RED);
         infoLabel.setText("Place your " + SHIPS[0]);
 
-        FieldButton[][] temp = new FieldButton[NUMBER_OF_ROWS][NUMBER_OF_COLUMNS];
-        for (int y = 0; y < NUMBER_OF_ROWS; y++) {
-            for (int x = 0; x < NUMBER_OF_COLUMNS; x++) {
-                temp[y][x] = new FieldButton(x, y, gameChoreographer);
-                if (isYourField) {
-                    temp[y][x].setFieldButtonClickListener((xPos, yPos) -> {
+        FieldButton[][] temp = new FieldButton[FIELD_SIZE][FIELD_SIZE];
+        for (int y = 0; y < FIELD_SIZE; y++) {
+            for (int x = 0; x < FIELD_SIZE; x++) {
+                temp[x][y] = new FieldButton(x, y);
+                temp[x][y].setFieldButtonClickListener((xPos, yPos) -> {
+                    if (isYourField) {
                         try {
                             if (!gameChoreographer.setupComplete()) {
-                                shipPlacer.placeShip(xPos, yPos);
+                                gameChoreographer.addShip(xPos, yPos);
+                                renderShips();
                                 if (gameChoreographer.setupComplete()) {
                                     enableGameField(yourField, false);
                                     enableGameField(enemyField, true);
                                     messageProvider.startGameMessage();
                                     gameChoreographer.start();
                                 }
-                            } else {
-                                gameChoreographer.localPlayermove(new Move(xPos, yPos), remotePlayerMoveAnswerListener);
                             }
-                        } catch (IllegalMoveException e) {
-                            System.out.println("This was a Illegal Move!");
-                        } catch (IllegalShipCountException e) {
-                            e.printStackTrace();
                         } catch (GameNotSetupException e) {
+                            e.printStackTrace();
+                        } catch (IllegalShipCountException e) {
                             e.printStackTrace();
                         } catch (ShipSpotNotFreeException e) {
                             e.printStackTrace();
                         }
-                    });
-                } else {
-                    temp[y][x].setEnabled(false);
-                }
-                fields.add(temp[y][x]);
+                    } else {
+                        try {
+                            gameChoreographer.localPlayermove(new Move(xPos, yPos));
+                        } catch (IllegalMoveException e) {
+                            System.out.println("This was a Illegal Move!");
+                        }
+                    }
+                });
+                fields.add(temp[x][y]);
             }
         }
         return temp;
     }
 
     private void enableGameField(FieldButton[][] field, boolean enable) {
-        // Make your field unclickable
-        for (int y = 0; y < NUMBER_OF_ROWS; y++) {
-            for (int x = 0; x < NUMBER_OF_COLUMNS; x++) {
-                field[y][x].setEnabled(enable);
+        for (int y = 0; y < FIELD_SIZE; y++) {
+            for (int x = 0; x < FIELD_SIZE; x++) {
+                field[x][y].setEnabled(enable);
+            }
+        }
+    }
+
+    private void renderField(){
+        if(gameChoreographer.getActivePlayer().equals(GameChoreographer.PlayerType.LOCAL)){
+            enableGameField(enemyField,true);
+        }else{
+            enableGameField(enemyField,false);
+        }
+        for (int y = 0; y < FIELD_SIZE; y++) {
+            for (int x = 0; x < FIELD_SIZE; x++) {
+                yourField[x][y].setShotColoring(gameChoreographer.getShotMatrix()[x][y]);
+                enemyField[x][y].setShotColoring(gameChoreographer.getAttackShotMatrix()[x][y]);
+            }
+        }
+    }
+
+    private void renderShips(){
+        for (int y = 0; y < FIELD_SIZE; y++) {
+            for (int x = 0; x < FIELD_SIZE; x++) {
+                if (gameChoreographer.getShipMatrix()[x][y] != null)yourField[x][y].setShipPlacedColor();
             }
         }
     }
