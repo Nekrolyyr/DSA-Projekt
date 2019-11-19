@@ -8,7 +8,6 @@ import hsr.dsa.core.ShipSpotNotFreeException;
 import hsr.dsa.core.game.schiffe_versenken.Field;
 import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
 import hsr.dsa.core.game.schiffe_versenken.Move;
-import javafx.scene.input.KeyCode;
 
 
 import javax.swing.*;
