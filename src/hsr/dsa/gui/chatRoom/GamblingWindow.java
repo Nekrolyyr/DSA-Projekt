@@ -39,7 +39,7 @@ public class GamblingWindow {
     private String localUser;
     private String remoteUser;
 
-    public GamblingWindow(String localUser, String remoteUser, double gambleamount, P2PClient p2pClient, BlockchainHandler blockchainHandler) {
+    public GamblingWindow(String localUser, String remoteUser, String localEtherAccount, String remoteEtherAccount, double gambleamount, P2PClient p2pClient, BlockchainHandler blockchainHandler) {
         this.p2pClient = p2pClient;
         this.blockchainHandler = blockchainHandler;
         this.localUser = localUser;
@@ -88,6 +88,8 @@ public class GamblingWindow {
                 }
             }
         });
+
+        blockchainHandler = new BlockchainHandler(localEtherAccount, remoteEtherAccount);
     }
 
     private void generateButtonPanel() {
