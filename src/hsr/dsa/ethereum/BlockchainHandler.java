@@ -106,7 +106,7 @@ public class BlockchainHandler {
     // Can only be called from the looser, because he has to pay the winner.
     public void startTransaction() {
         try {
-            smartContract.startTransaction(remoteEtherAccount, gambleAmount).send();
+            smartContract.payAmountToEnemty(remoteEtherAccount);
         } catch (Exception e) {
             e.printStackTrace();
         }

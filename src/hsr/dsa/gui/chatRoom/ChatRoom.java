@@ -128,6 +128,7 @@ public class ChatRoom {
         chatWindow.append(WELCOME_MESSAGE + '\n');
         chatWindow.append(CHAT_SEPARATOR);
 
+        //TODO: Sorry David, hans mim gambling window verwechselt
         //TODO: Martin das goht do nid du weisch jo nonid mit wer du Challengesch
         String remoteEtherAccount = "David: Do muass de Ether Account fum andera ina";
         //blockchainHandler = new BlockchainHandler(etherAccount.getText(), remoteEtherAccount);

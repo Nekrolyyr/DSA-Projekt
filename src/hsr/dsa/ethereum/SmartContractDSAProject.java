@@ -26,9 +26,13 @@ import org.web3j.tx.gas.ContractGasProvider;
  */
 @SuppressWarnings("rawtypes")
 public class SmartContractDSAProject extends Contract {
-    private static final String BINARY = "[{\"inputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address payable\",\"name\":\"otherPlayer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"startTransaction\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]";
+    private static final String BINARY = "[{\"constant\":false,\"inputs\":[{\"internalType\":\"address payable\",\"name\":\"player\",\"type\":\"address\"}],\"name\":\"payAmountToEnemty\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"setGambleAmount\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[],\"name\":\"start\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}]";
 
-    public static final String FUNC_STARTTRANSACTION = "startTransaction";
+    public static final String FUNC_PAYAMOUNTTOENEMTY = "payAmountToEnemty";
+
+    public static final String FUNC_SETGAMBLEAMOUNT = "setGambleAmount";
+
+    public static final String FUNC_START = "start";
 
     @Deprecated
     protected SmartContractDSAProject(String contractAddress, Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
@@ -48,13 +52,28 @@ public class SmartContractDSAProject extends Contract {
         super(BINARY, contractAddress, web3j, transactionManager, contractGasProvider);
     }
 
-    public RemoteFunctionCall<TransactionReceipt> startTransaction(String otherPlayer, BigInteger amount) {
+    public RemoteFunctionCall<TransactionReceipt> payAmountToEnemty(String player) {
         final Function function = new Function(
-                FUNC_STARTTRANSACTION, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, otherPlayer), 
-                new org.web3j.abi.datatypes.generated.Uint256(amount)), 
+                FUNC_PAYAMOUNTTOENEMTY, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(160, player)), 
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
+    }
+
+    public RemoteFunctionCall<TransactionReceipt> setGambleAmount(BigInteger amount) {
+        final Function function = new Function(
+                FUNC_SETGAMBLEAMOUNT, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(amount)), 
+                Collections.<TypeReference<?>>emptyList());
+        return executeRemoteCallTransaction(function);
+    }
+
+    public RemoteFunctionCall<TransactionReceipt> start(BigInteger weiValue) {
+        final Function function = new Function(
+                FUNC_START, 
+                Arrays.<Type>asList(), 
+                Collections.<TypeReference<?>>emptyList());
+        return executeRemoteCallTransaction(function, weiValue);
     }
 
     @Deprecated
@@ -79,13 +98,13 @@ public class SmartContractDSAProject extends Contract {
         return deployRemoteCall(SmartContractDSAProject.class, web3j, credentials, contractGasProvider, BINARY, "");
     }
 
-    public static RemoteCall<SmartContractDSAProject> deploy(Web3j web3j, TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
-        return deployRemoteCall(SmartContractDSAProject.class, web3j, transactionManager, contractGasProvider, BINARY, "");
-    }
-
     @Deprecated
     public static RemoteCall<SmartContractDSAProject> deploy(Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
         return deployRemoteCall(SmartContractDSAProject.class, web3j, credentials, gasPrice, gasLimit, BINARY, "");
+    }
+
+    public static RemoteCall<SmartContractDSAProject> deploy(Web3j web3j, TransactionManager transactionManager, ContractGasProvider contractGasProvider) {
+        return deployRemoteCall(SmartContractDSAProject.class, web3j, transactionManager, contractGasProvider, BINARY, "");
     }
 
     @Deprecated
