@@ -3,18 +3,16 @@ package hsr.dsa.ethereum;
 import SmartContractDSAProject.SmartContractDSAProject;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.admin.Admin;
-import org.web3j.protocol.admin.methods.response.PersonalUnlockAccount;
-import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.RemoteCall;
-import org.web3j.protocol.core.methods.request.Transaction;
-import org.web3j.protocol.core.methods.response.*;
+import org.web3j.protocol.core.methods.response.EthGasPrice;
+import org.web3j.protocol.core.methods.response.EthGetBalance;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.ClientTransactionManager;
+import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
-import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
-import org.web3j.tx.gas.StaticGasProvider;
 import org.web3j.utils.Convert;
 
 import java.io.IOException;
@@ -22,44 +20,40 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public class BlockchainHandler {
+    private static final String SMART_CONTRACT_ADDRESS = "0x8D18D6144d338079cD4b4f7D0981f4eE7477D49f";
 
-    ContractGasProvider gasProvider;
     SmartContractDSAProject smartContract;
-    TransactionReceipt receipt;
-
+    BigInteger gambleAmount;
     private String localEtherAccount;
     private String remoteEtherAccount;
-    private String testNetAddress = "rinkeby.infura.io/v3/2418791e3c9c486a87f1acd07b6ee5d5";//"https://rinkeby.infura.io/"; // Token generieren!! nach einloggen!!!
-    private String contractAddress;
+    private String testNetAddress = "https://rinkeby.infura.io/";
 
     private Web3j localWeb3;
     private Web3j smartContractWeb3;
 
-    BigInteger gambleAmount;
-
     private String davidsEtherAccount = "0x1cE0089b18c8135B6fff8b10fC43F596A7289D83";
+    private String martinsEtherAccount = "0x036FBAE35b84e03926Cf466C2Ef19165C66829b2";
 
     public BlockchainHandler(String localEtherAccount, String remoteEtherAccount) {
         this.localEtherAccount = localEtherAccount;
         this.remoteEtherAccount = remoteEtherAccount;
 
-        localWeb3 = Web3j.build(new HttpService("https://rinkeby.infura.io/" + localEtherAccount));
-        smartContractWeb3 = Web3j.build(new HttpService("https://rinkeby.infura.io/"  + "0x8D18D6144d338079cD4b4f7D0981f4eE7477D49f")); // Smart contract address
-
-        printClientVersions();
-        printGasPrice();
-
-        System.out.println("Successfull connected!");
+        localWeb3 = Web3j.build(new HttpService(testNetAddress + localEtherAccount));
+        smartContractWeb3 = Web3j.build(new HttpService(testNetAddress + SMART_CONTRACT_ADDRESS));
 
         System.out.println("Your Balance: " + getBalanceFromAccount(localEtherAccount) + " WEI");
         System.out.println("Enemys Balance: " + getBalanceFromAccount(remoteEtherAccount) + " WEI");
 
-        initializeGasProvider();
+        getDeployedSmartContract();
 
-        //deploySmartContract();
-        getAlreadyDeployedSmartContract();
+        System.out.println("Contract loaded");
+        if (storeAmountInBlockchain(new BigInteger(String.valueOf(1000000000)))) {
+            System.out.println("Loaded to contract");
+        } else {
+            System.out.println("Loading failed!");
+        }
         startTransaction();
-
+        System.out.println("Amount payed!");
     }
 
     private BigInteger getBalanceFromAccount(String account) {
@@ -71,116 +65,63 @@ public class BlockchainHandler {
         }
         BigDecimal balanceInEther = Convert.fromWei(balance.getBalance().toString(), Convert.Unit.WEI);
         return balanceInEther.toBigInteger();
-        //BigInteger balanceInEther = Convert.fromWei(balance.getBalance().toString(), Convert.Unit.ETHER);
-        //return balance;
     }
 
-    public void storeAmountInBlockchain(BigInteger gambleAmount) {
-        if (gambleAmount.compareTo(getBalanceFromAccount(localEtherAccount)) == -1) {
-            System.out.println("You have not enough ether!");
-        }
-        if (gambleAmount.compareTo(getBalanceFromAccount(remoteEtherAccount)) == -1) {
-            System.out.println("Your enemy has not enough ether!");
-        }
-
-        this.gambleAmount = gambleAmount;
-
-    }
-
-    // Can only be called from the looser, because he has to pay the winner.
-    public void startTransaction() {
-        try {
-            TransactionReceipt tx = smartContract.start(new BigInteger(String.valueOf(100000000))).send();
-            if (tx.isStatusOK()) {
-                System.out.println("Start successfull!");
-            } else {
-                System.out.println("Start error!");
-            }
-            TransactionReceipt tx2 = smartContract.payAmountToEnemty(davidsEtherAccount).send();
-            if (tx2.isStatusOK()) {
-                System.out.println("Pay successfull!");
-            } else {
-                System.out.println("Pay error!");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void deploySmartContract() {
+    private void getDeployedSmartContract() {
         // TODO: Remove hardcoded private Key
         String myPrivateKey = "d458a482cb2d7532aab8f76994a32351d5190bc08d661636690fae7272efeaac";
         Credentials creds = Credentials.create(myPrivateKey);
 
-        try {
-            // TODO: Contract address: 0x8D18D6144d338079cD4b4f7D0981f4eE7477D49f
-
-            DefaultGasProvider defaultGasProvider = new DefaultGasProvider();
-            smartContract = SmartContractDSAProject.deploy(localWeb3, creds, new DefaultGasProvider()).send();
-
-
-            if (smartContract.isValid()) {
-                contractAddress = smartContract.getContractAddress();
-                System.out.println("Smart contract address: " + contractAddress);
-            } else {
-                System.out.println("Smart contract nod valid!");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void getAlreadyDeployedSmartContract() {
-        // TODO: Hardcoded contract address
-        contractAddress = "0x8D18D6144d338079cD4b4f7D0981f4eE7477D49f";
-        // TODO: Remove hardcoded private Key
-        String myPrivateKey = "d458a482cb2d7532aab8f76994a32351d5190bc08d661636690fae7272efeaac";
-        Credentials creds = Credentials.create(myPrivateKey);//localEtherAccount);
-        smartContract = SmartContractDSAProject.load(contractAddress, smartContractWeb3, creds, new DefaultGasProvider());
+        smartContract = SmartContractDSAProject.load(SMART_CONTRACT_ADDRESS, smartContractWeb3, creds, new DefaultGasProvider());
 
         try {
             if (!smartContract.isValid()) {
-                System.out.println("Contract not valid!");
-            } else {
-                System.out.println("Successfull");
+                System.out.println("Could not load smart contract!!");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void initializeGasProvider() {
-        gasProvider = new ContractGasProvider() {
-            @Override
-            public BigInteger getGasPrice(String s) {
-                return new BigInteger(String.valueOf(94600000));//DefaultGasProvider.GAS_PRICE;
+    public boolean storeAmountInBlockchain(BigInteger gambleAmount) {
+        if (gambleAmount.compareTo(getBalanceFromAccount(localEtherAccount)) != -1) {
+            System.out.println("You have not enough ethers!");
+            return false;
+        }
+        if (gambleAmount.compareTo(getBalanceFromAccount(remoteEtherAccount)) != -1) {
+            System.out.println("Your enemy has not enough ether!");
+            return false;
+        }
+        this.gambleAmount = gambleAmount;
+        try {
+            TransactionReceipt loadAmountToContract = smartContract.start(gambleAmount).send();
+            if (!loadAmountToContract.isStatusOK()) {
+                System.out.println("Could not load ethers into the smart Contract!!");
+                return false;
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
 
-            @Override
-            public BigInteger getGasPrice() {
-                return new BigInteger(String.valueOf(94600000));//DefaultGasProvider.GAS_PRICE;
+    // Can only be called from the looser, because he has to pay the winner.
+    public void startTransaction() {
+        try {
+            TransactionReceipt payAmount = smartContract.payAmountToEnemty(davidsEtherAccount).send();
+            if (!payAmount.isStatusOK()) {
+                System.out.println("Could not pay ethers to the winner!");
             }
-
-            @Override
-            public BigInteger getGasLimit(String s) {
-                return new BigInteger(String.valueOf(100000000));//DefaultGasProvider.GAS_LIMIT;
-            }
-
-            @Override
-            public BigInteger getGasLimit() {
-                return new BigInteger(String.valueOf(100000000));// DefaultGasProvider.GAS_LIMIT;
-            }
-        };
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
     public void printClientVersions() {
         try {
             Web3ClientVersion localClientVersion = localWeb3.web3ClientVersion().send();
-            //Web3ClientVersion remoteClientVersion = remoteWeb3.web3ClientVersion().send();
             System.out.println("Local client version: " + localClientVersion.getWeb3ClientVersion());
-            //System.out.println("Remote client version: " + remoteClientVersion.getWeb3ClientVersion());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -197,13 +138,7 @@ public class BlockchainHandler {
     }
 
     public void printGasPrice() {
-        try {
-            EthGasPrice price = localWeb3.ethGasPrice().send();
-            System.out.println("Gas price: " + DefaultGasProvider.GAS_PRICE);
-            System.out.println("Gas limit: " + DefaultGasProvider.GAS_LIMIT);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        System.out.println("Gas price: " + DefaultGasProvider.GAS_PRICE);
+        System.out.println("Gas limit: " + DefaultGasProvider.GAS_LIMIT);
     }
 }
