@@ -77,6 +77,7 @@ public class ChatRoom {
                     } else if (m.getType() == Message.Type.CHALLENGE && (gamblingWindow == null || !gamblingWindow.isShowing())) {
                         gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(), localEtherAccount, remoteEtherAccount, localPrivateKey, m.getGambleamount(), p2pClient, blockchainHandler);
                     } else if (m.getType() == Message.Type.PK_EXCHANGE) {
+                        // TODO: David, isch das do au ok? oder gäbtis en bessera ort für public key exchange? ganz una in dem file wirder gsendet
                         remoteEtherAccount = m.getPk();
                     }
                 }
@@ -196,6 +197,8 @@ public class ChatRoom {
         temp.addActionListener(actionEvent -> {
             if (!gameInProgress) {
                 System.out.println("I challenge you, " + userName);
+                // TODO: David, isch de public key exchange do richtig?
+                p2pClient.send(userName, new Message(p2pClient.getUsername(), localEtherAccount, Message.Type.PK_EXCHANGE));
                 p2pClient.send(userName, new Message(p2pClient.getUsername(), 1));
 
                 gamblingWindow = new GamblingWindow(p2pClient.getUsername(), userName, localEtherAccount, remoteEtherAccount, localPrivateKey,1, p2pClient, blockchainHandler);

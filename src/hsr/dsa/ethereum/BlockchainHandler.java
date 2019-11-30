@@ -64,7 +64,6 @@ public class BlockchainHandler {
 
     private void getDeployedSmartContract() {
         Credentials creds = Credentials.create(localPrivateKey);
-
         smartContract = SmartContractDSAProject.load(SMART_CONTRACT_ADDRESS, smartContractWeb3, creds, new DefaultGasProvider());
 
         try {
