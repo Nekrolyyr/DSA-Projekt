@@ -19,7 +19,7 @@ public class UiStrings {
     public static final String ACCEPT_ENEMYS_OFFER = "Accept enemys offer";
     public static final String MAKE_AN_OFFER = "Offer";
     public static final String ABORT = "Abort";
-    public static final String CURRENCY = " ETH";
+    public static final String CURRENCY = " WEI";
     public static final String YOUR_AMOUNT = "Your offer:";
     public static final String ENEMY_AMOUNT = "Enemy's offer:";
 

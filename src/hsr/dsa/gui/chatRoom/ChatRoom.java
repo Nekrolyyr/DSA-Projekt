@@ -7,8 +7,6 @@ import hsr.dsa.ethereum.BlockchainHandler;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static hsr.dsa.gui.UiConfiguration.*;
@@ -29,10 +27,11 @@ public class ChatRoom {
     private BlockchainHandler blockchainHandler;
     private GamblingWindow gamblingWindow;
     private Object globalLock = new Object();
-    private ConcurrentHashMap<String,JButton> userButtons = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, JButton> userButtons = new ConcurrentHashMap<>();
     private boolean gameInProgress = false;
 
     private String localEtherAccount;
+    private String localPrivateKey;
     private String remoteEtherAccount;
 
     public ChatRoom() {
@@ -73,10 +72,12 @@ public class ChatRoom {
         p2pClient.addOnMessageReceivedListener(m -> {
             SwingUtilities.invokeLater(() -> {
                 synchronized (globalLock) {
-                    if(m.getType() == Message.Type.CHAT) {
+                    if (m.getType() == Message.Type.CHAT) {
                         appendChatMessage(m.getSender(), m.getMessage());
-                    }else if(m.getType() == Message.Type.CHALLENGE && (gamblingWindow == null || !gamblingWindow.isShowing())){
-                        gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(), localEtherAccount, remoteEtherAccount, m.getGambleamount(), p2pClient, blockchainHandler);
+                    } else if (m.getType() == Message.Type.CHALLENGE && (gamblingWindow == null || !gamblingWindow.isShowing())) {
+                        gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(), localEtherAccount, remoteEtherAccount, localPrivateKey, m.getGambleamount(), p2pClient, blockchainHandler);
+                    } else if (m.getType() == Message.Type.PK_EXCHANGE) {
+                        remoteEtherAccount = m.getPk();
                     }
                 }
             });
@@ -88,8 +89,8 @@ public class ChatRoom {
         });
         p2pClient.addOnPeerMapChangeListener(peerMap -> {
             SwingUtilities.invokeLater(() -> {
-                try{
-                    peerMap.forEach((number160,s) -> {
+                try {
+                    peerMap.forEach((number160, s) -> {
                         if (!userButtons.containsKey(s)) {
                             JButton temp = generateUserForUserPanel(s);
                             userButtons.put(s, temp);
@@ -98,13 +99,13 @@ public class ChatRoom {
                         }
                     });
                     userButtons.forEach((s, jButton) -> {
-                            if (!peerMap.containsValue(s)) {
-                                userButtons.remove(s);
-                                userPanel.remove(jButton);
-                                userPanel.updateUI();
-                            }
+                        if (!peerMap.containsValue(s)) {
+                            userButtons.remove(s);
+                            userPanel.remove(jButton);
+                            userPanel.updateUI();
+                        }
                     });
-                }catch (ConcurrentModificationException e){
+                } catch (ConcurrentModificationException e) {
                     System.out.println("Concurrency problem on PeerMap Update");
                 }
             });
@@ -116,27 +117,24 @@ public class ChatRoom {
         JTextField username = new JTextField();
         JTextField knownPeer = new JTextField();
         JTextField etherAccount = new JTextField();
+        JTextField privateKey = new JTextField();
         Object[] message = {
                 "Username:", username,
                 "Known Peer:", knownPeer,
-                "EtherAccount:", etherAccount
+                "EtherAccount:", etherAccount,
+                "Private Key: ", privateKey
         };
         JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
         p2pClient.connect(username.getText(), knownPeer.getText());
         p2pClient.getPeerMap().forEach((number160, s) -> {
             localEtherAccount = etherAccount.getText();
+            localPrivateKey = privateKey.getText();
             JButton temp = generateUserForUserPanel(s);
-            userButtons.put(s,temp);
+            userButtons.put(s, temp);
             userPanel.add(temp);
         });
         chatWindow.append(WELCOME_MESSAGE + '\n');
         chatWindow.append(CHAT_SEPARATOR);
-
-
-        //TODO: Sorry David, hans mim gambling window verwechselt
-        //TODO: Martin das goht do nid du weisch jo nonid mit wer du Challengesch
-        String remoteEtherAccount = "David: Do muass de Ether Account fum andera ina";
-        //blockchainHandler = new BlockchainHandler(etherAccount.getText(), remoteEtherAccount);
     }
 
     private void initializeWritePanel() {
@@ -163,7 +161,7 @@ public class ChatRoom {
 
     private void sendMessage() {
         appendChatMessage(p2pClient.getUsername(), textInputField.getText());
-        p2pClient.send(p2pClient.discoverPeers(), new Message(p2pClient.getUsername(), new String(textInputField.getText())));
+        p2pClient.send(p2pClient.discoverPeers(), new Message(p2pClient.getUsername(), textInputField.getText()));
     }
 
     private void initializeChatPanel() {
@@ -196,12 +194,14 @@ public class ChatRoom {
         temp.setForeground(Color.red);
         temp.setBorder(BorderFactory.createLineBorder(Color.black));
         temp.addActionListener(actionEvent -> {
-            if(!gameInProgress) {
+            if (!gameInProgress) {
                 System.out.println("I challenge you, " + userName);
                 p2pClient.send(userName, new Message(p2pClient.getUsername(), 1));
 
-                gamblingWindow = new GamblingWindow(p2pClient.getUsername(), userName, localEtherAccount, remoteEtherAccount, 1, p2pClient, blockchainHandler);
-            }else {JOptionPane.showMessageDialog(null,"You are already in a Game!");}
+                gamblingWindow = new GamblingWindow(p2pClient.getUsername(), userName, localEtherAccount, remoteEtherAccount, localPrivateKey,1, p2pClient, blockchainHandler);
+            } else {
+                JOptionPane.showMessageDialog(null, "You are already in a Game!");
+            }
         });
         return temp;
     }

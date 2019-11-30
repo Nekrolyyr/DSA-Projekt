@@ -88,7 +88,6 @@ public class BattleField {
         battleField.setSize(BATTLEFIELD_WINDOW_SIZE);
         battleField.setResizable(false);
         battleField.setLocationRelativeTo(null);
-        //battleField.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         battleField.addKeyListener(new KeyListener() {
             @Override

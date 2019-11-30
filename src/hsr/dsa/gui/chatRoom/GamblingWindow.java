@@ -8,6 +8,7 @@ import hsr.dsa.gui.game.BattleField;
 
 import javax.swing.*;
 import java.awt.*;
+import java.math.BigInteger;
 
 import static hsr.dsa.gui.UiConfiguration.*;
 import static hsr.dsa.gui.UiStrings.*;
@@ -38,12 +39,14 @@ public class GamblingWindow {
     private BattleField battleField;
     private String localUser;
     private String remoteUser;
+    private String localPrivateKey;
 
-    public GamblingWindow(String localUser, String remoteUser, String localEtherAccount, String remoteEtherAccount, double gambleamount, P2PClient p2pClient, BlockchainHandler blockchainHandler) {
+    public GamblingWindow(String localUser, String remoteUser, String localEtherAccount, String remoteEtherAccount, String localPrivateKey, double gambleamount, P2PClient p2pClient, BlockchainHandler blockchainHandler) {
         this.p2pClient = p2pClient;
         this.blockchainHandler = blockchainHandler;
         this.localUser = localUser;
         this.remoteUser = remoteUser;
+        this.localPrivateKey = localPrivateKey;
 
         localUserLabel = generateUserLabel(localUser);
         remoteUserLabel = generateUserLabel(remoteUser);
@@ -75,8 +78,10 @@ public class GamblingWindow {
                     //Accepted
                     JOptionPane.showMessageDialog(null, "Your Offer was Accepted!");
 
-                    //Handle Blockchain
-                    //blockchainHandler.storeAmountInBlockchain(amount);
+                    if (blockchainHandler.storeAmountInBlockchain(new BigInteger(String.valueOf(amount)))) {
+                        System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
+                        return;
+                    }
 
                     battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.PASSIVE);
                     gamblingWindow.dispose();
@@ -89,7 +94,7 @@ public class GamblingWindow {
             }
         });
 
-        blockchainHandler = new BlockchainHandler(localEtherAccount, remoteEtherAccount);
+        this.blockchainHandler = new BlockchainHandler(localEtherAccount, remoteEtherAccount, localPrivateKey);
     }
 
     private void generateButtonPanel() {

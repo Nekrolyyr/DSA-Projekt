@@ -9,9 +9,6 @@ import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
-import org.web3j.tx.ClientTransactionManager;
-import org.web3j.tx.RawTransactionManager;
-import org.web3j.tx.TransactionManager;
 import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.utils.Convert;
 
@@ -22,21 +19,27 @@ import java.math.BigInteger;
 public class BlockchainHandler {
     private static final String SMART_CONTRACT_ADDRESS = "0x8D18D6144d338079cD4b4f7D0981f4eE7477D49f";
 
-    SmartContractDSAProject smartContract;
-    BigInteger gambleAmount;
+    private SmartContractDSAProject smartContract;
     private String localEtherAccount;
     private String remoteEtherAccount;
-    private String testNetAddress = "https://rinkeby.infura.io/";
+    private String localPrivateKey;
 
+    @SuppressWarnings("FieldCanBeLocal")
+    private String testNetAddress = "https://rinkeby.infura.io/";
     private Web3j localWeb3;
     private Web3j smartContractWeb3;
 
+    @SuppressWarnings("FieldCanBeLocal")
     private String davidsEtherAccount = "0x1cE0089b18c8135B6fff8b10fC43F596A7289D83";
+    @SuppressWarnings("unused")
     private String martinsEtherAccount = "0x036FBAE35b84e03926Cf466C2Ef19165C66829b2";
 
-    public BlockchainHandler(String localEtherAccount, String remoteEtherAccount) {
+    public BlockchainHandler(String localEtherAccount, String remoteEtherAccount, String localPrivateKey) {
         this.localEtherAccount = localEtherAccount;
         this.remoteEtherAccount = remoteEtherAccount;
+        this.localPrivateKey = localPrivateKey;
+        System.out.println("BlockchainHandler: " + localEtherAccount);
+        System.out.println("BlockchainHandler: " + remoteEtherAccount);
 
         localWeb3 = Web3j.build(new HttpService(testNetAddress + localEtherAccount));
         smartContractWeb3 = Web3j.build(new HttpService(testNetAddress + SMART_CONTRACT_ADDRESS));
@@ -45,15 +48,6 @@ public class BlockchainHandler {
         System.out.println("Enemys Balance: " + getBalanceFromAccount(remoteEtherAccount) + " WEI");
 
         getDeployedSmartContract();
-
-        System.out.println("Contract loaded");
-        if (storeAmountInBlockchain(new BigInteger(String.valueOf(1000000000)))) {
-            System.out.println("Loaded to contract");
-        } else {
-            System.out.println("Loading failed!");
-        }
-        startTransaction();
-        System.out.println("Amount payed!");
     }
 
     private BigInteger getBalanceFromAccount(String account) {
@@ -63,14 +57,13 @@ public class BlockchainHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        assert balance != null;
         BigDecimal balanceInEther = Convert.fromWei(balance.getBalance().toString(), Convert.Unit.WEI);
         return balanceInEther.toBigInteger();
     }
 
     private void getDeployedSmartContract() {
-        // TODO: Remove hardcoded private Key
-        String myPrivateKey = "d458a482cb2d7532aab8f76994a32351d5190bc08d661636690fae7272efeaac";
-        Credentials creds = Credentials.create(myPrivateKey);
+        Credentials creds = Credentials.create(localPrivateKey);
 
         smartContract = SmartContractDSAProject.load(SMART_CONTRACT_ADDRESS, smartContractWeb3, creds, new DefaultGasProvider());
 
@@ -92,7 +85,6 @@ public class BlockchainHandler {
             System.out.println("Your enemy has not enough ether!");
             return false;
         }
-        this.gambleAmount = gambleAmount;
         try {
             TransactionReceipt loadAmountToContract = smartContract.start(gambleAmount).send();
             if (!loadAmountToContract.isStatusOK()) {
@@ -116,7 +108,6 @@ public class BlockchainHandler {
             e.printStackTrace();
         }
     }
-
 
     public void printClientVersions() {
         try {
