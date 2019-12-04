@@ -42,8 +42,9 @@ public class GamblingWindow {
     private String localUser;
     private String remoteUser;
     private String localPrivateKey;
+    private P2PClient.OnMessageReceivedListener mrl;
 
-    public GamblingWindow(String localUser, String remoteUser, String localEtherAccount, String remoteEtherAccount, String localPrivateKey, double gambleamount, P2PClient p2pClient, BlockchainHandler blockchainHandler) {
+    public GamblingWindow(String localUser, String remoteUser, String localEtherAccount, String remoteEtherAccount, String localPrivateKey, int gambleamount, P2PClient p2pClient, BlockchainHandler blockchainHandler) {
         this.p2pClient = p2pClient;
         this.blockchainHandler = blockchainHandler;
         this.localUser = localUser;
@@ -71,16 +72,9 @@ public class GamblingWindow {
         gamblingWindow.setResizable(false);
         gamblingWindow.setLocationRelativeTo(null);
         gamblingWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        gamblingWindow.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAMBLING));
-                super.windowClosing(e);
-            }
-        });
+        this.blockchainHandler = new BlockchainHandler(localEtherAccount, remoteEtherAccount, localPrivateKey);
         gamblingWindow.setVisible(true);
-
-        p2pClient.addOnMessageReceivedListener(message -> {
+        mrl = message -> {
             try {
                 if (message.getType() == Message.Type.CHALLENGE) {
                     int amount = -1;
@@ -99,24 +93,26 @@ public class GamblingWindow {
                         }
 
                         battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.PASSIVE, blockchainHandler);
+                        p2pClient.removeOnMessageReceivedListener(mrl);
                         gamblingWindow.dispose();
                     } else {
                         if (message.getGambleamount() < 0) {
+                            p2pClient.removeOnMessageReceivedListener(mrl);
                             gamblingWindow.dispose();
                         }
                         setGamblingAmountFromEnemy(String.valueOf(message.getGambleamount()));
                     }
                 } else if (message.getType() == Message.Type.EXCEPTION && message.getEt()== Message.ExceptionType.GAMBLING) {
                     JOptionPane.showMessageDialog(null, "Peer had an error. Aborting.", "!", JOptionPane.ERROR_MESSAGE);
+                    p2pClient.removeOnMessageReceivedListener(mrl);
                     gamblingWindow.dispose();
                 }
             }catch (Exception e){
                 e.printStackTrace();
                 p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAMBLING));
             }
-        });
-
-        this.blockchainHandler = new BlockchainHandler(localEtherAccount, remoteEtherAccount, localPrivateKey);
+        };
+        p2pClient.addOnMessageReceivedListener(mrl);
     }
 
     private void generateButtonPanel() {
@@ -138,6 +134,7 @@ public class GamblingWindow {
             int amount = Integer.parseInt(enemysGambleOffer.getText());
             p2pClient.send(remoteUser, new Message(localUser, amount));
             battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.ACTIVE, blockchainHandler);
+            p2pClient.removeOnMessageReceivedListener(mrl);
             gamblingWindow.dispose();
         });
 
@@ -146,6 +143,7 @@ public class GamblingWindow {
         abortButton.setBackground(GENERAL_BUTTON_COLOR);
         abortButton.addActionListener(actionEvent -> {
             p2pClient.send(remoteUser, new Message(localUser, -1));
+            p2pClient.removeOnMessageReceivedListener(mrl);
             gamblingWindow.dispose();
         });
 

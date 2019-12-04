@@ -59,6 +59,10 @@ public class P2PClient {
         this.onMessageReceivedListeners.add(onMessageReceivedListener);
     }
 
+    public void removeOnMessageReceivedListener(OnMessageReceivedListener onMessageReceivedListener) {
+        this.onMessageReceivedListeners.remove(onMessageReceivedListener);
+    }
+
     public void setOnConnectionNotEstablished(OnConnectionNotEstablished onConnectionNotEstablished) {
         this.onConnectionNotEstablished = onConnectionNotEstablished;
     }
