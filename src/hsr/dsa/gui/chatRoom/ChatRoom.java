@@ -79,6 +79,7 @@ public class ChatRoom {
                     } else if (m.getType() == Message.Type.PK_EXCHANGE) {
                         // TODO: David, isch das do au ok? oder gäbtis en bessera ort für public key exchange? ganz una in dem file wirder gsendet
                         remoteEtherAccount = m.getPk();
+                        p2pClient.send(m.getSender(), new Message(p2pClient.getUsername(), localEtherAccount, Message.Type.PK_EXCHANGE));
                     }
                 }
             });
