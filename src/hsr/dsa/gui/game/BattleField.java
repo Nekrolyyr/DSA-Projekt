@@ -1,5 +1,6 @@
 package hsr.dsa.gui.game;
 
+import hsr.dsa.P2P.Message;
 import hsr.dsa.P2P.P2PClient;
 import hsr.dsa.core.GameNotSetupException;
 import hsr.dsa.core.IllegalMoveException;
@@ -14,6 +15,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
 import static hsr.dsa.core.game.GameConfiguration.*;
@@ -91,7 +94,13 @@ public class BattleField {
         battleField.setSize(BATTLEFIELD_WINDOW_SIZE);
         battleField.setResizable(false);
         battleField.setLocationRelativeTo(null);
-
+        battleField.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAME));
+                super.windowClosing(e);
+            }
+        });
         battleField.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {

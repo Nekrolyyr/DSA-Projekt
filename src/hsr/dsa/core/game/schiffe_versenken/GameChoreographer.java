@@ -8,6 +8,8 @@ import hsr.dsa.core.IllegalShipCountException;
 import hsr.dsa.core.ShipSpotNotFreeException;
 import hsr.dsa.core.game.Timer;
 
+import javax.swing.*;
+
 import static hsr.dsa.core.game.GameConfiguration.TIME_PER_MOVE;
 
 public class GameChoreographer {
@@ -56,6 +58,8 @@ public class GameChoreographer {
                 localPlayer.attackField[message.getMove().getX()][message.getMove().getY()] = message.getShot();
                 timer.stop();
                 fieldUpdateListener.onCall();
+            } else if (message.getType() == Message.Type.EXCEPTION && message.getEt()== Message.ExceptionType.GAMBLING) {
+                JOptionPane.showMessageDialog(null, "Peer had an error. Aborting. Please close the Window.", "!", JOptionPane.ERROR_MESSAGE);
             }
         });
     }

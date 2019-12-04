@@ -7,6 +7,7 @@ import hsr.dsa.core.game.schiffe_versenken.Move;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class Message{
+    private ExceptionType et;
     private String sender;
     private String message;
     private Type type;
@@ -20,7 +21,8 @@ public class Message{
         return shot;
     }
 
-    public enum Type{CHAT,CHALLENGE,MOVE,SHOT,PK_EXCHANGE}
+    public enum Type{CHAT,CHALLENGE,MOVE,SHOT,PK_EXCHANGE,EXCEPTION}
+    public enum ExceptionType{CHATROOM,GAMBLING,GAME}
 
     public Message(String sender, String message) {
         this.sender = sender;
@@ -50,6 +52,11 @@ public class Message{
         this.pk = pk;
         this.type = Type.PK_EXCHANGE;
     }
+    public Message(String sender, ExceptionType et){
+        this.sender = sender;
+        this.et = et;
+        this.type = Type.EXCEPTION;
+    }
 
     public Message(String JSONString){
         try{
@@ -73,6 +80,9 @@ public class Message{
                 case PK_EXCHANGE:
                     parsePK(json);
                     break;
+                case EXCEPTION:
+                    parseException(json);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -83,6 +93,11 @@ public class Message{
     private void parsePK(JsonObject json) throws  Exception{
         sender = json.get("sender").getAsString();
         pk = json.get("pk").getAsString();
+    }
+
+    private void parseException(JsonObject json) throws  Exception{
+        sender = json.get("sender").getAsString();
+        et = ExceptionType.valueOf(json.get("errorType").getAsString());
     }
 
     private void parseChat(JsonObject json) throws Exception{
@@ -130,6 +145,9 @@ public class Message{
                 _package.addProperty("sender",sender);
                 _package.addProperty("pk",pk);
                 break;
+            case EXCEPTION:
+                _package.addProperty("sender",sender);
+                _package.addProperty("errorType",et.toString());
             default:
                 throw new NotImplementedException();
         }
@@ -194,5 +212,13 @@ public class Message{
 
     public void setReply(boolean reply) {
         isReply = reply;
+    }
+
+    public ExceptionType getEt() {
+        return et;
+    }
+
+    public void setEt(ExceptionType et) {
+        this.et = et;
     }
 }

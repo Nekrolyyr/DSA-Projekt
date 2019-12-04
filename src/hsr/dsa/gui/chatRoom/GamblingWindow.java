@@ -8,6 +8,8 @@ import hsr.dsa.gui.game.BattleField;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.math.BigInteger;
 
 import static hsr.dsa.gui.UiConfiguration.*;
@@ -69,32 +71,47 @@ public class GamblingWindow {
         gamblingWindow.setResizable(false);
         gamblingWindow.setLocationRelativeTo(null);
         gamblingWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        gamblingWindow.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAMBLING));
+                super.windowClosing(e);
+            }
+        });
         gamblingWindow.setVisible(true);
 
         p2pClient.addOnMessageReceivedListener(message -> {
-            if (message.getType() == Message.Type.CHALLENGE) {
-                double amount = Double.parseDouble(gambleAmountInput.getText());
-                if (message.getGambleamount() == amount) {
-                    //Accepted
-                    JOptionPane.showMessageDialog(null, "Your Offer was Accepted!");
+            try {
+                if (message.getType() == Message.Type.CHALLENGE) {
+                    double amount = Double.parseDouble(gambleAmountInput.getText());
+                    if (message.getGambleamount() == amount) {
+                        //Accepted
+                        JOptionPane.showMessageDialog(null, "Your Offer was Accepted!");
 
-                    if (!blockchainHandler.storeAmountInBlockchain(new BigInteger(String.valueOf(amount)))) {
-                        System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
-                        return;
-                    }
+                        if (!blockchainHandler.storeAmountInBlockchain(new BigInteger(String.valueOf(amount)))) {
+                            System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
+                            return;
+                        }
 
-                    battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.PASSIVE, blockchainHandler);
-                    gamblingWindow.dispose();
-                } else {
-                    if (message.getGambleamount() < 0) {
+                        battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.PASSIVE, blockchainHandler);
                         gamblingWindow.dispose();
+                    } else {
+                        if (message.getGambleamount() < 0) {
+                            gamblingWindow.dispose();
+                        }
+                        setGamblingAmountFromEnemy(String.valueOf(message.getGambleamount()));
                     }
-                    setGamblingAmountFromEnemy(String.valueOf(message.getGambleamount()));
+                } else if (message.getType() == Message.Type.EXCEPTION && message.getEt()== Message.ExceptionType.GAMBLING) {
+                    JOptionPane.showMessageDialog(null, "Peer had an error. Aborting.", "!", JOptionPane.ERROR_MESSAGE);
+                    gamblingWindow.dispose();
                 }
+            }catch (Exception e){
+                e.printStackTrace();
+                p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAMBLING));
             }
         });
 
-        this.blockchainHandler = new BlockchainHandler(localEtherAccount, remoteEtherAccount, localPrivateKey); // TODO: Ds früah ufgruafa!!
+        this.blockchainHandler = new BlockchainHandler(localEtherAccount, remoteEtherAccount, localPrivateKey);
     }
 
     private void generateButtonPanel() {

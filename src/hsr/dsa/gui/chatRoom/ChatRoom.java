@@ -82,9 +82,10 @@ public class ChatRoom {
                             Message reply = new Message(p2pClient.getUsername(), localEtherAccount, Message.Type.PK_EXCHANGE);
                             reply.setReply(true);
                             p2pClient.send(m.getSender(), reply);
+                        }else{
+                            p2pClient.send(m.getSender(), new Message(p2pClient.getUsername(), 10000));
+                            gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(), localEtherAccount, remoteEtherAccount, localPrivateKey,10000, p2pClient, blockchainHandler);
                         }
-                    }else {
-                        System.out.println("A unwanted Message has been received.");
                     }
                 }
             });
@@ -203,11 +204,7 @@ public class ChatRoom {
         temp.addActionListener(actionEvent -> {
             if (!gameInProgress) {
                 System.out.println("I challenge you, " + userName);
-                // TODO: David, isch de public key exchange do richtig?
                 p2pClient.send(userName, new Message(p2pClient.getUsername(), localEtherAccount, Message.Type.PK_EXCHANGE));
-                p2pClient.send(userName, new Message(p2pClient.getUsername(), 1));
-
-                gamblingWindow = new GamblingWindow(p2pClient.getUsername(), userName, localEtherAccount, remoteEtherAccount, localPrivateKey,1, p2pClient, blockchainHandler);
             } else {
                 JOptionPane.showMessageDialog(null, "You are already in a Game!");
             }
