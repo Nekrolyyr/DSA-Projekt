@@ -87,12 +87,12 @@ public class GamblingWindow {
                         //Accepted
                         JOptionPane.showMessageDialog(null, "Your Offer was Accepted!");
 
-                        if (!blockchainHandler.storeAmountInBlockchain(new BigInteger(String.valueOf(amount)))) {
+                        if (!this.blockchainHandler.storeAmountInBlockchain(new BigInteger(String.valueOf(amount)))) {
                             System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
                             return;
                         }
 
-                        battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.PASSIVE, blockchainHandler);
+                        battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.PASSIVE, this.blockchainHandler);
                         p2pClient.removeOnMessageReceivedListener(mrl);
                         gamblingWindow.dispose();
                     } else {
