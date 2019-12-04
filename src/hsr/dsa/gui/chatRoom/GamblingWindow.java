@@ -78,7 +78,7 @@ public class GamblingWindow {
                     //Accepted
                     JOptionPane.showMessageDialog(null, "Your Offer was Accepted!");
 
-                    if (blockchainHandler.storeAmountInBlockchain(new BigInteger(String.valueOf(amount)))) {
+                    if (!blockchainHandler.storeAmountInBlockchain(new BigInteger(String.valueOf(amount)))) {
                         System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
                         return;
                     }
@@ -94,7 +94,7 @@ public class GamblingWindow {
             }
         });
 
-        this.blockchainHandler = new BlockchainHandler(localEtherAccount, remoteEtherAccount, localPrivateKey);
+        this.blockchainHandler = new BlockchainHandler(localEtherAccount, remoteEtherAccount, localPrivateKey); // TODO: Ds früah ufgruafa!!
     }
 
     private void generateButtonPanel() {
