@@ -83,7 +83,12 @@ public class GamblingWindow {
         p2pClient.addOnMessageReceivedListener(message -> {
             try {
                 if (message.getType() == Message.Type.CHALLENGE) {
-                    double amount = Double.parseDouble(gambleAmountInput.getText());
+                    int amount = -1;
+                    try {
+                        amount = Integer.parseInt(gambleAmountInput.getText());
+                    }catch (NumberFormatException e){
+                        JOptionPane.showMessageDialog(gamblingWindow,"Please use only decimal numbers without floating point!");
+                    }
                     if (message.getGambleamount() == amount) {
                         //Accepted
                         JOptionPane.showMessageDialog(null, "Your Offer was Accepted!");
@@ -156,7 +161,7 @@ public class GamblingWindow {
         this.enemysGambleOffer.setText(amount);
     }
 
-    private void generateGamblePanel(double initialOffer) {
+    private void generateGamblePanel(int initialOffer) {
         gambleFieldSize = new Dimension((int) (0.2 * GAMBLING_WINDOW_SIZE.getWidth()), 2 * WRITE_FONT.getSize());
 
         gambleAmountInput = new JTextField();

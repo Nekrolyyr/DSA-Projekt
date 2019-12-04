@@ -148,6 +148,7 @@ public class Message{
             case EXCEPTION:
                 _package.addProperty("sender",sender);
                 _package.addProperty("errorType",et.toString());
+                break;
             default:
                 throw new NotImplementedException();
         }
