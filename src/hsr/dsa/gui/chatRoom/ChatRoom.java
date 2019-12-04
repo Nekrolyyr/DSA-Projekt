@@ -126,10 +126,10 @@ public class ChatRoom {
                 "Private Key: ", privateKey
         };
         JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
+        localEtherAccount = etherAccount.getText();
+        localPrivateKey = privateKey.getText();
         p2pClient.connect(username.getText(), knownPeer.getText());
         p2pClient.getPeerMap().forEach((number160, s) -> {
-            localEtherAccount = etherAccount.getText();
-            localPrivateKey = privateKey.getText();
             JButton temp = generateUserForUserPanel(s);
             userButtons.put(s, temp);
             userPanel.add(temp);
