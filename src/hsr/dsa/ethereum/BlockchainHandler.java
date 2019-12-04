@@ -29,10 +29,10 @@ public class BlockchainHandler {
     private Web3j localWeb3;
     private Web3j smartContractWeb3;
 
-    @SuppressWarnings("FieldCanBeLocal")
+
     private String davidsEtherAccount = "0x1cE0089b18c8135B6fff8b10fC43F596A7289D83";
-    @SuppressWarnings("unused")
     private String martinsEtherAccount = "0x036FBAE35b84e03926Cf466C2Ef19165C66829b2";
+    private String martinsPrivateKey = "d458a482cb2d7532aab8f76994a32351d5190bc08d661636690fae7272efeaac"; // TODO: Delete private key
 
     public BlockchainHandler(String localEtherAccount, String remoteEtherAccount, String localPrivateKey) {
         this.localEtherAccount = localEtherAccount;
@@ -99,7 +99,7 @@ public class BlockchainHandler {
     // Can only be called from the looser, because he has to pay the winner.
     public void startTransaction() {
         try {
-            TransactionReceipt payAmount = smartContract.payAmountToEnemty(davidsEtherAccount).send();
+            TransactionReceipt payAmount = smartContract.payAmountToEnemty(remoteEtherAccount).send();
             if (!payAmount.isStatusOK()) {
                 System.out.println("Could not pay ethers to the winner!");
             }

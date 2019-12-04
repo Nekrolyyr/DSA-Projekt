@@ -83,7 +83,7 @@ public class GamblingWindow {
                         return;
                     }
 
-                    battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.PASSIVE);
+                    battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.PASSIVE, blockchainHandler);
                     gamblingWindow.dispose();
                 } else {
                     if (message.getGambleamount() < 0) {
@@ -115,7 +115,7 @@ public class GamblingWindow {
         enemysOfferButton.addActionListener(actionEvent -> {
             double amount = Double.parseDouble(enemysGambleOffer.getText());
             p2pClient.send(remoteUser, new Message(localUser, amount));
-            battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.ACTIVE);
+            battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.ACTIVE, blockchainHandler);
             gamblingWindow.dispose();
         });
 

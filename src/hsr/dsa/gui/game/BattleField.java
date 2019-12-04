@@ -5,10 +5,10 @@ import hsr.dsa.core.GameNotSetupException;
 import hsr.dsa.core.IllegalMoveException;
 import hsr.dsa.core.IllegalShipCountException;
 import hsr.dsa.core.ShipSpotNotFreeException;
-import hsr.dsa.core.game.schiffe_versenken.Field;
 import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
 import hsr.dsa.core.game.schiffe_versenken.Move;
-
+import hsr.dsa.ethereum.BlockchainHandler;
+import jdk.nashorn.internal.ir.Block;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,7 +39,7 @@ public class BattleField {
     private JLabel destroyer;
     private JLabel battleship;
 
-    public BattleField(String localUser, String remoteUser, P2PClient p2pClient, GameChoreographer.Type initiatedByLocalPlayer) {
+    public BattleField(String localUser, String remoteUser, P2PClient p2pClient, GameChoreographer.Type initiatedByLocalPlayer, BlockchainHandler blockchainHandler) {
         infoLabel = new JLabel();
 
         gameChoreographer = new GameChoreographer(initiatedByLocalPlayer,
@@ -55,9 +55,12 @@ public class BattleField {
                         infoLabel.setForeground(Color.RED);
                     }
                 },
-                () -> System.out.println("Game Has ended!"),
+                () -> {
+                    System.out.println("Game Has ended!");
+                    blockchainHandler.startTransaction();
+                },
                 this::renderField
-                , p2pClient,localUser,remoteUser);
+                , p2pClient, localUser, remoteUser);
 
         JPanel namePanel = createNamePanel(gameChoreographer); // On top of the Battlefield, to show which field is yours
 
@@ -70,7 +73,7 @@ public class BattleField {
         enemyFieldPanel.setPreferredSize(new Dimension((int) (0.8 * BATTLEFIELD_WINDOW_SIZE.getHeight()), (int) (0.8 * BATTLEFIELD_WINDOW_SIZE.getHeight())));
         enemyFieldPanel.setBorder(FIELD_BORDER);
 
-        yourField = generateFields(yourFieldPanel , true);
+        yourField = generateFields(yourFieldPanel, true);
         enemyField = generateFields(enemyFieldPanel, false);
 
         createShipPanel(); // Must be called after generateFields();
@@ -91,18 +94,20 @@ public class BattleField {
 
         battleField.addKeyListener(new KeyListener() {
             @Override
-            public void keyTyped(KeyEvent e) {}
+            public void keyTyped(KeyEvent e) {
+            }
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if(e.getKeyCode() == KeyEvent.VK_R){
+                if (e.getKeyCode() == KeyEvent.VK_R) {
                     System.out.println("Rotating");
                     gameChoreographer.rotateCalled();
                 }
             }
 
             @Override
-            public void keyReleased(KeyEvent e) {}
+            public void keyReleased(KeyEvent e) {
+            }
         });
 
         messageProvider = new GameMessages();
@@ -152,15 +157,15 @@ public class BattleField {
         Dimension battleshipSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.075 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
 
         ImageIcon icon = new ImageIcon("Corvette.png");
-        Icon scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)corvetteSize.getWidth(), (int)corvetteSize.getHeight()));
+        Icon scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int) corvetteSize.getWidth(), (int) corvetteSize.getHeight()));
         corvette1 = new JLabel(scaledIcon);
         corvette2 = new JLabel(scaledIcon);
 
         icon = new ImageIcon("Destroyer.png");
-        scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)destroyerSize.getWidth(), (int)destroyerSize.getHeight()));
+        scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int) destroyerSize.getWidth(), (int) destroyerSize.getHeight()));
         destroyer = new JLabel(scaledIcon);
         icon = new ImageIcon("Battleship.png");
-        scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int)battleshipSize.getWidth(), (int)battleshipSize.getHeight()));
+        scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int) battleshipSize.getWidth(), (int) battleshipSize.getHeight()));
         battleship = new JLabel(scaledIcon);
 
         shipPanel = new JPanel(new GridLayout(1, NUMBER_OF_SHIPS));
@@ -247,11 +252,11 @@ public class BattleField {
         }
     }
 
-    private void renderField(){
-        if(gameChoreographer.getActivePlayer().equals(GameChoreographer.PlayerType.LOCAL)){
-            enableGameField(enemyField,true);
-        }else{
-            enableGameField(enemyField,false);
+    private void renderField() {
+        if (gameChoreographer.getActivePlayer().equals(GameChoreographer.PlayerType.LOCAL)) {
+            enableGameField(enemyField, true);
+        } else {
+            enableGameField(enemyField, false);
         }
         for (int y = 0; y < FIELD_SIZE; y++) {
             for (int x = 0; x < FIELD_SIZE; x++) {
@@ -261,10 +266,10 @@ public class BattleField {
         }
     }
 
-    private void renderShips(){
+    private void renderShips() {
         for (int y = 0; y < FIELD_SIZE; y++) {
             for (int x = 0; x < FIELD_SIZE; x++) {
-                if (gameChoreographer.getShipMatrix()[x][y] != null)yourField[x][y].setShipPlacedColor();
+                if (gameChoreographer.getShipMatrix()[x][y] != null) yourField[x][y].setShipPlacedColor();
             }
         }
     }
