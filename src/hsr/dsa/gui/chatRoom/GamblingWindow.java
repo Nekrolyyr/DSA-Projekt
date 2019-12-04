@@ -120,7 +120,7 @@ public class GamblingWindow {
         offerButton.setBackground(GENERAL_BUTTON_COLOR);
         offerButton.addActionListener(actionEvent -> {
             try {
-                double amount = Double.parseDouble(gambleAmountInput.getText());
+                int amount = Integer.parseInt(gambleAmountInput.getText());
                 p2pClient.send(remoteUser, new Message(p2pClient.getUsername(), amount));
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(gamblingWindow, "Value not valid!", "!", JOptionPane.ERROR_MESSAGE);
@@ -130,7 +130,7 @@ public class GamblingWindow {
         enemysOfferButton.setPreferredSize(BUTTON_SIZE);
         enemysOfferButton.setBackground(GENERAL_BUTTON_COLOR);
         enemysOfferButton.addActionListener(actionEvent -> {
-            double amount = Double.parseDouble(enemysGambleOffer.getText());
+            int amount = Integer.parseInt(enemysGambleOffer.getText());
             p2pClient.send(remoteUser, new Message(localUser, amount));
             battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.ACTIVE, blockchainHandler);
             gamblingWindow.dispose();
@@ -167,7 +167,7 @@ public class GamblingWindow {
         gambleAmountInput.setBorder(BorderFactory.createEmptyBorder());
         gambleAmountInput.addActionListener(actionEvent -> {
             try {
-                double amount = Double.parseDouble(gambleAmountInput.getText());
+                int amount = Integer.parseInt(gambleAmountInput.getText());
                 p2pClient.send(remoteUser, new Message(p2pClient.getUsername(), amount));
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(gamblingWindow, "Value not valid!", "!", JOptionPane.ERROR_MESSAGE);

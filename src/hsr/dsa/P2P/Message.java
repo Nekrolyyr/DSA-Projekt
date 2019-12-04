@@ -14,7 +14,7 @@ public class Message{
     private Move move;
     private Field.Shot shot;
     private String pk;
-    private double gambleamount;
+    private int gambleamount;
     private boolean isReply = false;
 
     public Field.Shot getShot() {
@@ -30,7 +30,7 @@ public class Message{
         this.type = Type.CHAT;
     }
 
-    public Message(String sender, double gambleamount){
+    public Message(String sender, int gambleamount){
         this.sender = sender;
         this.gambleamount = gambleamount;
         this.type = Type.CHALLENGE;
@@ -106,7 +106,7 @@ public class Message{
     }
     private void parseChallenge(JsonObject json) throws Exception{
         sender = json.get("sender").getAsString();
-        gambleamount = json.get("gambleamount").getAsDouble();
+        gambleamount = json.get("gambleamount").getAsInt();
     }
     private void parseMove(JsonObject json) throws Exception{
         sender = json.get("sender").getAsString();
@@ -182,11 +182,11 @@ public class Message{
         this.move = move;
     }
 
-    public double getGambleamount() {
+    public int getGambleamount() {
         return gambleamount;
     }
 
-    public void setGambleamount(long gambleamount) {
+    public void setGambleamount(int gambleamount) {
         this.gambleamount = gambleamount;
     }
 
