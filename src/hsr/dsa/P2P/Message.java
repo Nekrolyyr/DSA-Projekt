@@ -14,6 +14,7 @@ public class Message{
     private Field.Shot shot;
     private String pk;
     private double gambleamount;
+    private boolean isReply = false;
 
     public Field.Shot getShot() {
         return shot;
@@ -53,7 +54,9 @@ public class Message{
     public Message(String JSONString){
         try{
             JsonObject json = new Gson().fromJson(JSONString, JsonObject.class);
+            System.out.println(JSONString);
             type = Type.valueOf(json.get("type").getAsString());
+            isReply = json.get("isReply").getAsBoolean();
             switch (type){
                 case CHAT:
                     parseChat(json);
@@ -102,6 +105,7 @@ public class Message{
     public String pack(){
         JsonObject _package = new JsonObject();
         _package.addProperty("type",type.toString());
+        _package.addProperty("isReply",isReply);
         switch (type){
             case CHAT:
                 _package.addProperty("sender",sender);
@@ -184,5 +188,11 @@ public class Message{
         this.message = message;
     }
 
+    public boolean isReply() {
+        return isReply;
+    }
 
+    public void setReply(boolean reply) {
+        isReply = reply;
+    }
 }

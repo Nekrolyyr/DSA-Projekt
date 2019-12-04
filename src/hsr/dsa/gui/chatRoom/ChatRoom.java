@@ -77,9 +77,14 @@ public class ChatRoom {
                     } else if (m.getType() == Message.Type.CHALLENGE && (gamblingWindow == null || !gamblingWindow.isShowing())) {
                         gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(), localEtherAccount, remoteEtherAccount, localPrivateKey, m.getGambleamount(), p2pClient, blockchainHandler);
                     } else if (m.getType() == Message.Type.PK_EXCHANGE) {
-                        // TODO: David, isch das do au ok? oder gäbtis en bessera ort für public key exchange? ganz una in dem file wirder gsendet
                         remoteEtherAccount = m.getPk();
-                        p2pClient.send(m.getSender(), new Message(p2pClient.getUsername(), localEtherAccount, Message.Type.PK_EXCHANGE));
+                        if(!m.isReply()) {
+                            Message reply = new Message(p2pClient.getUsername(), localEtherAccount, Message.Type.PK_EXCHANGE);
+                            reply.setReply(true);
+                            p2pClient.send(m.getSender(), reply);
+                        }
+                    }else {
+                        System.out.println("A unwanted Message has been received.");
                     }
                 }
             });
