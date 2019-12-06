@@ -45,26 +45,6 @@ public class BattleField {
     public BattleField(String localUser, String remoteUser, P2PClient p2pClient, GameChoreographer.Type initiatedByLocalPlayer, BlockchainHandler blockchainHandler) {
         infoLabel = new JLabel();
 
-        gameChoreographer = new GameChoreographer(initiatedByLocalPlayer,
-                () -> {
-                    System.out.println("Time ran out!");
-                    infoLabel.setText("Time ran out! Noob!");
-                },
-                remainingSecond -> {
-                    System.out.println("You have " + remainingSecond + " seconds to make a move!");
-                    infoLabel.setForeground(Color.BLACK);
-                    infoLabel.setText(String.valueOf(remainingSecond));
-                    if (remainingSecond <= 5) {
-                        infoLabel.setForeground(Color.RED);
-                    }
-                },
-                () -> {
-                    System.out.println("Game Has ended!");
-                    blockchainHandler.startTransaction();
-                },
-                this::renderField
-                , p2pClient, localUser, remoteUser);
-
         JPanel namePanel = createNamePanel(gameChoreographer); // On top of the Battlefield, to show which field is yours
 
         fieldPanel = new JPanel(new GridLayout(1, 2));
@@ -121,6 +101,27 @@ public class BattleField {
 
         messageProvider = new GameMessages();
         messageProvider.showShipPlacingMessage();
+
+        gameChoreographer = new GameChoreographer(initiatedByLocalPlayer,
+                () -> {
+                    System.out.println("Time ran out!");
+                    infoLabel.setText("Time ran out! Noob!");
+                },
+                remainingSecond -> {
+                    System.out.println("You have " + remainingSecond + " seconds to make a move!");
+                    infoLabel.setForeground(Color.BLACK);
+                    infoLabel.setText(String.valueOf(remainingSecond));
+                    if (remainingSecond <= 5) {
+                        infoLabel.setForeground(Color.RED);
+                    }
+                },
+                () -> {
+                    System.out.println("Game Has ended!");
+                    messageProvider.endGameMessage();
+                    blockchainHandler.startTransaction();
+                },
+                this::renderField
+                , p2pClient, localUser, remoteUser, messageProvider);
 
         battleField.setVisible(true);
     }
@@ -241,6 +242,7 @@ public class BattleField {
                         }
                     } else {
                         try {
+                            messageProvider.showEnemysTurnMessage();
                             gameChoreographer.localPlayermove(new Move(xPos, yPos));
                         } catch (IllegalMoveException e) {
                             System.out.println("This was a Illegal Move!");

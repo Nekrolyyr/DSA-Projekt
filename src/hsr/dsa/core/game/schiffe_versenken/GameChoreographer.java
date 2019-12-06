@@ -7,6 +7,7 @@ import hsr.dsa.core.IllegalMoveException;
 import hsr.dsa.core.IllegalShipCountException;
 import hsr.dsa.core.ShipSpotNotFreeException;
 import hsr.dsa.core.game.Timer;
+import hsr.dsa.gui.game.GameMessages;
 
 import javax.swing.*;
 
@@ -36,7 +37,7 @@ public class GameChoreographer {
     private Timer timer;
     private P2PClient p2pClient;
 
-    public GameChoreographer(Type type, Timer.TimerListener tl, Timer.TimerUpdateListener tul, Field.GameEndListener gel,FieldUpdateListener fieldUpdateListener, P2PClient p2pClient,String localuser, String remoteUser) {
+    public GameChoreographer(Type type, Timer.TimerListener tl, Timer.TimerUpdateListener tul, Field.GameEndListener gel, FieldUpdateListener fieldUpdateListener, P2PClient p2pClient, String localuser, String remoteUser, GameMessages messageProvider) {
         this.type = type;
         this.tl = tl;
         this.tul = tul;
@@ -57,6 +58,11 @@ public class GameChoreographer {
             }else if(message.getType() == Message.Type.SHOT){
                 localPlayer.attackField[message.getMove().getX()][message.getMove().getY()] = message.getShot();
                 timer.stop();
+                if(message.getShot().equals(Field.Shot.HIT)) {
+                    messageProvider.youHaveHittedMessage();
+                }else{
+                    messageProvider.youHaveMissedMessage();
+                }
                 fieldUpdateListener.onCall();
             } else if (message.getType() == Message.Type.EXCEPTION && message.getEt()== Message.ExceptionType.GAMBLING) {
                 JOptionPane.showMessageDialog(null, "Peer had an error. Aborting. Please close the Window.", "!", JOptionPane.ERROR_MESSAGE);

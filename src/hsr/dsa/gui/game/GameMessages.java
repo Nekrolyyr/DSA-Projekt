@@ -40,4 +40,9 @@ public class GameMessages {
         InfoScreen infoScreen = new InfoScreen(SHIP_OUT_OF_FIELD_MESSAGE);
         infoScreen.showInfoScreen();
     }
+
+    public void endGameMessage() {
+        InfoScreen message = new InfoScreen(END_GAME_MESSAGE);
+        message.showInfoScreen();
+    }
 }

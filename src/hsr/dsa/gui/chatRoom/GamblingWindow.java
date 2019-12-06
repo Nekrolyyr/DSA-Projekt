@@ -89,6 +89,7 @@ public class GamblingWindow {
 
                         if (!this.blockchainHandler.storeAmountInBlockchain(new BigInteger(String.valueOf(amount)))) {
                             System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
+                            p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAMBLING));
                             return;
                         }
 
@@ -133,6 +134,11 @@ public class GamblingWindow {
         enemysOfferButton.addActionListener(actionEvent -> {
             int amount = Integer.parseInt(enemysGambleOffer.getText());
             p2pClient.send(remoteUser, new Message(localUser, amount));
+            if (!this.blockchainHandler.storeAmountInBlockchain(new BigInteger(String.valueOf(amount)))) {
+                System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
+                p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAMBLING));
+                return;
+            }
             battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.ACTIVE, blockchainHandler);
             p2pClient.removeOnMessageReceivedListener(mrl);
             gamblingWindow.dispose();

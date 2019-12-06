@@ -9,6 +9,7 @@ public class UiStrings {
     public static final String MISSED_MESSAGE = "Missed!";
     public static final String HIT_MESSAGE = "Hit!";
     public static final String START_GAME_MESSAGE = "Let's play!!";
+    public static final String END_GAME_MESSAGE = "Game is Finished!!";
     public static final String SHIP_OUT_OF_FIELD_MESSAGE = "Ship out of Field!";
 
 
