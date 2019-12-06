@@ -13,10 +13,7 @@ import jdk.nashorn.internal.ir.Block;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 
 import static hsr.dsa.core.game.GameConfiguration.*;
@@ -178,12 +175,18 @@ public class BattleField {
         scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int) battleshipSize.getWidth(), (int) battleshipSize.getHeight()));
         battleship = new JLabel(scaledIcon);
 
+        JButton rotateButton = new JButton("Rotate");
+        rotateButton.addActionListener(actionEvent -> {
+            gameChoreographer.rotateCalled();
+        });
+
         shipPanel = new JPanel(new GridLayout(1, NUMBER_OF_SHIPS));
         shipPanel.setPreferredSize(new Dimension((int) BATTLEFIELD_WINDOW_SIZE.getWidth(), (int) (0.15 * BATTLEFIELD_WINDOW_SIZE.getHeight())));
         shipPanel.add(corvette1);
         shipPanel.add(corvette2);
         shipPanel.add(destroyer);
         shipPanel.add(battleship);
+        shipPanel.add(rotateButton);
     }
 
     private JPanel createNamePanel(GameChoreographer gameChoreographer) {
