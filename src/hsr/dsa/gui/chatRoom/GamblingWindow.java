@@ -95,10 +95,6 @@ public class GamblingWindow {
                         p2pClient.removeOnMessageReceivedListener(mrl);
                         gamblingWindow.dispose();
                     } else {
-                        if (message.getGambleamount() < 0) {
-                            p2pClient.removeOnMessageReceivedListener(mrl);
-                            gamblingWindow.dispose();
-                        }
                         setGamblingAmountFromEnemy(String.valueOf(message.getGambleamount()));
                     }
                 } else if (message.getType() == Message.Type.EXCEPTION && message.getEt()== Message.ExceptionType.GAMBLING) {
@@ -131,12 +127,12 @@ public class GamblingWindow {
         enemysOfferButton.setBackground(GENERAL_BUTTON_COLOR);
         enemysOfferButton.addActionListener(actionEvent -> {
             double amount = Double.parseDouble(enemysGambleOffer.getText());
-            p2pClient.send(remoteUser, new Message(localUser, amount));
+            Message m = new Message(localUser, amount);
+            m.setReply(true);
+            p2pClient.send(remoteUser, m);
             if (!this.blockchainHandler.storeAmountInBlockchain(new BigDecimal(String.valueOf(amount)))) {
                 System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
-                Message m = new Message(localUser, Message.ExceptionType.GAMBLING);
-                m.setReply(true);
-                p2pClient.send(remoteUser, m);
+                p2pClient.send(remoteUser, new Message(localUser, Message.ExceptionType.GAMBLING));
                 return;
             }
             battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.ACTIVE, blockchainHandler);
@@ -148,7 +144,7 @@ public class GamblingWindow {
         abortButton.setPreferredSize(BUTTON_SIZE);
         abortButton.setBackground(GENERAL_BUTTON_COLOR);
         abortButton.addActionListener(actionEvent -> {
-            p2pClient.send(remoteUser, new Message(localUser, -1));
+            p2pClient.send(remoteUser, new Message(localUser, Message.ExceptionType.GAMBLING));
             p2pClient.removeOnMessageReceivedListener(mrl);
             gamblingWindow.dispose();
         });
