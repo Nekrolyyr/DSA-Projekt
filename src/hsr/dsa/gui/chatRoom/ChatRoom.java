@@ -83,8 +83,8 @@ public class ChatRoom {
                             reply.setReply(true);
                             p2pClient.send(m.getSender(), reply);
                         }else{
-                            p2pClient.send(m.getSender(), new Message(p2pClient.getUsername(), 10000));
-                            gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(), localEtherAccount, remoteEtherAccount, localPrivateKey,10000, p2pClient, blockchainHandler);
+                            p2pClient.send(m.getSender(), new Message(p2pClient.getUsername(), 0.1));
+                            gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(), localEtherAccount, remoteEtherAccount, localPrivateKey,0.1, p2pClient, blockchainHandler);
                         }
                     }
                 }

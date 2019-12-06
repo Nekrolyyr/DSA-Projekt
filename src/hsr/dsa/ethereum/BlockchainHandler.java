@@ -29,7 +29,6 @@ public class BlockchainHandler {
     private Web3j localWeb3;
     private Web3j smartContractWeb3;
 
-
     private String davidsEtherAccount = "0x1cE0089b18c8135B6fff8b10fC43F596A7289D83";
     private String martinsEtherAccount = "0x036FBAE35b84e03926Cf466C2Ef19165C66829b2";
     private String martinsPrivateKey = "d458a482cb2d7532aab8f76994a32351d5190bc08d661636690fae7272efeaac"; // TODO: Delete private key
@@ -75,17 +74,18 @@ public class BlockchainHandler {
         }
     }
 
-    public boolean storeAmountInBlockchain(BigInteger gambleAmount) {
-        if (gambleAmount.compareTo(getBalanceFromAccount(localEtherAccount)) != -1) {
+    public boolean storeAmountInBlockchain(BigDecimal gambleAmountETH) {
+        BigInteger gambleAmountWEI = gambleAmountETH.multiply(new BigDecimal("1E18")).toBigInteger();
+        if (gambleAmountWEI.compareTo(getBalanceFromAccount(localEtherAccount)) != -1) {
             System.out.println("You have not enough ethers!");
             return false;
         }
-        if (gambleAmount.compareTo(getBalanceFromAccount(remoteEtherAccount)) != -1) {
+        if (gambleAmountWEI.compareTo(getBalanceFromAccount(remoteEtherAccount)) != -1) {
             System.out.println("Your enemy has not enough ether!");
             return false;
         }
         try {
-            TransactionReceipt loadAmountToContract = smartContract.start(gambleAmount).send();
+            TransactionReceipt loadAmountToContract = smartContract.start(gambleAmountWEI).send();
             if (!loadAmountToContract.isStatusOK()) {
                 System.out.println("Could not load ethers into the smart Contract!!");
                 return false;
