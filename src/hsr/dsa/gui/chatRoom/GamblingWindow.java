@@ -70,7 +70,10 @@ public class GamblingWindow {
         gamblingWindow.setResizable(false);
         gamblingWindow.setLocationRelativeTo(null);
         gamblingWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+
         this.blockchainHandler = new BlockchainHandler(localEtherAccount, remoteEtherAccount, localPrivateKey);
+        this.blockchainHandler.loadDeployedSmartContract();
         gamblingWindow.setVisible(true);
         mrl = message -> {
             try {
