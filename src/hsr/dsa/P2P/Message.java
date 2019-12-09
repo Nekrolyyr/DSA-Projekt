@@ -9,7 +9,6 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 public class Message{
     private ExceptionType et;
     private String sender;
-    private String receiver;
     private String message;
     private Type type;
     private Move move;
@@ -25,42 +24,36 @@ public class Message{
     public enum Type{CHAT,CHALLENGE,MOVE,SHOT,PK_EXCHANGE,EXCEPTION}
     public enum ExceptionType{CHATROOM,GAMBLING,GAME}
 
-    public Message(String sender, String receiver, String message) {
+    public Message(String sender, String message) {
         this.sender = sender;
-        this.receiver = receiver;
         this.message = message;
         this.type = Type.CHAT;
     }
 
-    public Message(String sender, String receiver, double gambleamount){
+    public Message(String sender,double gambleamount){
         this.sender = sender;
-        this.receiver = receiver;
         this.gambleamount = gambleamount;
         this.type = Type.CHALLENGE;
     }
 
-    public Message(String sender, String receiver, Move move){
+    public Message(String sender,Move move){
         this.sender = sender;
-        this.receiver = receiver;
         this.move = move;
         this.type = Type.MOVE;
     }
-    public Message(String sender, String receiver, Field.Shot shot, Move move){
+    public Message(String sender,Field.Shot shot, Move move){
         this.sender = sender;
-        this.receiver = receiver;
         this.shot = shot;
         this.move = move;
         this.type = Type.SHOT;
     }
-    public Message(String sender, String receiver, String pk, Type pk_Exchange){
+    public Message(String sender,  String pk, Type pk_Exchange){
         this.sender = sender;
-        this.receiver = receiver;
         this.pk = pk;
         this.type = Type.PK_EXCHANGE;
     }
-    public Message(String sender, String receiver, ExceptionType et){
+    public Message(String sender, ExceptionType et){
         this.sender = sender;
-        this.receiver = receiver;
         this.et = et;
         this.type = Type.EXCEPTION;
     }
@@ -99,34 +92,28 @@ public class Message{
     }
     private void parsePK(JsonObject json) throws  Exception{
         sender = json.get("sender").getAsString();
-        receiver = json.get("receiver").getAsString();
         pk = json.get("pk").getAsString();
     }
 
     private void parseException(JsonObject json) throws  Exception{
         sender = json.get("sender").getAsString();
-        receiver = json.get("receiver").getAsString();
         et = ExceptionType.valueOf(json.get("errorType").getAsString());
     }
 
     private void parseChat(JsonObject json) throws Exception{
         sender = json.get("sender").getAsString();
-        receiver = json.get("receiver").getAsString();
         message = json.get("message").getAsString();
     }
     private void parseChallenge(JsonObject json) throws Exception{
         sender = json.get("sender").getAsString();
-        receiver = json.get("receiver").getAsString();
         gambleamount = json.get("gambleamount").getAsDouble();
     }
     private void parseMove(JsonObject json) throws Exception{
         sender = json.get("sender").getAsString();
-        receiver = json.get("receiver").getAsString();
         move = new Move(json.get("x").getAsInt(),json.get("y").getAsInt());
     }
     private void parseShot(JsonObject json) throws Exception{
         sender = json.get("sender").getAsString();
-        receiver = json.get("receiver").getAsString();
         shot = Field.Shot.valueOf(json.get("shot").getAsString());
         move = new Move(json.get("x").getAsInt(),json.get("y").getAsInt());
     }
@@ -137,35 +124,29 @@ public class Message{
         switch (type){
             case CHAT:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiver",receiver);
                 _package.addProperty("message",message);
                 break;
             case CHALLENGE:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiver",receiver);
                 _package.addProperty("gambleamount",gambleamount);
                 break;
             case MOVE:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiver",receiver);
                 _package.addProperty("x",move.getX());
                 _package.addProperty("y",move.getY());
                 break;
             case SHOT:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiver",receiver);
                 _package.addProperty("shot",shot.toString());
                 _package.addProperty("x",move.getX());
                 _package.addProperty("y",move.getY());
                 break;
             case PK_EXCHANGE:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiver",receiver);
                 _package.addProperty("pk",pk);
                 break;
             case EXCEPTION:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiver",receiver);
                 _package.addProperty("errorType",et.toString());
                 break;
             default:
@@ -240,13 +221,5 @@ public class Message{
 
     public void setEt(ExceptionType et) {
         this.et = et;
-    }
-
-    public String getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
     }
 }

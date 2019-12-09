@@ -53,7 +53,7 @@ public class GameChoreographer {
                 }else {
                     try {
                         Field.Shot result = remotePlayerMove(message.getMove());
-                        p2pClient.send(remotePlayer.getUsername(), new Message(localPlayer.getUsername(), remotePlayer.getUsername(), result, message.getMove()));
+                        p2pClient.send(remotePlayer.getUsername(), new Message(localPlayer.getUsername(), result, message.getMove()));
                         fieldUpdateListener.onCall();
                     } catch (IllegalMoveException e) {
                         System.err.println("Remote Player made a Illegal Move");
@@ -93,7 +93,7 @@ public class GameChoreographer {
         localPlayer.field.rotateCalled();
     }
     private void noMove() {
-        p2pClient.send(remotePlayer.getUsername(),new Message(localPlayer.getUsername(),remotePlayer.getUsername(),new Move(-1,-1)));
+        p2pClient.send(remotePlayer.getUsername(),new Message(localPlayer.getUsername(),new Move(-1,-1)));
     }
 
     public boolean setupComplete() {
@@ -122,7 +122,7 @@ public class GameChoreographer {
     }
 
     public void localPlayermove(Move move) throws IllegalMoveException {
-        p2pClient.send(remotePlayer.getUsername(), new Message(localPlayer.getUsername(),remotePlayer.getUsername(), move));
+        p2pClient.send(remotePlayer.getUsername(), new Message(localPlayer.getUsername(), move));
         if (activePlayer != PlayerType.LOCAL) throw new IllegalMoveException();
         localPlayerFinished();
     }

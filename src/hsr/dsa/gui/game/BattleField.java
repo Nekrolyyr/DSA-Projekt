@@ -76,7 +76,7 @@ public class BattleField {
         battleField.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                p2pClient.send(remoteUser,new Message(localUser,remoteUser, Message.ExceptionType.GAME));
+                p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAME));
                 super.windowClosing(e);
             }
         });

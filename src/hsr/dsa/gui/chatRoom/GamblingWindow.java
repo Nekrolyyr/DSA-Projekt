@@ -92,7 +92,7 @@ public class GamblingWindow {
                             this.blockchainHandler.storeAmountInBlockchain(new BigDecimal(String.valueOf(amount)));
                         } catch (Exception e) {
                             System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
-                            p2pClient.send(remoteUser, new Message(localUser,remoteUser, Message.ExceptionType.GAMBLING));
+                            p2pClient.send(remoteUser, new Message(localUser,Message.ExceptionType.GAMBLING));
                             return;
                         }
 
@@ -109,7 +109,7 @@ public class GamblingWindow {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                p2pClient.send(remoteUser, new Message(localUser,remoteUser, Message.ExceptionType.GAMBLING));
+                p2pClient.send(remoteUser, new Message(localUser,Message.ExceptionType.GAMBLING));
             }
         };
         p2pClient.addOnMessageReceivedListener(mrl);
@@ -122,7 +122,7 @@ public class GamblingWindow {
         offerButton.addActionListener(actionEvent -> {
             try {
                 double amount = Double.parseDouble(gambleAmountInput.getText());
-                p2pClient.send(remoteUser, new Message(p2pClient.getUsername(),remoteUser, amount));
+                p2pClient.send(remoteUser, new Message(p2pClient.getUsername(), amount));
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(gamblingWindow, "Value not valid!", "!", JOptionPane.ERROR_MESSAGE);
             }
@@ -132,7 +132,7 @@ public class GamblingWindow {
         enemysOfferButton.setBackground(GENERAL_BUTTON_COLOR);
         enemysOfferButton.addActionListener(actionEvent -> {
             double amount = Double.parseDouble(enemysGambleOffer.getText());
-            Message m = new Message(localUser, remoteUser,amount);
+            Message m = new Message(localUser, amount);
             m.setReply(true);
             p2pClient.send(remoteUser, m);
 
@@ -140,7 +140,7 @@ public class GamblingWindow {
                 this.blockchainHandler.storeAmountInBlockchain(new BigDecimal(String.valueOf(amount)));
             } catch (Exception e) {
                 System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
-                p2pClient.send(remoteUser, new Message(localUser, remoteUser,Message.ExceptionType.GAMBLING));
+                p2pClient.send(remoteUser, new Message(localUser, Message.ExceptionType.GAMBLING));
                 return;
             }
 
@@ -153,7 +153,7 @@ public class GamblingWindow {
         abortButton.setPreferredSize(BUTTON_SIZE);
         abortButton.setBackground(GENERAL_BUTTON_COLOR);
         abortButton.addActionListener(actionEvent -> {
-            p2pClient.send(remoteUser, new Message(localUser,remoteUser, Message.ExceptionType.GAMBLING));
+            p2pClient.send(remoteUser, new Message(localUser, Message.ExceptionType.GAMBLING));
             p2pClient.removeOnMessageReceivedListener(mrl);
             gamblingWindow.dispose();
         });
@@ -182,7 +182,7 @@ public class GamblingWindow {
         gambleAmountInput.addActionListener(actionEvent -> {
             try {
                 double amount = Double.parseDouble(gambleAmountInput.getText());
-                p2pClient.send(remoteUser, new Message(p2pClient.getUsername(),remoteUser, amount));
+                p2pClient.send(remoteUser, new Message(p2pClient.getUsername(), amount));
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(gamblingWindow, "Value not valid!", "!", JOptionPane.ERROR_MESSAGE);
             }
