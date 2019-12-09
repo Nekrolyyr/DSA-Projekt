@@ -137,35 +137,35 @@ public class Message{
         switch (type){
             case CHAT:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiever",receiver);
+                _package.addProperty("receiver",receiver);
                 _package.addProperty("message",message);
                 break;
             case CHALLENGE:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiever",receiver);
+                _package.addProperty("receiver",receiver);
                 _package.addProperty("gambleamount",gambleamount);
                 break;
             case MOVE:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiever",receiver);
+                _package.addProperty("receiver",receiver);
                 _package.addProperty("x",move.getX());
                 _package.addProperty("y",move.getY());
                 break;
             case SHOT:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiever",receiver);
+                _package.addProperty("receiver",receiver);
                 _package.addProperty("shot",shot.toString());
                 _package.addProperty("x",move.getX());
                 _package.addProperty("y",move.getY());
                 break;
             case PK_EXCHANGE:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiever",receiver);
+                _package.addProperty("receiver",receiver);
                 _package.addProperty("pk",pk);
                 break;
             case EXCEPTION:
                 _package.addProperty("sender",sender);
-                _package.addProperty("receiever",receiver);
+                _package.addProperty("receiver",receiver);
                 _package.addProperty("errorType",et.toString());
                 break;
             default:
