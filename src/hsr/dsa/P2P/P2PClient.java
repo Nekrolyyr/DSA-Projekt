@@ -98,6 +98,12 @@ public class P2PClient {
             peerDHT.peer().objectDataReply((peerAddress, o) -> {
                 Message m = new Message((String) o);
                 if(!m.getReceiver().equals(username)&&!m.getReceiver().equals("")){return "_";}
+                if(m.getReceiver().equals("")){
+                    m.setReply(true);
+                    m.setReceiver(m.getSender());
+                    m.setSender(username);
+                    send(peerAddress, m);
+                }
                 if(!peerMap.containsValue(m.getSender())) discoverPeers().forEach(this::getUsernameFromPeer);
                 onMessageReceivedListeners.forEach(onMessageReceivedListener -> onMessageReceivedListener.onCall(m));
                 return "REPLY";
@@ -157,6 +163,9 @@ public class P2PClient {
         for (PeerAddress p : peers) {
             peerDHT.peer().sendDirect(p).object(message.pack()).start();
         }
+    }
+    public void send(PeerAddress peer, Message message) {
+        peerDHT.peer().sendDirect(peer).object(message.pack()).start();
     }
     public void send(String username, Message message) {
         if(peerMap.containsValue(username)) {
