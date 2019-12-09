@@ -132,17 +132,21 @@ public class ChatRoom {
                 "EtherAccount:", etherAccount,
                 "Private Key: ", privateKey
         };
-        JOptionPane.showConfirmDialog(null, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
-        localEtherAccount = etherAccount.getText();
-        localPrivateKey = privateKey.getText();
-        p2pClient.connect(username.getText(), knownPeer.getText());
-        p2pClient.getPeerMap().forEach((number160, s) -> {
-            JButton temp = generateUserForUserPanel(s);
-            userButtons.put(s, temp);
-            userPanel.add(temp);
-        });
-        chatWindow.append(WELCOME_MESSAGE + '\n');
-        chatWindow.append(CHAT_SEPARATOR);
+        int n = JOptionPane.showConfirmDialog(mainPanel, message, "Please enter to Connect", JOptionPane.OK_CANCEL_OPTION);
+        if (n == JOptionPane.YES_OPTION) {
+            localEtherAccount = etherAccount.getText();
+            localPrivateKey = privateKey.getText();
+            p2pClient.connect(username.getText(), knownPeer.getText());
+            p2pClient.getPeerMap().forEach((number160, s) -> {
+                JButton temp = generateUserForUserPanel(s);
+                userButtons.put(s, temp);
+                userPanel.add(temp);
+            });
+            chatWindow.append(WELCOME_MESSAGE + '\n');
+            chatWindow.append(CHAT_SEPARATOR);
+        } else if (n == JOptionPane.NO_OPTION) {
+            chatRoom.dispose();
+        }
     }
 
     private void initializeWritePanel() {
