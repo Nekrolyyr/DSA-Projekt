@@ -12,6 +12,7 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.utils.Convert;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -46,7 +47,14 @@ public class BlockchainHandler {
         System.out.println("Your Balance: " + getBalanceFromAccount(localEtherAccount) + " WEI");
         System.out.println("Enemys Balance: " + getBalanceFromAccount(remoteEtherAccount) + " WEI");
 
-        getDeployedSmartContract();
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                getDeployedSmartContract();
+            }
+        });
+        //getDeployedSmartContract();
     }
 
     private BigInteger getBalanceFromAccount(String account) {
@@ -74,26 +82,22 @@ public class BlockchainHandler {
         }
     }
 
-    public boolean storeAmountInBlockchain(BigDecimal gambleAmountETH) {
+    public void storeAmountInBlockchain(BigDecimal gambleAmountETH) throws Exception {
         BigInteger gambleAmountWEI = gambleAmountETH.multiply(new BigDecimal("1E18")).toBigInteger();
         if (gambleAmountWEI.compareTo(getBalanceFromAccount(localEtherAccount)) != -1) {
             System.out.println("You have not enough ethers!");
-            return false;
+            throw new Exception("You have not enough ethers!");
         }
         if (gambleAmountWEI.compareTo(getBalanceFromAccount(remoteEtherAccount)) != -1) {
             System.out.println("Your enemy has not enough ether!");
-            return false;
+            throw new Exception("Your enemy has not enough ether!");
         }
-        try {
-            TransactionReceipt loadAmountToContract = smartContract.start(gambleAmountWEI).send();
-            if (!loadAmountToContract.isStatusOK()) {
-                System.out.println("Could not load ethers into the smart Contract!!");
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        TransactionReceipt loadAmountToContract = smartContract.start(gambleAmountWEI).send();
+        if (!loadAmountToContract.isStatusOK()) {
+            System.out.println("Could not load ethers into the smart Contract!!");
+            throw new Exception("Could not load ethers into the smart Contract!!");
         }
-        return true;
+
     }
 
     // Can only be called from the looser, because he has to pay the winner.

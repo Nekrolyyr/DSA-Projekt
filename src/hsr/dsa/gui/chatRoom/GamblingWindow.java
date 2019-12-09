@@ -78,16 +78,18 @@ public class GamblingWindow {
                     double amount = -1;
                     try {
                         amount = Double.parseDouble(gambleAmountInput.getText());
-                    }catch (NumberFormatException e){
-                        JOptionPane.showMessageDialog(gamblingWindow,"Please use only decimal numbers without floating point!");
+                    } catch (NumberFormatException e) {
+                        JOptionPane.showMessageDialog(gamblingWindow, "Please use only decimal numbers without floating point!");
                     }
                     if (message.isReply()) {
                         //Accepted
                         JOptionPane.showMessageDialog(null, "Your Offer was Accepted!");
 
-                        if (!this.blockchainHandler.storeAmountInBlockchain(new BigDecimal(String.valueOf(amount)))) {
+                        try {
+                            this.blockchainHandler.storeAmountInBlockchain(new BigDecimal(String.valueOf(amount)));
+                        } catch (Exception e) {
                             System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
-                            p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAMBLING));
+                            p2pClient.send(remoteUser, new Message(localUser, Message.ExceptionType.GAMBLING));
                             return;
                         }
 
@@ -97,14 +99,14 @@ public class GamblingWindow {
                     } else {
                         setGamblingAmountFromEnemy(String.valueOf(message.getGambleamount()));
                     }
-                } else if (message.getType() == Message.Type.EXCEPTION && message.getEt()== Message.ExceptionType.GAMBLING) {
+                } else if (message.getType() == Message.Type.EXCEPTION && message.getEt() == Message.ExceptionType.GAMBLING) {
                     JOptionPane.showMessageDialog(null, "Peer had an error. Aborting.", "!", JOptionPane.ERROR_MESSAGE);
                     p2pClient.removeOnMessageReceivedListener(mrl);
                     gamblingWindow.dispose();
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
-                p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAMBLING));
+                p2pClient.send(remoteUser, new Message(localUser, Message.ExceptionType.GAMBLING));
             }
         };
         p2pClient.addOnMessageReceivedListener(mrl);
@@ -130,11 +132,15 @@ public class GamblingWindow {
             Message m = new Message(localUser, amount);
             m.setReply(true);
             p2pClient.send(remoteUser, m);
-            if (!this.blockchainHandler.storeAmountInBlockchain(new BigDecimal(String.valueOf(amount)))) {
+
+            try {
+                this.blockchainHandler.storeAmountInBlockchain(new BigDecimal(String.valueOf(amount)));
+            } catch (Exception e) {
                 System.out.println("Error occured while saving the gamble amount in the blockchain!! Stop current game!");
                 p2pClient.send(remoteUser, new Message(localUser, Message.ExceptionType.GAMBLING));
                 return;
             }
+
             battleField = new BattleField(localUser, remoteUser, p2pClient, GameChoreographer.Type.ACTIVE, blockchainHandler);
             p2pClient.removeOnMessageReceivedListener(mrl);
             gamblingWindow.dispose();
