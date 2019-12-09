@@ -47,13 +47,6 @@ public class BlockchainHandler {
         System.out.println("Your Balance: " + getBalanceFromAccount(localEtherAccount) + " WEI");
         System.out.println("Enemys Balance: " + getBalanceFromAccount(remoteEtherAccount) + " WEI");
 
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                getDeployedSmartContract();
-            }
-        });
         //getDeployedSmartContract();
     }
 
@@ -69,7 +62,7 @@ public class BlockchainHandler {
         return balanceInEther.toBigInteger();
     }
 
-    private void getDeployedSmartContract() {
+    public void loadDeployedSmartContract() {
         Credentials creds = Credentials.create(localPrivateKey);
         SwingUtilities.invokeLater(new Runnable() {
             @Override
