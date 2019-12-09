@@ -1,3 +1,4 @@
+
 package hsr.dsa.P2P;
 
 import hsr.dsa.util.IPUtil;
@@ -15,12 +16,7 @@ import net.tomp2p.storage.Data;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.*;
 
 public class P2PClient {
     public OnConnectionNotEstablished onConnectionNotEstablished;
@@ -38,14 +34,14 @@ public class P2PClient {
     private PeerDHT peerDHT;
     private OnUsernameNotValidListener onUsernameNotValidListener;
     private OnKnownPeerNotValidListener onKnownPeerNotValidListener;
-    private CopyOnWriteArrayList<OnMessageReceivedListener> onMessageReceivedListeners = new CopyOnWriteArrayList<>();
+    private List<OnMessageReceivedListener> onMessageReceivedListeners = new ArrayList<>();
 
-    private ConcurrentHashMap<PeerAddress,String> peerMap = new ConcurrentHashMap<>();
+    private Map<PeerAddress,String> peerMap = new HashMap<>();
 
     public interface OnPeerMapChangeListener{
-        void onCall(ConcurrentHashMap<PeerAddress,String> peerMap);
+        void onCall(Map<PeerAddress,String> peerMap);
     }
-    private CopyOnWriteArrayList<OnPeerMapChangeListener> onPeerMapChangesListeners = new CopyOnWriteArrayList<>();
+    private List<OnPeerMapChangeListener> onPeerMapChangesListeners = new ArrayList<>();
     public void addOnPeerMapChangeListener(OnPeerMapChangeListener onPeerMapChangeListener){
         onPeerMapChangesListeners.add(onPeerMapChangeListener);
     }
@@ -65,17 +61,18 @@ public class P2PClient {
     public void removeOnMessageReceivedListener(OnMessageReceivedListener onMessageReceivedListener) {
         this.onMessageReceivedListeners.remove(onMessageReceivedListener);
     }
-
     public void setOnConnectionNotEstablished(OnConnectionNotEstablished onConnectionNotEstablished) {
         this.onConnectionNotEstablished = onConnectionNotEstablished;
     }
 
     public Map<PeerAddress,String> getPeerMap(){
-        return new HashMap<>(peerMap);
+        Map<PeerAddress,String> map = new HashMap<>(peerMap);
+        return map;
     }
 
     private void fireOnPeerMapChanged(){
-        onPeerMapChangesListeners.forEach(onPeerMapChangeListener -> onPeerMapChangeListener.onCall(peerMap));
+        Map<PeerAddress,String> map = new HashMap<>(peerMap);
+        onPeerMapChangesListeners.forEach(onPeerMapChangeListener -> onPeerMapChangeListener.onCall(map));
     }
 
     public void connect(String Username, String IPPeer) {
@@ -85,7 +82,6 @@ public class P2PClient {
         if (Username.length() < 2) {
             if (onUsernameNotValidListener != null) onUsernameNotValidListener.onCall();
         }
-        // TODO: Ether Account valid check!
         try {
             this.username = Username;
             peerDHT = new PeerBuilderDHT(new PeerBuilder(Number160.createHash(Username)).ports(4000).start()).start();
@@ -97,7 +93,6 @@ public class P2PClient {
             }
             peerDHT.peer().objectDataReply((peerAddress, o) -> {
                 Message m = new Message((String) o);
-                if(!peerMap.containsValue(m.getSender())) discoverPeers().forEach(this::getUsernameFromPeer);
                 onMessageReceivedListeners.forEach(onMessageReceivedListener -> onMessageReceivedListener.onCall(m));
                 return "REPLY";
             });
@@ -110,8 +105,7 @@ public class P2PClient {
 
                 @Override
                 public void peerRemoved(PeerAddress peerAddress, PeerStatistic peerStatistic) {
-                    System.out.println(peerMap.get(peerAddress)+" Left");
-                    peerMap.remove(peerAddress);
+                    peerMap.remove(peerAddress.peerId());
                     fireOnPeerMapChanged();
                 }
 
@@ -137,8 +131,8 @@ public class P2PClient {
                         System.out.println("Cannot find Peer Username");
                     } finally {
                         if(username!=null && !username.isEmpty()){
-                            peerMap.put(peerAddress, username);
-                            System.out.println("Peername found: " + username);
+                            peerMap.put(peerAddress,username);
+                            System.out.println("Peername found: "+username);
                             fireOnPeerMapChanged();
                         }else {
                             System.out.println("Cannot find Peer Username "+username);
@@ -157,15 +151,12 @@ public class P2PClient {
             peerDHT.peer().sendDirect(p).object(message.pack()).start();
         }
     }
-    public void send(PeerAddress peer, Message message) {
-        peerDHT.peer().sendDirect(peer).object(message.pack()).start();
-    }
     public void send(String username, Message message) {
         if(peerMap.containsValue(username)) {
             PeerAddress peer = peerMap.entrySet().stream().filter(entry -> entry.getValue().equals(username)).findFirst().get().getKey();
             peerDHT.peer().sendDirect(peer).object(message.pack()).start();
         }else{
-            System.err.println("Could not find Peer!");
+            System.err.println("Could not find Peer, message stopped!");
         }
     }
 
