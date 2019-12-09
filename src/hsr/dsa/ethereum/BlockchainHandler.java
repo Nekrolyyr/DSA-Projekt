@@ -71,15 +71,22 @@ public class BlockchainHandler {
 
     private void getDeployedSmartContract() {
         Credentials creds = Credentials.create(localPrivateKey);
-        smartContract = SmartContractDSAProject.load(SMART_CONTRACT_ADDRESS, smartContractWeb3, creds, new DefaultGasProvider());
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                smartContract = SmartContractDSAProject.load(SMART_CONTRACT_ADDRESS, smartContractWeb3, creds, new DefaultGasProvider());
 
-        try {
-            if (!smartContract.isValid()) {
-                System.out.println("Could not load smart contract!!");
+                try {
+                    if (!smartContract.isValid()) {
+                        System.out.println("Could not load smart contract!!");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        });
+
+
     }
 
     public void storeAmountInBlockchain(BigDecimal gambleAmountETH) throws Exception {
@@ -92,24 +99,43 @@ public class BlockchainHandler {
             System.out.println("Your enemy has not enough ether!");
             throw new Exception("Your enemy has not enough ether!");
         }
-        TransactionReceipt loadAmountToContract = smartContract.start(gambleAmountWEI).send();
-        if (!loadAmountToContract.isStatusOK()) {
-            System.out.println("Could not load ethers into the smart Contract!!");
-            throw new Exception("Could not load ethers into the smart Contract!!");
-        }
+
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                TransactionReceipt loadAmountToContract = null;
+                try {
+                    loadAmountToContract = smartContract.start(gambleAmountWEI).send();
+                    if (!loadAmountToContract.isStatusOK()) {
+                        System.out.println("Could not load ethers into the smart Contract!!");
+                        throw new Exception("Could not load ethers into the smart Contract!!");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
 
     }
 
     // Can only be called from the looser, because he has to pay the winner.
     public void startTransaction() {
-        try {
-            TransactionReceipt payAmount = smartContract.payAmountToEnemty(remoteEtherAccount).send();
-            if (!payAmount.isStatusOK()) {
-                System.out.println("Could not pay ethers to the winner!");
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    TransactionReceipt payAmount = smartContract.payAmountToEnemty(remoteEtherAccount).send();
+                    if (!payAmount.isStatusOK()) {
+                        System.out.println("Could not pay ethers to the winner!");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
+
     }
 
     public void printClientVersions() {
