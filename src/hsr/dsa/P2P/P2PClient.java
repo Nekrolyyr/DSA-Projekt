@@ -15,7 +15,10 @@ import net.tomp2p.storage.Data;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -94,6 +97,7 @@ public class P2PClient {
             }
             peerDHT.peer().objectDataReply((peerAddress, o) -> {
                 Message m = new Message((String) o);
+                if(!m.getReceiver().equals(username)&&!m.getReceiver().equals("")){return "_";}
                 if(!peerMap.containsValue(m.getSender())) discoverPeers().forEach(this::getUsernameFromPeer);
                 onMessageReceivedListeners.forEach(onMessageReceivedListener -> onMessageReceivedListener.onCall(m));
                 return "REPLY";
@@ -159,7 +163,8 @@ public class P2PClient {
             PeerAddress peer = peerMap.entrySet().stream().filter(entry -> entry.getValue().equals(username)).findFirst().get().getKey();
             peerDHT.peer().sendDirect(peer).object(message.pack()).start();
         }else{
-            System.err.println("Could not find Peer, message stopped!");
+            System.err.println("Could not find Peer, sending Globally!");
+            send(discoverPeers(), message);
         }
     }
 

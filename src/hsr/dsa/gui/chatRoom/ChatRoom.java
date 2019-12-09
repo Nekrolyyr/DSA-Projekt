@@ -79,11 +79,11 @@ public class ChatRoom {
                     } else if (m.getType() == Message.Type.PK_EXCHANGE) {
                         remoteEtherAccount = m.getPk();
                         if(!m.isReply()) {
-                            Message reply = new Message(p2pClient.getUsername(), localEtherAccount, Message.Type.PK_EXCHANGE);
+                            Message reply = new Message(p2pClient.getUsername(),m.getSender(), localEtherAccount, Message.Type.PK_EXCHANGE);
                             reply.setReply(true);
                             p2pClient.send(m.getSender(), reply);
                         }else{
-                            p2pClient.send(m.getSender(), new Message(p2pClient.getUsername(), 0.1));
+                            p2pClient.send(m.getSender(), new Message(p2pClient.getUsername(),m.getSender(), 0.1));
                             gamblingWindow = new GamblingWindow(p2pClient.getUsername(), m.getSender(), localEtherAccount, remoteEtherAccount, localPrivateKey,0.1, p2pClient, blockchainHandler);
                         }
                     }
@@ -169,7 +169,7 @@ public class ChatRoom {
 
     private void sendMessage() {
         appendChatMessage(p2pClient.getUsername(), textInputField.getText());
-        p2pClient.send(p2pClient.discoverPeers(), new Message(p2pClient.getUsername(), textInputField.getText()));
+        p2pClient.send(p2pClient.discoverPeers(), new Message(p2pClient.getUsername(),"", textInputField.getText()));
     }
 
     private void initializeChatPanel() {
@@ -204,7 +204,7 @@ public class ChatRoom {
         temp.addActionListener(actionEvent -> {
             if (!gameInProgress) {
                 System.out.println("I challenge you, " + userName);
-                p2pClient.send(userName, new Message(p2pClient.getUsername(), localEtherAccount, Message.Type.PK_EXCHANGE));
+                p2pClient.send(userName, new Message(p2pClient.getUsername(),userName, localEtherAccount, Message.Type.PK_EXCHANGE));
             } else {
                 JOptionPane.showMessageDialog(null, "You are already in a Game!");
             }

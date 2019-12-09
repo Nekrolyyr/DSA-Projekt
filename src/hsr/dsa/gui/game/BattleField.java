@@ -9,11 +9,13 @@ import hsr.dsa.core.ShipSpotNotFreeException;
 import hsr.dsa.core.game.schiffe_versenken.GameChoreographer;
 import hsr.dsa.core.game.schiffe_versenken.Move;
 import hsr.dsa.ethereum.BlockchainHandler;
-import jdk.nashorn.internal.ir.Block;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
 import static hsr.dsa.core.game.GameConfiguration.*;
@@ -74,7 +76,7 @@ public class BattleField {
         battleField.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAME));
+                p2pClient.send(remoteUser,new Message(localUser,remoteUser, Message.ExceptionType.GAME));
                 super.windowClosing(e);
             }
         });
