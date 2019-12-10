@@ -17,6 +17,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static hsr.dsa.core.game.GameConfiguration.*;
 import static hsr.dsa.gui.UiConfiguration.*;
@@ -226,7 +227,8 @@ public class BattleField {
 
     private FieldButton[][] generateFields(JPanel fields, boolean isYourField) {
         infoLabel.setForeground(Color.RED);
-        infoLabel.setText("Place your " + SHIPS[0]);
+        AtomicInteger shipPlaceCounter = new AtomicInteger();
+        infoLabel.setText("Place your " + SHIPS[shipPlaceCounter.get()]);
 
         FieldButton[][] temp = new FieldButton[FIELD_SIZE][FIELD_SIZE];
         for (int y = 0; y < FIELD_SIZE; y++) {
@@ -237,6 +239,10 @@ public class BattleField {
                         try {
                             if (!gameChoreographer.setupComplete()) {
                                 gameChoreographer.addShip(xPos, yPos);
+                                if (shipPlaceCounter.get() < 3) {
+                                    shipPlaceCounter.getAndIncrement();
+                                }
+                                infoLabel.setText("Place your " + SHIPS[shipPlaceCounter.get()]);
                                 renderShips();
                                 if (gameChoreographer.setupComplete()) {
                                     enableGameField(yourField, false);
