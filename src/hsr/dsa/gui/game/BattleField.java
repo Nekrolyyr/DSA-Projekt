@@ -247,7 +247,8 @@ public class BattleField {
                         }
                     } else {
                         try {
-                            messageProvider.showEnemysTurnMessage();
+                            infoLabel.setText("Enemy's turn");
+                            //messageProvider.showEnemysTurnMessage();
                             gameChoreographer.localPlayermove(new Move(xPos, yPos));
                         } catch (IllegalMoveException e) {
                             System.out.println("This was a Illegal Move!");
