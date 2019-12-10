@@ -17,6 +17,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static hsr.dsa.core.game.GameConfiguration.*;
 import static hsr.dsa.gui.UiConfiguration.*;
@@ -168,9 +169,10 @@ public class BattleField {
     }
 
     private void createShipPanel() {
-        Dimension corvetteSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.15 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
-        Dimension destroyerSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.10 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
-        Dimension battleshipSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.075 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
+        Dimension corvetteSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 7), (int) (0.1 * BATTLEFIELD_WINDOW_SIZE.getHeight())); // 0.15
+        Dimension destroyerSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.10 * BATTLEFIELD_WINDOW_SIZE.getHeight())); // 0.1
+        Dimension battleshipSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.1 * BATTLEFIELD_WINDOW_SIZE.getHeight())); // 0.075
+        Dimension buttonSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 6), (int) ( 0.1 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
 
         ImageIcon icon = new ImageIcon("Corvette.png");
         Icon scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int) corvetteSize.getWidth(), (int) corvetteSize.getHeight()));
@@ -185,17 +187,23 @@ public class BattleField {
         battleship = new JLabel(scaledIcon);
 
         JButton rotateButton = new JButton("Rotate");
+        rotateButton.setPreferredSize(buttonSize);
+        rotateButton.setFont(BATTLEFIELD_FONT);
+        rotateButton.setBackground(Color.WHITE);
+        rotateButton.setForeground(Color.BLUE);
+        rotateButton.setBorder(BorderFactory.createLineBorder(Color.black));
         rotateButton.addActionListener(actionEvent -> {
             gameChoreographer.rotateCalled();
         });
 
-        shipPanel = new JPanel(new GridLayout(1, NUMBER_OF_SHIPS));
+        //shipPanel = new JPanel(new GridLayout(1, NUMBER_OF_SHIPS + 1));
+        shipPanel = new JPanel(new FlowLayout());
         shipPanel.setPreferredSize(new Dimension((int) BATTLEFIELD_WINDOW_SIZE.getWidth(), (int) (0.15 * BATTLEFIELD_WINDOW_SIZE.getHeight())));
+        shipPanel.add(rotateButton);
         shipPanel.add(corvette1);
         shipPanel.add(corvette2);
         shipPanel.add(destroyer);
         shipPanel.add(battleship);
-        shipPanel.add(rotateButton);
     }
 
     private JPanel createNamePanel(GameChoreographer gameChoreographer) {
@@ -226,7 +234,8 @@ public class BattleField {
 
     private FieldButton[][] generateFields(JPanel fields, boolean isYourField) {
         infoLabel.setForeground(Color.RED);
-        infoLabel.setText("Place your " + SHIPS[0]);
+        AtomicInteger shipPlaceCounter = new AtomicInteger();
+        infoLabel.setText("Place your " + SHIPS[shipPlaceCounter.get()]);
 
         FieldButton[][] temp = new FieldButton[FIELD_SIZE][FIELD_SIZE];
         for (int y = 0; y < FIELD_SIZE; y++) {
@@ -237,6 +246,10 @@ public class BattleField {
                         try {
                             if (!gameChoreographer.setupComplete()) {
                                 gameChoreographer.addShip(xPos, yPos);
+                                if (shipPlaceCounter.get() < 3) {
+                                    shipPlaceCounter.getAndIncrement();
+                                }
+                                infoLabel.setText("Place your " + SHIPS[shipPlaceCounter.get()]);
                                 renderShips();
                                 if (gameChoreographer.setupComplete()) {
                                     enableGameField(yourField, false);
