@@ -16,12 +16,13 @@ public class Message{
     private String pk;
     private double gambleamount;
     private boolean isReply = false;
+    private boolean youWin;
 
     public Field.Shot getShot() {
         return shot;
     }
 
-    public enum Type{CHAT,CHALLENGE,MOVE,SHOT,PK_EXCHANGE,EXCEPTION}
+    public enum Type{CHAT,CHALLENGE,MOVE,SHOT,PK_EXCHANGE,EXCEPTION, GAME_END}
     public enum ExceptionType{CHATROOM,GAMBLING,GAME}
 
     public Message(String sender, String message) {
@@ -58,6 +59,12 @@ public class Message{
         this.type = Type.EXCEPTION;
     }
 
+    public Message(String sender, boolean youWin){
+        this.sender = sender;
+        this.youWin = youWin;
+        this.type = Type.GAME_END;
+    }
+
     public Message(String JSONString){
         try{
             JsonObject json = new Gson().fromJson(JSONString, JsonObject.class);
@@ -82,6 +89,9 @@ public class Message{
                     break;
                 case EXCEPTION:
                     parseException(json);
+                    break;
+                case GAME_END:
+                    parseGameEnd(json);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -117,6 +127,11 @@ public class Message{
         shot = Field.Shot.valueOf(json.get("shot").getAsString());
         move = new Move(json.get("x").getAsInt(),json.get("y").getAsInt());
     }
+    private void parseGameEnd(JsonObject json) throws Exception{
+        sender = json.get("sender").getAsString();
+        youWin = json.get("youWin").getAsBoolean();
+        move = new Move(json.get("x").getAsInt(),json.get("y").getAsInt());
+    }
     public String pack(){
         JsonObject _package = new JsonObject();
         _package.addProperty("type",type.toString());
@@ -148,6 +163,10 @@ public class Message{
             case EXCEPTION:
                 _package.addProperty("sender",sender);
                 _package.addProperty("errorType",et.toString());
+                break;
+            case GAME_END:
+                _package.addProperty("sender",sender);
+                _package.addProperty("youWin",youWin);
                 break;
             default:
                 throw new NotImplementedException();
@@ -221,5 +240,11 @@ public class Message{
 
     public void setEt(ExceptionType et) {
         this.et = et;
+    }
+    public void setOtherHasWon(boolean youWin){
+        this.youWin=youWin;
+    }
+    public boolean didIWin(){
+        return youWin;
     }
 }

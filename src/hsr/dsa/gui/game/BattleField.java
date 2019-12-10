@@ -114,10 +114,17 @@ public class BattleField {
                         infoLabel.setForeground(Color.RED);
                     }
                 },
-                () -> {
+                localPlayerLost -> {
                     System.out.println("Game Has ended!");
                     messageProvider.endGameMessage();
-                    blockchainHandler.startTransaction();
+                    if(localPlayerLost) {
+                        p2pClient.send(remoteUser, new Message(localUser, localPlayerLost));
+                        blockchainHandler.startTransaction();
+                        JOptionPane.showMessageDialog(null, "You Lost! Ether are payed out!");
+                    }else{
+                        JOptionPane.showMessageDialog(null, "You Won! Ether are payed out!");
+                    }
+                    battleField.dispose();
                 },
                 this::renderField
                 , p2pClient, localUser, remoteUser, messageProvider);

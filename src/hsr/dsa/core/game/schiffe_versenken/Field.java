@@ -12,7 +12,7 @@ public class Field {
 
 
     public interface GameEndListener {
-        void onGameEndet();
+        void onGameEndet(boolean localPlayerLost);
     }
 
     public enum Shot {NULL, HIT, MISS}
@@ -73,7 +73,7 @@ public class Field {
         if (ships[move.getX()][move.getY()] != null) {
             if (shots[move.getX()][move.getY()] != Shot.HIT) ships[move.getX()][move.getY()].hit();
             shots[move.getX()][move.getY()] = Shot.HIT;
-            if (addedShips.stream().allMatch(Ship::hasSunken)) gameEndListener.onGameEndet();
+            if (addedShips.stream().allMatch(Ship::hasSunken)) gameEndListener.onGameEndet(true);
         } else {
             shots[move.getX()][move.getY()] = Shot.MISS;
         }

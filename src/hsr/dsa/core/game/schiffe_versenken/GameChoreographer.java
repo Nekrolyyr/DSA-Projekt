@@ -36,6 +36,7 @@ public class GameChoreographer {
     private Timer.TimerUpdateListener tul;
     private Timer timer;
     private P2PClient p2pClient;
+    private boolean gameIsRunning = true;
 
     public GameChoreographer(Type type, Timer.TimerListener tl, Timer.TimerUpdateListener tul, Field.GameEndListener gel, FieldUpdateListener fieldUpdateListener, P2PClient p2pClient, String localuser, String remoteUser, GameMessages messageProvider) {
         this.type = type;
@@ -44,7 +45,11 @@ public class GameChoreographer {
         this.p2pClient = p2pClient;
         this.fieldUpdateListener = fieldUpdateListener;
         currentStage = PlayStage.SETUP;
-        localPlayer = new Player(localuser, gel);
+        Field.GameEndListener gel2 = localPlayerLost -> {
+            gameIsRunning=false;
+            gel.onGameEndet(localPlayerLost);
+        };
+        localPlayer = new Player(localuser, gel2);
         remotePlayer = new Player(remoteUser, null);
         p2pClient.addOnMessageReceivedListener(message -> {
             if(message.getType() == Message.Type.MOVE) {
@@ -70,6 +75,9 @@ public class GameChoreographer {
                 fieldUpdateListener.onCall();
             } else if (message.getType() == Message.Type.EXCEPTION && message.getEt()== Message.ExceptionType.GAMBLING) {
                 JOptionPane.showMessageDialog(null, "Peer had an error. Aborting. Please close the Window.", "!", JOptionPane.ERROR_MESSAGE);
+            }else if(message.getType() == Message.Type.GAME_END){
+                gameIsRunning=false;
+                gel.onGameEndet(!message.didIWin());
             }
         });
     }
@@ -80,9 +88,11 @@ public class GameChoreographer {
         if (type == Type.ACTIVE) {
             //localPayer's Move Start
             activePlayer = PlayerType.LOCAL;
-            timer = new Timer.Builder().setSeconds(TIME_PER_MOVE).addTimerListener(this::localPlayerFinished)
-                    .addTimerListener(tl).addTimerListener(this::noMove).setTimerUpdateListener(tul).build();
-            timer.start();
+            if(gameIsRunning) {
+                timer = new Timer.Builder().setSeconds(TIME_PER_MOVE).addTimerListener(this::localPlayerFinished)
+                        .addTimerListener(tl).addTimerListener(this::noMove).setTimerUpdateListener(tul).build();
+                timer.start();
+            }
         } else {
             //remotePayer's Move Start
             activePlayer = PlayerType.REMOTE;
@@ -109,9 +119,11 @@ public class GameChoreographer {
     private void remotePlayerFinished() {
         //localPayer's Move Start
         activePlayer = PlayerType.LOCAL;
-        timer = new Timer.Builder().setSeconds(TIME_PER_MOVE).addTimerListener(this::localPlayerFinished)
-                .addTimerListener(tl).addTimerListener(this::noMove).setTimerUpdateListener(tul).build();
-        timer.start();
+        if(gameIsRunning) {
+            timer = new Timer.Builder().setSeconds(TIME_PER_MOVE).addTimerListener(this::localPlayerFinished)
+                    .addTimerListener(tl).addTimerListener(this::noMove).setTimerUpdateListener(tul).build();
+            timer.start();
+        }
     }
 
     public Field.Shot remotePlayerMove(Move move) throws IllegalMoveException {
