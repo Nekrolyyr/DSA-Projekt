@@ -1,7 +1,6 @@
 package hsr.dsa.gui.game;
 
 import static hsr.dsa.gui.UiStrings.*;
-import static hsr.dsa.gui.UiStrings.ENEMYS_TURN_MESSAGE;
 
 public class GameMessages {
 
@@ -12,12 +11,12 @@ public class GameMessages {
     }
 
     public void youHaveMissedMessage() {
-        InfoScreen message = new InfoScreen(HIT_MESSAGE);
+        InfoScreen message = new InfoScreen(MISSED_MESSAGE);
         message.showInfoScreen();
     }
 
     public void youHaveHittedMessage() {
-        InfoScreen message = new InfoScreen(MISSED_MESSAGE);
+        InfoScreen message = new InfoScreen(HIT_MESSAGE);
         message.showInfoScreen();
     }
 
