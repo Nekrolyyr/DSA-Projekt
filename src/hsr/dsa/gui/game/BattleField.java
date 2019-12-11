@@ -19,7 +19,8 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static hsr.dsa.core.game.GameConfiguration.*;
+import static hsr.dsa.core.game.GameConfiguration.FIELD_SIZE;
+import static hsr.dsa.core.game.GameConfiguration.SHIPS;
 import static hsr.dsa.gui.UiConfiguration.*;
 
 public class BattleField {
@@ -77,7 +78,7 @@ public class BattleField {
         battleField.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                p2pClient.send(remoteUser,new Message(localUser, Message.ExceptionType.GAME));
+                p2pClient.send(remoteUser, new Message(localUser, Message.ExceptionType.GAME));
                 super.windowClosing(e);
             }
         });
@@ -118,11 +119,11 @@ public class BattleField {
                 localPlayerLost -> {
                     System.out.println("Game Has ended!");
                     messageProvider.endGameMessage();
-                    if(localPlayerLost) {
+                    if (localPlayerLost) {
                         p2pClient.send(remoteUser, new Message(localUser, localPlayerLost));
                         blockchainHandler.startTransaction();
                         JOptionPane.showMessageDialog(null, "You Lost! Ether are payed out!");
-                    }else{
+                    } else {
                         JOptionPane.showMessageDialog(null, "You Won! Ether are payed out!");
                     }
                     battleField.dispose();
@@ -172,7 +173,7 @@ public class BattleField {
         Dimension corvetteSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 7), (int) (0.1 * BATTLEFIELD_WINDOW_SIZE.getHeight())); // 0.15
         Dimension destroyerSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.10 * BATTLEFIELD_WINDOW_SIZE.getHeight())); // 0.1
         Dimension battleshipSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 5), (int) (0.1 * BATTLEFIELD_WINDOW_SIZE.getHeight())); // 0.075
-        Dimension buttonSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 6), (int) ( 0.1 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
+        Dimension buttonSize = new Dimension((int) (BATTLEFIELD_WINDOW_SIZE.getWidth() / 6), (int) (0.1 * BATTLEFIELD_WINDOW_SIZE.getHeight()));
 
         ImageIcon icon = new ImageIcon("Corvette.png");
         Icon scaledIcon = new ImageIcon(scaleShipImages(icon.getImage(), (int) corvetteSize.getWidth(), (int) corvetteSize.getHeight()));
